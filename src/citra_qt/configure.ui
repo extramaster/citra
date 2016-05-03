@@ -29,11 +29,16 @@
        <string>Input</string>
       </attribute>
      </widget>
-      <widget class="ConfigureAudio" name="audioTab">
-        <attribute name="title">
-          <string>Audio</string>
-        </attribute>
-      </widget>
+     <widget class="ConfigureAudio" name="audioTab">
+      <attribute name="title">
+       <string>Audio</string>
+      </attribute>
+     </widget>
+     <widget class="ConfigureLayout" name="layoutTab">
+      <attribute name="title">
+       <string>Layout</string>
+      </attribute>
+     </widget>
      <widget class="ConfigureDebug" name="debugTab">
       <attribute name="title">
        <string>Debug</string>
@@ -58,9 +63,15 @@
    <container>1</container>
   </customwidget>
   <customwidget>
+<<<<<<< HEAD
    <class>ConfigureAudio</class>
    <extends>QWidget</extends>
    <header>configure_audio.h</header>
+=======
+   <class>ConfigureLayout</class>
+   <extends>QWidget</extends>
+   <header>configure_layout.h</header>
+>>>>>>> fda96d5... Support additional screen layouts.
    <container>1</container>
   </customwidget>
   <customwidget>
