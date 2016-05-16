@@ -16,20 +16,65 @@
 
 namespace IPC {
 
-constexpr u32 MakeHeader(u16 command_id, unsigned int regular_params, unsigned int translate_params) {
-    return ((u32)command_id << 16) | (((u32)regular_params & 0x3F) << 6) | (((u32)translate_params & 0x3F) << 0);
+
+enum DescriptorType {
+    // Buffer related desciptors types (mask : 0x0F)
+    StaticBuffer = 0x02,
+    PXIBuffer    = 0x04,
+    MappedBuffer = 0x08,
+    // Handle related descriptors types (mask : 0x30, but need to check for buffer related descriptors first )
+    MoveHandle   = 0x00,
+    CopyHandle   = 0x10,
+    CallingPid   = 0x20,
+};
+
+/**
+* @brief Creates a command header to be used for IPC
+* @param command_id            ID of the command to create a header for.
+* @param normal_params         Size of the normal parameters in words. Up to 63.
+* @param translate_params_size Size of the translate parameters in words. Up to 63.
+* @return The created IPC header.
+*
+* Normal parameters are sent directly to the process while the translate parameters might go through modifications and checks by the kernel.
+* The translate parameters are described by headers generated with the IPC_Desc_* functions.
+*
+* @note While #normal_params is equivalent to the number of normal parameters, #translate_params_size includes the size occupied by the translate parameters headers.
+*/
+constexpr u32 MakeHeader(u16 command_id, unsigned int normal_params, unsigned int translate_params_size) {
+    return ((u32)command_id << 16) | (((u32)normal_params & 0x3F) << 6) | (((u32)translate_params_size & 0x3F) << 0);
+}
+
+inline void ParseHeader(u32 header,u16& command_id, unsigned int& normal_params, unsigned int& translate_params_size) {
+    command_id       = (u16) (header >> 16);
+    normal_params = (header >> 6) & 0x3F;
+    translate_params_size = header & 0x3F;
+}
+
+static inline DescriptorType GetDescriptorType(u32 descriptor) {
+    if ((descriptor & 0xF) == 0x0) {
+        return (DescriptorType) (descriptor & 0x30);
+    // handle the fact that the following descriptors can have rights
+    } else if (descriptor & MappedBuffer) {
+        return MappedBuffer;
+    } else if (descriptor & PXIBuffer) {
+        return PXIBuffer;
+    } else return StaticBuffer;
 }
 
 constexpr u32 MoveHandleDesc(unsigned int num_handles = 1) {
-    return 0x0 | ((num_handles - 1) << 26);
+    return MoveHandle | ((num_handles - 1) << 26);
 }
 
 constexpr u32 CopyHandleDesc(unsigned int num_handles = 1) {
-    return 0x10 | ((num_handles - 1) << 26);
+    return CopyHandle | ((num_handles - 1) << 26);
+}
+
+constexpr unsigned int HandleNumberFromDesc(u32 handle_descriptor) {
+    return (handle_descriptor >> 26) + 1;
 }
 
 constexpr u32 CallingPidDesc() {
-    return 0x20;
+    return CallingPid;
 }
 
 constexpr u32 TransferHandleDesc() {
@@ -37,7 +82,23 @@ constexpr u32 TransferHandleDesc() {
 }
 
 constexpr u32 StaticBufferDesc(u32 size, unsigned int buffer_id) {
-    return 0x2 | (size << 14) | ((buffer_id & 0xF) << 10);
+    return StaticBuffer | (size << 14) | ((buffer_id & 0xF) << 10);
+}
+
+/**
+* @brief Creates a header describing a buffer to be sent over PXI.
+* @param size         Size of the buffer. Max 0x00FFFFFF.
+* @param buffer_id    The Id of the buffer. Max 0xF.
+* @param is_read_only true if the buffer is read-only. If false, the buffer is considered to have read-write access.
+* @return The created PXI buffer header.
+*
+* The next value is a phys-address of a table located in the BASE memregion.
+*/
+static inline u32 IPC_Desc_PXIBuffer(size_t size, unsigned buffer_id, bool is_read_only)
+{
+    u8 type = PXIBuffer;
+    if (is_read_only) type |= 0x2;
+    return  type | (size << 8) | ((buffer_id & 0xF) << 4);
 }
 
 enum MappedBufferPermissions {
@@ -47,10 +108,121 @@ enum MappedBufferPermissions {
 };
 
 constexpr u32 MappedBufferDesc(u32 size, MappedBufferPermissions perms) {
-    return 0x8 | (size << 4) | (u32)perms;
+    return MappedBuffer | (size << 4) | (u32)perms;
 }
 
+class MessageHelper;
+
+namespace detail {
+    /// Pop
+    template<class T>
+    T Pop_Impl(MessageHelper &);
+
+    /// Push
+    template<class T>
+    void Push_Impl(MessageHelper & rh,T value);
 }
+
+class MessageHelper{
+
+    // make implementation details friends
+    template<class T>
+    friend T detail::Pop_Impl(MessageHelper &);
+    template<class T>
+    friend void detail::Push_Impl(MessageHelper & rh,T value);
+
+    u32* cmdbuf;
+    ptrdiff_t index = 1;
+    u16       command_id;
+    unsigned  normal_params;
+    unsigned  translate_params_size;
+
+public:
+    MessageHelper(u16 command_id, unsigned normal_params, unsigned translate_params_size, bool parsing = true);
+
+    MessageHelper(u32 command_header, bool parsing = true);
+
+    ~MessageHelper();
+
+    /// Returns the total size of the request in words
+    size_t totalSize() const { return 1 /* command header */ + normal_params + translate_params_size; };
+
+    void ValidateHeader(){
+        ASSERT_MSG( index == totalSize(),"Operations do not match the header (cmd 0x%x)",MakeHeader(command_id,normal_params,translate_params_size));
+    }
+
+    void NewMessage(unsigned normal_params, unsigned translate_params_size = 0);
+
+    /// Pop ///
+
+    template<class T>
+    T Pop(){ return detail::Pop_Impl<T>(*this); }
+
+    template<class T>
+    void Pop(T& value) { value = Pop<T>(); }
+
+    template<class First, class... Other>
+    void Pop(First& first_value, Other&... other_values)
+    {
+        first_value = Pop<First>();
+        Pop(other_values...);
+    }
+
+    template<class... H>
+    void PopHandles(H&... handles)
+    {
+        const u32 handle_descriptor = Pop<u32>();
+        const int handles_number = sizeof...(H);
+        ASSERT_MSG(handles_number == HandleNumberFromDesc(handle_descriptor), "Number of handles doesn't match the descriptor");
+        Pop(handles ...);
+    }
+
+    template<class T>
+    void PopRaw(T&& value)
+    {
+        static_assert(std::is_trivially_copyable<T>::value);
+        std::memcpy(&value, cmdbuf + index, sizeof(T));
+        index += (sizeof(T) - 1)/4 + 1; // round up to word length
+    }
+
+    /// Push ///
+
+    template<class T>
+    void Push(T value){ return detail::Push_Impl(*this,value); }
+
+    template<class First, class... Other>
+    void Push(First first_value, Other&&... other_values)
+    {
+        Push(first_value);
+        Push(std::forward<Other>(other_values)...);
+    }
+
+    template<class T>
+    void PushRaw(T&& value)
+    {
+        static_assert(std::is_trivially_copyable<T>::value);
+        std::memcpy(cmdbuf + index, &value, sizeof(T));
+        index += (sizeof(T) - 1)/4 + 1; // round up to word length
+    }
+
+    template<class... H>
+    void PushHandles(bool copy_handles,H&&... handles)
+    {
+        if (copy_handles) Push<u32>(CopyHandleDesc(sizeof...(H)));
+        else              Push<u32>(MoveHandleDesc(sizeof...(H)));
+        Push(std::forward<H>(handles)...);
+    }
+
+    /**
+     * Translate the parameters
+     * @return true on success, false otherwise
+     * @note The proper message will be created for the error on failure
+     * @note Will reset the index of the message to 1, as if the helper was just created
+     */
+    bool Translate();
+};
+
+} // namespace IPC
 
 namespace Kernel {
 
@@ -66,6 +238,16 @@ static const int kCommandHeaderOffset = 0x80; ///< Offset into command buffer of
  */
 inline static u32* GetCommandBuffer(const int offset = 0) {
     return (u32*)Memory::GetPointer(GetCurrentThread()->GetTLSAddress() + kCommandHeaderOffset + offset);
+}
+
+/**
+* Returns a pointer to the static buffers area in the current thread's TLS
+* TODO(Subv): cf. GetCommandBuffer
+* @param offset Optional offset into static buffers area
+* @return Pointer to static buffers area
+*/
+inline static u32* GetStaticBuffers(const int offset = 0) {
+    return GetCommandBuffer(0x100 + offset);
 }
 
 /**

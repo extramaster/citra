@@ -285,14 +285,16 @@ static void GetTransferEndEvent(Service::Interface* self) {
 
 static void SetSendingY(Service::Interface* self) {
     u32* cmd_buff = Kernel::GetCommandBuffer();
+    IPC::MessageHelper rh(0x00100102);
+    conversion.src_Y.address = rh.Pop<u32>();
+    conversion.src_Y.image_size = rh.Pop<u32>();
+    conversion.src_Y.transfer_unit = rh.Pop<u32>();
+    conversion.src_Y.gap = rh.Pop<u32>();
+    Handle src_process_handle;
+    rh.PopHandles(src_process_handle);
 
-    conversion.src_Y.address = cmd_buff[1];
-    conversion.src_Y.image_size = cmd_buff[2];
-    conversion.src_Y.transfer_unit = cmd_buff[3];
-    conversion.src_Y.gap = cmd_buff[4];
-
-    cmd_buff[0] = IPC::MakeHeader(0x10, 1, 0);
-    cmd_buff[1] = RESULT_SUCCESS.raw;
+    rh.NewMessage(1);
+    rh.Push(RESULT_SUCCESS);
 
     LOG_DEBUG(Service_Y2R, "called image_size=0x%08X, transfer_unit=%hu, transfer_stride=%hu, src_process_handle=0x%08X",
             conversion.src_Y.image_size, conversion.src_Y.transfer_unit, conversion.src_Y.gap, cmd_buff[6]);
