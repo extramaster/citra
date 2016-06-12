@@ -43,5 +43,5 @@ private:
     void removeDuplicates(const QString& newValue);
     void keyPressEvent(QKeyEvent* event) override;
     QString getKeyName(int key_code) const;
-    Qt::Key ConfigureInput::getKeyValue(const QString& text) const;
+    Qt::Key getKeyValue(const QString& text) const;
 };
