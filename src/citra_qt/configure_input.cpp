@@ -1,7 +1,10 @@
 // Copyright 2016 Citra Emulator Project
 // Licensed under GPLv2 or any later version
 // Refer to the license.txt file included.
-#include "configure_input.h"
+
+#include <utility>
+
+#include "citra_qt/configure_input.h"
 
 ConfigureInput::ConfigureInput(QWidget* parent) :
     QWidget(parent),
@@ -53,6 +56,7 @@ ConfigureInput::~ConfigureInput()
 void ConfigureInput::handleClick()
 {
     QPushButton* sender = qobject_cast<QPushButton*>(QObject::sender());
+    previous_mapping = sender->text();
     sender->setText(tr("[waiting]"));
     sender->setFocus();
     grabKeyboard();
@@ -84,21 +88,7 @@ void ConfigureInput::keyPressEvent(QKeyEvent* event)
 {
     if (changing_button != nullptr && event->key() != Qt::Key_unknown)
     {
-        keys_pressed.push_back(event->key());
-
-        // Can't save Modifier + Keys yet as input. Will re-enable after settings refactor
-        /*if (event->key() == Qt::Key_Shift)
-            return;
-
-        else if (event->key() == Qt::Key_Control)
-            return;
-
-        else if (event->key() == Qt::Key_Alt)
-            return;
-
-        else if (event->key() == Qt::Key_Meta)
-            return;
-        else*/
+        key_pressed = event->key();
         setKey();
     }
 }
@@ -106,18 +96,17 @@ void ConfigureInput::keyPressEvent(QKeyEvent* event)
 /// Set button text to name of key pressed.
 void ConfigureInput::setKey()
 {
-    QString key_value = "";
-    for (int i : keys_pressed) // Will only contain one key until settings refactor
-    {
-        key_value += getKeyName(i);
-    }
-    // RemoveDuplicates(keyValue);
-    changing_button->setText(key_value);
+    QString key_value = getKeyName(key_pressed);
+    if (key_pressed == Qt::Key_Escape)
+        changing_button->setText(previous_mapping);
+    else
+        changing_button->setText(key_value);
 
-    keys_pressed.clear();
+    key_pressed = Qt::Key_unknown;
     releaseKeyboard();
     releaseMouse();
     changing_button = nullptr;
+    previous_mapping = nullptr;
 }
 
 /// Convert key ASCII value to its' letter/name
@@ -134,6 +123,7 @@ QString ConfigureInput::getKeyName(int key_code) const
 
     if (key_code == Qt::Key_Meta)
         return "";
+
     if (key_code == -1)
         return "";
 
@@ -171,7 +161,7 @@ void ConfigureInput::removeDuplicates(const QString& newValue)
 /// Restore all buttons to their default values.
 void ConfigureInput::restoreDefaults() {
     for (int i = 0; i < Settings::NativeInput::NUM_INPUTS - 1; ++i) {
-        QString keyValue = getKeyName(defaults[i].toInt());
+        QString keyValue = getKeyName(Config::getDefaultInput()[i].toInt());
         input_mapping[Settings::NativeInput::Values(i)]->setText(keyValue);
     }
 }

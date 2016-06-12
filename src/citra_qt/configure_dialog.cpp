@@ -25,7 +25,7 @@ void ConfigureDialog::setConfiguration() {
 
 void ConfigureDialog::applyConfiguration() {
     ui->generalTab->applyConfiguration();
+    ui->inputTab->applyConfiguration();
     ui->audioTab->applyConfiguration();
     ui->debugTab->applyConfiguration();
-    ui->inputTab->applyConfiguration();
 }

@@ -3,17 +3,17 @@
 // Refer to the license.txt file included.
 
 #pragma once
+
 #include <memory>
+#include <QWidget>
 #include <QKeyEvent>
 
 #include "citra_qt/config.h"
 #include "core/settings.h"
 #include "ui_configure_input.h"
 
-class QObject;
 class QPushButton;
 class QString;
-class QWidget;
 
 namespace Ui {
     class ConfigureInput;
@@ -34,8 +34,9 @@ public:
 private:
     std::unique_ptr<Ui::ConfigureInput> ui;
     std::map<Settings::NativeInput::Values, QPushButton*> input_mapping;
-    std::vector<int> keys_pressed;
+    int key_pressed;
     QPushButton* changing_button = nullptr; /// button currently waiting for key press.
+    QString previous_mapping;
 
     void setConfiguration();
     void setKey();

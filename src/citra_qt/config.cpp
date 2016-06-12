@@ -18,7 +18,7 @@ Config::Config() {
     Reload();
 }
 
-const std::array<QVariant, Settings::NativeInput::NUM_INPUTS> defaults = {
+const std::array<QVariant, Settings::NativeInput::NUM_INPUTS> Config::defaults = {
     // directly mapped keys
     Qt::Key_A, Qt::Key_S, Qt::Key_Z, Qt::Key_X,
     Qt::Key_Q, Qt::Key_W, Qt::Key_1, Qt::Key_2,
@@ -30,6 +30,11 @@ const std::array<QVariant, Settings::NativeInput::NUM_INPUTS> defaults = {
     Qt::Key_Up, Qt::Key_Down, Qt::Key_Left, Qt::Key_Right,
     Qt::Key_D,
 };
+
+const std::array<QVariant, Settings::NativeInput::NUM_INPUTS>& Config::getDefaultInput()
+{
+    return defaults;
+}
 
 void Config::ReadValues() {
     qt_config->beginGroup("Controls");
