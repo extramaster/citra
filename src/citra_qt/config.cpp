@@ -31,7 +31,7 @@ const std::array<QVariant, Settings::NativeInput::NUM_INPUTS> Config::defaults =
     Qt::Key_D,
 };
 
-const std::array<QVariant, Settings::NativeInput::NUM_INPUTS>& Config::getDefaultInput()
+const std::array<QVariant, Settings::NativeInput::NUM_INPUTS>& Config::GetDefaultInput()
 {
     return defaults;
 }

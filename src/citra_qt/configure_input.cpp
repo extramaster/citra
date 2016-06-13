@@ -161,7 +161,7 @@ void ConfigureInput::removeDuplicates(const QString& newValue)
 /// Restore all buttons to their default values.
 void ConfigureInput::restoreDefaults() {
     for (int i = 0; i < Settings::NativeInput::NUM_INPUTS - 1; ++i) {
-        QString keyValue = getKeyName(Config::getDefaultInput()[i].toInt());
+        QString keyValue = getKeyName(Config::GetDefaultInput()[i].toInt());
         input_mapping[Settings::NativeInput::Values(i)]->setText(keyValue);
     }
 }

@@ -24,5 +24,5 @@ public:
 
     void Reload();
     void Save();
-    static const std::array<QVariant, Settings::NativeInput::NUM_INPUTS>& getDefaultInput();
+    static const std::array<QVariant, Settings::NativeInput::NUM_INPUTS>& GetDefaultInput();
 };
