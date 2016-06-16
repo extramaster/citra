@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <ui version="4.0">
  <class>ConfigureDialog</class>
  <widget class="QDialog" name="ConfigureDialog">
@@ -10,6 +10,12 @@
     <height>501</height>
    </rect>
   </property>
+   <property name="minimumSize">
+     <size>
+       <width>441</width>
+       <height>0</height>
+     </size>
+   </property>
   <property name="windowTitle">
    <string>Citra Configuration</string>
   </property>

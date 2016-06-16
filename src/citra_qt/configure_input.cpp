@@ -101,7 +101,7 @@ void ConfigureInput::setKey()
         changing_button->setText(previous_mapping);
     else
         changing_button->setText(key_value);
-
+    removeDuplicates(key_value);
     key_pressed = Qt::Key_unknown;
     releaseKeyboard();
     releaseMouse();
