@@ -91,6 +91,24 @@ void EmuWindow::TouchMoved(unsigned framebuffer_x, unsigned framebuffer_y) {
     TouchPressed(framebuffer_x, framebuffer_y);
 }
 
+void EmuWindow::AccelerometerChanged(float x, float y, float z) {
+    constexpr float coef = 512;
+
+    // TODO time stretch
+    accel_x = x * coef;
+    accel_y = y * coef;
+    accel_z = z * coef;
+}
+
+void EmuWindow::GyroscopeChanged(float x, float y, float z) {
+    const float coef = GetGyroscopeRawToDpsCoefficient();
+
+    // TODO time stretch
+    gyro_x = x * coef;
+    gyro_y = y * coef;
+    gyro_z = z * coef;
+}
+
 EmuWindow::FramebufferLayout EmuWindow::FramebufferLayout::DefaultScreenLayout(unsigned width, unsigned height) {
 
     ASSERT(width > 0);
