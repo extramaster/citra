@@ -45,11 +45,14 @@ ConfigureInput::ConfigureInput(QWidget* parent) :
     }
     connect(ui->btnRestoreDefaults, SIGNAL(released()), this, SLOT(restoreDefaults()));
     setFocusPolicy(Qt::ClickFocus);
+    timer->setSingleShot(true);
+    connect(timer, &QTimer::timeout, this, [&]() { key_pressed = Qt::Key_Escape; setKey(); });
     this->setConfiguration();
 }
 
 ConfigureInput::~ConfigureInput()
 {
+    delete timer;
 }
 
 /// Event handler for all button released() event.
@@ -62,6 +65,7 @@ void ConfigureInput::handleClick()
     grabKeyboard();
     grabMouse();
     changing_button = sender;
+    timer->start(5000); //Cancel after 5 seconds
 }
 
 /// Save all button configurations to settings file
@@ -89,6 +93,7 @@ void ConfigureInput::keyPressEvent(QKeyEvent* event)
     if (changing_button != nullptr && event->key() != Qt::Key_unknown)
     {
         key_pressed = event->key();
+        timer->stop();
         setKey();
     }
 }
