@@ -29,22 +29,21 @@ public:
     ~ConfigureInput();
     void applyConfiguration();
 
-    public Q_SLOTS:
-    void handleClick();
-    void restoreDefaults();
 private:
     std::unique_ptr<Ui::ConfigureInput> ui;
     std::map<Settings::NativeInput::Values, QPushButton*> input_mapping;
     int key_pressed;
     QPushButton* changing_button = nullptr; /// button currently waiting for key press.
     QString previous_mapping;
-    QTimer* timer = new QTimer();
+    QTimer* timer = new QTimer(this);
 
     void setConfiguration();
     void removeDuplicates(const QString& newValue);
     void keyPressEvent(QKeyEvent* event) override;
     QString getKeyName(int key_code) const;
     Qt::Key getKeyValue(const QString& text) const;
-    private Q_SLOTS:
-    void setKey();
+    void setKey(); 
+private Q_SLOTS:
+    void handleClick();
+    void restoreDefaults();
 };

@@ -52,7 +52,6 @@ ConfigureInput::ConfigureInput(QWidget* parent) :
 
 ConfigureInput::~ConfigureInput()
 {
-    delete timer;
 }
 
 /// Event handler for all button released() event.
