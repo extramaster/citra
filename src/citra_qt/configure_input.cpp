@@ -3,6 +3,7 @@
 // Refer to the license.txt file included.
 
 #include <utility>
+#include <QTimer>
 
 #include "citra_qt/configure_input.h"
 
@@ -45,6 +46,7 @@ ConfigureInput::ConfigureInput(QWidget* parent) :
     }
     connect(ui->btnRestoreDefaults, SIGNAL(released()), this, SLOT(restoreDefaults()));
     setFocusPolicy(Qt::ClickFocus);
+    timer = new QTimer(this);
     timer->setSingleShot(true);
     connect(timer, &QTimer::timeout, this, [&]() { key_pressed = Qt::Key_Escape; setKey(); });
     this->setConfiguration();

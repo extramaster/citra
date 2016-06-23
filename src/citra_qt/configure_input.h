@@ -7,7 +7,6 @@
 #include <memory>
 #include <QWidget>
 #include <QKeyEvent>
-#include <QTimer>
 
 #include "citra_qt/config.h"
 #include "core/settings.h"
@@ -15,6 +14,7 @@
 
 class QPushButton;
 class QString;
+class QTimer;
 
 namespace Ui {
     class ConfigureInput;
@@ -35,15 +35,15 @@ private:
     int key_pressed;
     QPushButton* changing_button = nullptr; /// button currently waiting for key press.
     QString previous_mapping;
-    QTimer* timer = new QTimer(this);
+    QTimer* timer;
 
     void setConfiguration();
     void removeDuplicates(const QString& newValue);
     void keyPressEvent(QKeyEvent* event) override;
     QString getKeyName(int key_code) const;
     Qt::Key getKeyValue(const QString& text) const;
-    void setKey(); 
-private Q_SLOTS:
+    void setKey();
+    private Q_SLOTS:
     void handleClick();
     void restoreDefaults();
 };
