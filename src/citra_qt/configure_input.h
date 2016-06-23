@@ -43,7 +43,7 @@ private:
     QString getKeyName(int key_code) const;
     Qt::Key getKeyValue(const QString& text) const;
     void setKey();
-    private Q_SLOTS:
+private slots:
     void handleClick();
     void restoreDefaults();
 };
