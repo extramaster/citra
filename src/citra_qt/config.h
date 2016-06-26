@@ -3,14 +3,18 @@
 // Refer to the license.txt file included.
 
 #pragma once
-
 #include <string>
+#include <QVariant>
+
+#include "core/settings.h"
 
 class QSettings;
 
 class Config {
     QSettings* qt_config;
     std::string qt_config_loc;
+
+    static const std::array<QVariant, Settings::NativeInput::NUM_INPUTS> defaults;
 
     void ReadValues();
     void SaveValues();
@@ -20,4 +24,5 @@ public:
 
     void Reload();
     void Save();
+    static const std::array<QVariant, Settings::NativeInput::NUM_INPUTS>& GetDefaultInput();
 };
