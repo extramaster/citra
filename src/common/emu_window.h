@@ -111,6 +111,10 @@ public:
      */
     void TouchMoved(unsigned framebuffer_x, unsigned framebuffer_y);
 
+    void AccelerometerChanged(float x, float y, float z);
+
+    void GyroscopeChanged(float x, float y, float z);
+
     /**
      * Gets the current pad state (which buttons are pressed).
      * @note This should be called by the core emu thread to get a state set by the window thread.
@@ -153,12 +157,11 @@ public:
      *   1 unit of return value = 1/512 g (measured by hw test),
      *   where g is the gravitational acceleration (9.8 m/sec2).
      * @note This should be called by the core emu thread to get a state set by the window thread.
-     * @todo Implement accelerometer input in front-end.
+     * @todo Fix this function to be thread-safe.
      * @return std::tuple of (x, y, z)
      */
-    std::tuple<s16, s16, s16> GetAccelerometerState() const {
-        // stubbed
-        return std::make_tuple(0, -512, 0);
+    std::tuple<s16, s16, s16> GetAccelerometerState() {
+        return std::make_tuple(accel_x, accel_y, accel_z);
     }
 
     /**
@@ -172,12 +175,11 @@ public:
      *   1 unit of return value = (1/coef) deg/sec,
      *   where coef is the return value of GetGyroscopeRawToDpsCoefficient().
      * @note This should be called by the core emu thread to get a state set by the window thread.
-     * @todo Implement gyroscope input in front-end.
+     * @todo Fix this function to be thread-safe.
      * @return std::tuple of (x, y, z)
      */
-    std::tuple<s16, s16, s16> GetGyroscopeState() const {
-        // stubbed
-        return std::make_tuple(0, 0, 0);
+    std::tuple<s16, s16, s16> GetGyroscopeState() {
+        return std::make_tuple(gyro_x, gyro_y, gyro_z);
     }
 
     /**
@@ -287,6 +289,10 @@ private:
 
     s16 circle_pad_x; ///< Circle pad X-position in native 3DS pixel coordinates (-156 - 156)
     s16 circle_pad_y; ///< Circle pad Y-position in native 3DS pixel coordinates (-156 - 156)
+
+    s16 accel_x = 0, accel_y = -512, accel_z = 0;
+
+    s16 gyro_x = 0, gyro_y = 0, gyro_z = 0;
 
    /**
     * Clip the provided coordinates to be inside the touchscreen area.
