@@ -63,15 +63,15 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-<<<<<<< HEAD
    <class>ConfigureAudio</class>
    <extends>QWidget</extends>
    <header>configure_audio.h</header>
-=======
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>ConfigureLayout</class>
    <extends>QWidget</extends>
    <header>configure_layout.h</header>
->>>>>>> fda96d5... Support additional screen layouts.
    <container>1</container>
   </customwidget>
   <customwidget>
