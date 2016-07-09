@@ -210,11 +210,35 @@ class CROHelper {
     };
     static_assert(Fix0Barrier == (CRO_HEADER_SIZE - CRO_HASH_SIZE) / 4, "CRO Header fields are wrong!");
 
-    static const std::array<int, 17> ENTRY_SIZE;
-    static const std::array<HeaderField, 4> FIX_BARRIERS;
+    static constexpr std::array<int, 17> ENTRY_SIZE {{
+        1, // code
+        1, // data
+        1, // module name
+        sizeof(SegmentEntry),
+        sizeof(ExportNamedSymbolEntry),
+        sizeof(ExportIndexedSymbolEntry),
+        1, // export strings
+        sizeof(ExportTreeEntry),
+        sizeof(ImportModuleEntry),
+        sizeof(PatchEntry),
+        sizeof(ImportNamedSymbolEntry),
+        sizeof(ImportIndexedSymbolEntry),
+        sizeof(ImportAnonymousSymbolEntry),
+        1, // import strings
+        sizeof(StaticAnonymousSymbolEntry),
+        sizeof(InternalPatchEntry),
+        sizeof(PatchEntry)
+    }};
 
-    static const u32 MAGIC_CRO0;
-    static const u32 MAGIC_FIXD;
+    static constexpr std::array<HeaderField, 4> FIX_BARRIERS {{
+        Fix0Barrier,
+        Fix1Barrier,
+        Fix2Barrier,
+        Fix3Barrier
+    }};
+
+    static constexpr u32 MAGIC_CRO0 = 0x304F5243;
+    static constexpr u32 MAGIC_FIXD = 0x44584946;
 
     VAddr Field(HeaderField field) {
         return address + CRO_HASH_SIZE + field * 4;
@@ -276,6 +300,8 @@ class CROHelper {
      */
     template <HeaderField field, typename T>
     void GetEntry(int index, T& data) {
+        static_assert(field >= SegmentTableOffset && field < Fix0Barrier && (field - SegmentTableOffset) % 2 == 0, "Invalid field name!");
+        static_assert(ENTRY_SIZE[(field - CodeOffset) / 2] == sizeof(T), "Field and entry mismatch!");
         static_assert(std::is_pod<T>::value, "The entry type must be POD!");
         Memory::ReadBlock(GetField(field) + index * sizeof(T), &data, sizeof(T));
     }
@@ -1024,7 +1050,6 @@ class CROHelper {
     /// Resets all imported named symbols of this module to unresolved state
     ResultCode ResetImportNamedSymbol() {
         u32 unresolved_symbol = SegmentTagToAddress(GetField(OnUnresolvedSegmentTag));
-        u32 import_strings_size = GetField(ImportStringsSize);
         u32 symbol_import_num = GetField(ImportNamedSymbolNum);
         for (u32 i = 0; i < symbol_import_num; ++i) {
             ImportNamedSymbolEntry entry;
@@ -1731,35 +1756,10 @@ public:
     }
 };
 
-const std::array<int, 17> CROHelper::ENTRY_SIZE {{
-    1, // code
-    1, // data
-    1, // module name
-    sizeof(SegmentEntry),
-    sizeof(ExportNamedSymbolEntry),
-    sizeof(ExportIndexedSymbolEntry),
-    1, // export strings
-    sizeof(ExportTreeEntry),
-    sizeof(ImportModuleEntry),
-    sizeof(PatchEntry),
-    sizeof(ImportNamedSymbolEntry),
-    sizeof(ImportIndexedSymbolEntry),
-    sizeof(ImportAnonymousSymbolEntry),
-    1, // import strings
-    sizeof(StaticAnonymousSymbolEntry),
-    sizeof(InternalPatchEntry),
-    sizeof(PatchEntry)
-}};
-
-const std::array<CROHelper::HeaderField, 4> CROHelper::FIX_BARRIERS {{
-    Fix0Barrier,
-    Fix1Barrier,
-    Fix2Barrier,
-    Fix3Barrier
-}};
-
-const u32 CROHelper::MAGIC_CRO0 = 0x304F5243;
-const u32 CROHelper::MAGIC_FIXD = 0x44584946;
+constexpr std::array<int, 17> CROHelper::ENTRY_SIZE;
+constexpr std::array<CROHelper::HeaderField, 4> CROHelper::FIX_BARRIERS;
+constexpr u32 CROHelper::MAGIC_CRO0;
+constexpr u32 CROHelper::MAGIC_FIXD;
 
 // This is a work-around before we implement memory aliasing.
 // CRS and CRO are mapped (aliased) to another memory when loading,
