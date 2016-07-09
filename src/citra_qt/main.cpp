@@ -55,6 +55,11 @@
 
 #include "video_core/video_core.h"
 
+#if !defined(CUSTOM_TAG)
+#define CUSTOM_TAG      "citra-emu.org"
+#endif
+
+
 GMainWindow::GMainWindow() : config(new Config()), emu_thread(nullptr)
 {
     Pica::g_debug_context = Pica::DebugContext::Construct();
