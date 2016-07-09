@@ -20,6 +20,167 @@
 
 namespace LDR_RO {
 
+
+    struct SegmentTableEntry {
+        u32 segment_offset;
+        u32 segment_size;
+        u32 segment_id;
+    };
+
+    struct Patch {
+        u32 offset;
+        u8 type;
+        u8 unk;
+        u8 unk2;
+        u8 unk3;
+        u32 x;
+
+        u8 GetTargetSegment() { return offset & 0xF; }
+        u32 GetSegmentOffset() { return offset >> 4; }
+    };
+
+    struct Unk3Patch {
+        u32 segment_offset;
+        u32 patches_offset;
+
+        u8 GetTargetSegment() { return segment_offset & 0xF; }
+        u32 GetSegmentOffset() { return segment_offset >> 4; }
+    };
+
+    struct Unk2TableEntry {
+        u32 offset_or_index; ///< Index in the CRO's segment offset table (unk1) for table1 entries, or segment_offset for table2 entries
+        u32 patches_offset;
+    };
+
+    struct Unk2Patch {
+        u32 string_offset;
+        u32 table1_offset;
+        u32 table1_num;
+        u32 table2_offset;
+        u32 table2_num;
+
+        Unk2TableEntry* GetTable1Entry(u32 index);
+        Unk2TableEntry* GetTable2Entry(u32 index);
+    };
+
+    Unk2TableEntry* Unk2Patch::GetTable1Entry(u32 index) {
+        return reinterpret_cast<Unk2TableEntry*>(Memory::GetPointer(table1_offset) + sizeof(Unk2TableEntry) * index);
+    }
+
+    Unk2TableEntry* Unk2Patch::GetTable2Entry(u32 index) {
+        return reinterpret_cast<Unk2TableEntry*>(Memory::GetPointer(table2_offset) + sizeof(Unk2TableEntry) * index);
+    }
+
+    struct ExportTableEntry {
+        u32 name_offset;
+        u32 segment_offset;
+
+        u8 GetTargetSegment() { return segment_offset & 0xF; }
+        u32 GetSegmentOffset() { return segment_offset >> 4; }
+    };
+
+    struct ImportTableEntry {
+        u32 name_offset;
+        u32 symbol_offset;
+    };
+
+    struct ExportTreeEntry {
+        u16 segment_offset;
+        u16 next;
+        u16 next_level;
+        u16 export_table_id;
+
+        u8 GetTargetSegment() { return segment_offset & 0x7; }
+        u32 GetSegmentOffset() { return segment_offset >> 3; }
+    };
+
+    struct ExportedSymbol {
+        std::string name;
+        u32 cro_base;
+        u32 cro_offset;
+    };
+
+    struct CROHeader {
+        u8 sha2_hash[0x80];
+        char magic[4];
+        u32 name_offset;
+        u32 next_cro;
+        u32 previous_cro;
+        u32 file_size;
+        u32 unk_size1;
+        u32 unk_address;
+        INSERT_PADDING_WORDS(0x4);
+        u32 segment_offset;
+        u32 code_offset;
+        u32 code_size;
+        u32 unk_offset;
+        u32 unk_size;
+        u32 module_name_offset;
+        u32 module_name_size;
+        u32 segment_table_offset;
+        u32 segment_table_num;
+        u32 export_table_offset;
+        u32 export_table_num;
+        u32 unk1_offset;
+        u32 unk1_size;
+        u32 export_strings_offset;
+        u32 export_strings_num;
+        u32 export_tree_offset;
+        u32 export_tree_num;
+        u32 unk2_offset;
+        u32 unk2_num;
+        u32 import_patches_offset;
+        u32 import_patches_num;
+        u32 import_table1_offset;
+        u32 import_table1_num;
+        u32 import_table2_offset;
+        u32 import_table2_num;
+        u32 import_table3_offset;
+        u32 import_table3_num;
+        u32 import_strings_offset;
+        u32 import_strings_num;
+        u32 unk3_offset;
+        u32 unk3_num;
+        u32 relocation_patches_offset;
+        u32 relocation_patches_num;
+        u32 unk4_offset; /// More patches?
+        u32 unk4_num;
+
+        u8 GetImportPatchesTargetSegment() { return segment_offset & 0xF; }
+        u32 GetImportPatchesSegmentOffset() { return segment_offset >> 4; }
+
+        SegmentTableEntry GetSegmentTableEntry(u32 index) const;
+        void SetSegmentTableEntry(u32 index, const SegmentTableEntry& entry);
+        ResultCode RelocateSegmentsTable(u32 base, u32 size, u32 data_section0, u32 data_section1, u32& prev_data_section0);
+
+        ExportTableEntry* GetExportTableEntry(u32 index);
+        ResultCode RelocateExportsTable(u32 base);
+
+        ExportTreeEntry* GetExportTreeEntry(u32 index);
+
+        Patch* GetImportPatch(u32 index);
+
+        ImportTableEntry* GetImportTable1Entry(u32 index);
+        void RelocateImportTable1(u32 base);
+
+        ImportTableEntry* GetImportTable2Entry(u32 index);
+        void RelocateImportTable2(u32 base);
+
+        ImportTableEntry* GetImportTable3Entry(u32 index);
+        void RelocateImportTable3(u32 base);
+
+        Unk3Patch* GetUnk3PatchEntry(u32 index);
+
+        Patch* GetRelocationPatchEntry(u32 index);
+
+        Unk2Patch* GetUnk2PatchEntry(u32 index);
+
+        u32 GetUnk1TableEntry(u32 index);
+
+        void RelocateUnk2Patches(u32 base);
+
+        bool VerifyAndRelocateOffsets(u32 base, u32 size);
+    };
 static VAddr loaded_crs; ///< the virtual address of the static module
 
 static ResultCode CROFormatError(u32 description) {
@@ -2418,7 +2579,7 @@ struct UnknownStructure {
     u32 unk4;
 };
 
-static UnknownStructure GetStructure(CROHeader& cro, u32 fix_level) {
+static UnknownStructure GetStructure(CROHeader &cro, u32 fix_level) {
     u32 v2 = cro.code_offset + cro.code_size;
 
     if (v2 <= 0x138)
@@ -2658,7 +2819,7 @@ static void UnloadImportTable3Patches(CROHeader* cro, u32 base_offset) {
     }
 }
 
-static void ApplyCRSImportTable1UnloadPatches(CROHeader* crs, CROHeader& unload, u32 base_offset) {
+static void ApplyCRSImportTable1UnloadPatches(CROHeader* crs, CROHeader &unload, u32 base_offset) {
     for (int i = 0; i < crs->import_table1_num; ++i) {
         ImportTableEntry* entry = crs->GetImportTable1Entry(i);
         Patch* first_patch = reinterpret_cast<Patch*>(Memory::GetPointer(entry->symbol_offset));
@@ -2693,7 +2854,7 @@ static void UnloadUnk2Patches(CROHeader* cro, CROHeader* unload, u32 base_offset
     }
 }
 
-static void ApplyCRSUnloadPatches(CROHeader* crs, CROHeader& unload) {
+static void ApplyCRSUnloadPatches(CROHeader* crs, CROHeader &unload) {
     u32 base_offset = CalculateBaseOffset(crs);
 
     ApplyCRSImportTable1UnloadPatches(crs, unload, base_offset);
@@ -2764,59 +2925,61 @@ static void UnrebaseCRO(CROHeader* cro, u32 address) {
     UnrebaseExportsTable(cro, address);
     UnrebaseSegments(cro, address);
 
-    if (cro->name_offset)
+
+    if (cro->name_offset) {
         cro->name_offset -= address;
-
-    if (cro->code_offset)
+    }
+    if (cro->code_offset) {
         cro->code_offset -= address;
-
-    if (cro->unk_offset)
+    }
+    if (cro->unk_offset) {
         cro->unk_offset -= address;
-
-    if (cro->module_name_offset)
+    }
+    if (cro->module_name_offset) {
         cro->module_name_offset -= address;
-
-    if (cro->segment_table_offset)
+    }
+    if (cro->segment_table_offset) {
         cro->segment_table_offset -= address;
-
-    if (cro->export_table_offset)
+    }
+    if (cro->export_table_offset) {
         cro->export_table_offset -= address;
-
-    if (cro->unk1_offset)
+    }
+    if (cro->unk1_offset) {
         cro->unk1_offset -= address;
-
-    if (cro->export_strings_offset)
+    }
+    if (cro->export_strings_offset) {
         cro->export_strings_offset -= address;
-
-    if (cro->export_tree_offset)
+    }
+    if (cro->export_tree_offset) {
         cro->export_tree_offset -= address;
-
-    if (cro->unk2_offset)
+    }
+    if (cro->unk2_offset) {
         cro->unk2_offset -= address;
-
-    if (cro->import_patches_offset)
+    }
+    if (cro->import_patches_offset) {
         cro->import_patches_offset -= address;
-
-    if (cro->import_table1_offset)
+    }
+    if (cro->import_table1_offset) {
         cro->import_table1_offset -= address;
-
-    if (cro->import_table2_offset)
+    }
+    if (cro->import_table2_offset) {
         cro->import_table2_offset -= address;
-
-    if (cro->import_table3_offset)
+    }
+    if (cro->import_table3_offset) {
         cro->import_table3_offset -= address;
-
-    if (cro->import_strings_offset)
+    }
+    if (cro->import_strings_offset) {
         cro->import_strings_offset -= address;
-
-    if (cro->unk3_offset)
+    }
+    if (cro->unk3_offset) {
         cro->unk3_offset -= address;
-
-    if (cro->relocation_patches_offset)
+    }
+    if (cro->relocation_patches_offset) {
         cro->relocation_patches_offset -= address;
-
-    if (cro->unk4_offset)
+    }
+    if (cro->unk4_offset) {
         cro->unk4_offset -= address;
+    }
 }
 
 static void UnloadExports(u32 address) {
