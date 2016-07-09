@@ -11,8 +11,8 @@ namespace AudioInterp {
 
 // Calculations are done in fixed point with 24 fractional bits.
 // (This is not verified. This was chosen for minimal error.)
-constexpr u64 scale_factor = 1 << 24;
-constexpr u64 scale_mask = scale_factor - 1;
+#define SCALE_FACTOR (1 << 24)
+constexpr u64 scale_mask = SCALE_FACTOR - 1;
 
 /// Here we step over the input in steps of rate_multiplier, until we consume all of the input.
 /// Three adjacent samples are passed to fn each step.
@@ -26,12 +26,12 @@ static StereoBuffer16 StepOverSamples(State& state, const StereoBuffer16& input,
     StereoBuffer16 output;
     output.reserve(static_cast<size_t>(input.size() / rate_multiplier));
 
-    u64 step_size = static_cast<u64>(rate_multiplier * scale_factor);
+    u64 step_size = static_cast<u64>(rate_multiplier * SCALE_FACTOR);
 
     u64 fposition = 0;
-    const u64 max_fposition = input.size() * scale_factor;
+    const u64 max_fposition = input.size() * SCALE_FACTOR;
 
-    while (fposition < 1 * scale_factor) {
+    while (fposition < 1 * SCALE_FACTOR) {
         u64 fraction = fposition & scale_mask;
 
         output.push_back(fn(fraction, state.xn2, state.xn1, input[0]));
@@ -39,7 +39,7 @@ static StereoBuffer16 StepOverSamples(State& state, const StereoBuffer16& input,
         fposition += step_size;
     }
 
-    while (fposition < 2 * scale_factor) {
+    while (fposition < 2 * SCALE_FACTOR) {
         u64 fraction = fposition & scale_mask;
 
         output.push_back(fn(fraction, state.xn1, input[0], input[1]));
@@ -50,7 +50,7 @@ static StereoBuffer16 StepOverSamples(State& state, const StereoBuffer16& input,
     while (fposition < max_fposition) {
         u64 fraction = fposition & scale_mask;
 
-        size_t index = static_cast<size_t>(fposition / scale_factor);
+        size_t index = static_cast<size_t>(fposition / SCALE_FACTOR);
         output.push_back(fn(fraction, input[index - 2], input[index - 1], input[index]));
 
         fposition += step_size;
@@ -76,8 +76,8 @@ StereoBuffer16 Linear(State& state, const StereoBuffer16& input, float rate_mult
         s64 delta1 = MathUtil::Clamp<s64>(x1[1] - x0[1], -32768, 32767);
 
         return std::array<s16, 2> {
-            static_cast<s16>(x0[0] + fraction * delta0 / scale_factor),
-            static_cast<s16>(x0[1] + fraction * delta1 / scale_factor)
+            static_cast<s16>(x0[0] + fraction * delta0 / SCALE_FACTOR),
+            static_cast<s16>(x0[1] + fraction * delta1 / SCALE_FACTOR)
         };
     });
 }

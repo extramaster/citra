@@ -185,6 +185,6 @@ private:
 };
 #pragma pack()
 
-#if (__GNUC__ >= 5) || defined(__clang__) || defined(_MSC_VER)
+#if ((__GNUC__ >= 5) || defined(__clang__) || defined(_MSC_VER)) && !defined(OVERWRITE_ARBITRARY_ASSERT)
 static_assert(std::is_trivially_copyable<BitField<0, 1, unsigned>>::value, "BitField must be trivially copyable");
 #endif

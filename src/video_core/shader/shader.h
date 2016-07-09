@@ -87,9 +87,11 @@ struct OutputVertex {
         return ret;
     }
 };
+
+#if !defined(OVERWRITE_ARBITRARY_ASSERT)
 static_assert(std::is_pod<OutputVertex>::value, "Structure is not POD");
 static_assert(sizeof(OutputVertex) == 32 * sizeof(float), "OutputVertex has invalid size");
-
+#endif
 struct OutputRegisters {
     OutputRegisters() = default;
 
@@ -97,7 +99,9 @@ struct OutputRegisters {
 
     OutputVertex ToVertex(const Regs::ShaderConfig& config);
 };
+#if !defined(OVERWRITE_ARBITRARY_ASSERT)
 static_assert(std::is_pod<OutputRegisters>::value, "Structure is not POD");
+#endif
 
 // Helper structure used to keep track of data useful for inspection of shader emulation
 template<bool full_debugging>
@@ -284,7 +288,9 @@ struct UnitState {
         alignas(16) Math::Vec4<float24> input[16];
         alignas(16) Math::Vec4<float24> temporary[16];
     } registers;
+#if !defined(OVERWRITE_ARBITRARY_ASSERT)
     static_assert(std::is_pod<Registers>::value, "Structure is not POD");
+#endif
 
     OutputRegisters emit_buffers[3]; //TODO: 3dbrew suggests this only stores the first 7 output registers
 

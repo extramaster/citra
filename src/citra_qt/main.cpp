@@ -129,12 +129,14 @@ GMainWindow::GMainWindow() : config(new Config()), emu_thread(nullptr)
     debug_menu->addAction(graphicsTracingWidget->toggleViewAction());
 
     // Set default UI state
-    // geometry: 55% of the window contents are in the upper screen half, 45% in the lower half
+    // geometry: The width is tied to the height...
+    // Largest Width = 400 x 240 (x2), remember height of toolbar = 19 px high...
+    // 400 x 499, w x h... Ration: 0.8016032064128257 (of height %)
     QDesktopWidget* desktop = ((QApplication*)QApplication::instance())->desktop();
     QRect screenRect = desktop->screenGeometry(this);
     int x, y, w, h;
-    w = screenRect.width() * 2 / 3;
     h = screenRect.height() / 2;
+    w = (int) (((float) h * 0.794));
     x = (screenRect.x() + screenRect.width()) / 2 - w / 2;
     y = (screenRect.y() + screenRect.height()) / 2 - h * 55 / 100;
     setGeometry(x, y, w, h);
@@ -195,7 +197,8 @@ GMainWindow::GMainWindow() : config(new Config()), emu_thread(nullptr)
     connect(GetHotkey("Main Window", "Load File", this), SIGNAL(activated()), this, SLOT(OnMenuLoadFile()));
     connect(GetHotkey("Main Window", "Start Emulation", this), SIGNAL(activated()), this, SLOT(OnStartGame()));
 
-    std::string window_title = Common::StringFromFormat("Citra | %s-%s", Common::g_scm_branch, Common::g_scm_desc);
+
+    std::string window_title = Common::StringFromFormat("Citra | "CUSTOM_TAG" | %s-%s", Common::g_scm_branch, Common::g_scm_desc);
     setWindowTitle(window_title.c_str());
 
     show();
