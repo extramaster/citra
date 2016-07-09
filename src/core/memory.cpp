@@ -280,13 +280,18 @@ u8* GetPointer(const VAddr vaddr) {
     return nullptr;
 }
 
-std::string GetString(const VAddr vaddr, const u32 size) {
-    std::string string;
-    string.reserve(size);
-    for (u32 offset = 0; offset < size; ++offset)
-        string.push_back(Read8(vaddr + offset));
-    return string;
 
+std::string GetString(VAddr vaddr, u32 max_length) {
+    std::string string;
+    string.reserve(max_length);
+    for (u32 i = 0; i < max_length; ++i) {
+        char c = Read8(vaddr);
+        if (!c)
+            break;
+        string.push_back(c);
+        ++vaddr;
+    }
+    return string;
 }
 
 u8* GetPhysicalPointer(PAddr address) {

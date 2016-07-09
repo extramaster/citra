@@ -32,6 +32,7 @@ public:
         Run(1);
     }
 
+    /// Clear all instruction cache
     virtual void ClearInstructionCache() { }
 
     /**

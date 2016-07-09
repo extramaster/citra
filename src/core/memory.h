@@ -131,6 +131,8 @@ void CopyBlock(VAddr dest_addr, VAddr src_addr, size_t size);
 
 u8* GetPointer(VAddr virtual_address);
 
+std::string GetString(VAddr virtual_address, u32 max_length);
+
 /**
  * Reads a fixed-size string of the specified size starting at
  * the specified address and returns a copy of it.

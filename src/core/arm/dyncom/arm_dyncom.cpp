@@ -24,7 +24,9 @@ ARM_DynCom::~ARM_DynCom() {
 }
 
 void ARM_DynCom::ClearInstructionCache() {
+    extern size_t trans_cache_buf_top;
     state->instruction_cache.clear();
+    trans_cache_buf_top = 0;
 }
 
 void ARM_DynCom::SetPC(u32 pc) {
