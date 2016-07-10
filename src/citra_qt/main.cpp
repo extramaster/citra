@@ -203,7 +203,7 @@ GMainWindow::GMainWindow() : config(new Config()), emu_thread(nullptr)
     connect(GetHotkey("Main Window", "Start Emulation", this), SIGNAL(activated()), this, SLOT(OnStartGame()));
 
 
-    std::string window_title = Common::StringFromFormat("Citra | "CUSTOM_TAG" | %s-%s", Common::g_scm_branch, Common::g_scm_desc);
+    std::string window_title = Common::StringFromFormat("Citra | " CUSTOM_TAG " | %s-%s", Common::g_scm_branch, Common::g_scm_desc);
     setWindowTitle(window_title.c_str());
 
     show();

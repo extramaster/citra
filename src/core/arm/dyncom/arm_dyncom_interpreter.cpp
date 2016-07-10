@@ -928,7 +928,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
 
 // GCC and Clang have a C++ extension to support a lookup table of labels. Otherwise, fallback to a
 // clunky switch statement.
-#if defined __GNUC__ || defined __clang__
+#if defined __GNUC__ || defined __clang__ || defined(OVERRIDE_COMPILER)
 #define GOTO_NEXT_INST \
     GDB_BP_CHECK; \
     if (num_instrs >= cpu->NumInstrsToExecute) goto END; \
@@ -1169,7 +1169,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
 
     // GCC and Clang have a C++ extension to support a lookup table of labels. Otherwise, fallback
     // to a clunky switch statement.
-#if defined __GNUC__ || defined __clang__
+#if defined __GNUC__ || defined __clang__ || defined(OVERRIDE_COMPILER)
     void *InstLabel[] = {
         &&VMLA_INST, &&VMLS_INST, &&VNMLA_INST, &&VNMLS_INST, &&VNMUL_INST, &&VMUL_INST, &&VADD_INST, &&VSUB_INST,
         &&VDIV_INST, &&VMOVI_INST, &&VMOVR_INST, &&VABS_INST, &&VNEG_INST, &&VSQRT_INST, &&VCMP_INST, &&VCMP2_INST, &&VCVTBDS_INST,
@@ -1628,7 +1628,9 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
             inst_cream->get_addr(cpu, inst_cream->inst, addr);
 
             unsigned int inst = inst_cream->inst;
+
             if (BIT(inst, 22) && !BIT(inst, 15)) {
+#pragma omp for
                 for (int i = 0; i < 13; i++) {
                     if(BIT(inst, i)) {
                         cpu->Reg[i] = cpu->ReadMemory32(addr);
@@ -1652,6 +1654,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
                     addr += 4;
                 }
             } else if (!BIT(inst, 22)) {
+#pragma omp for
                 for(int i = 0; i < 16; i++ ){
                     if(BIT(inst, i)){
                         unsigned int ret = cpu->ReadMemory32(addr);
@@ -1667,6 +1670,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
                     }
                 }
             } else if (BIT(inst, 22) && BIT(inst, 15)) {
+#pragma omp for
                 for(int i = 0; i < 15; i++ ){
                     if(BIT(inst, i)){
                         cpu->Reg[i] = cpu->ReadMemory32(addr);
@@ -3205,6 +3209,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
 
             inst_cream->get_addr(cpu, inst_cream->inst, addr);
             if (BIT(inst_cream->inst, 22) == 1) {
+#pragma omp for
                 for (int i = 0; i < 13; i++) {
                     if (BIT(inst_cream->inst, i)) {
                         cpu->WriteMemory32(addr, cpu->Reg[i]);
@@ -3231,6 +3236,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
                     cpu->WriteMemory32(addr, cpu->Reg_usr[1] + 8);
                 }
             } else {
+#pragma omp for
                 for (int i = 0; i < 15; i++) {
                     if (BIT(inst_cream->inst, i)) {
                         if (i == Rn)
