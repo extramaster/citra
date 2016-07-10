@@ -305,7 +305,7 @@ ResultCode GetConfigInfoBlock(u32 block_id, u32 size, u32 flag, void* output) {
     return RESULT_SUCCESS;
 }
 
-ResultCode SetConfigInfoBlock(u32 block_id, u32 size, u32 flag, void* input) {
+ResultCode SetConfigInfoBlock(u32 block_id, u32 size, u32 flag, const void* input) {
     void* pointer;
     CASCADE_RESULT(pointer, GetConfigInfoBlockPointer(block_id, size, flag));
     memcpy(pointer, input, size);

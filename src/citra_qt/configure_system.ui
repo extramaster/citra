@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>300</width>
+    <width>360</width>
     <height>377</height>
    </rect>
   </property>
@@ -36,6 +36,9 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="maxLength">
+           <number>10</number>
           </property>
          </widget>
         </item>

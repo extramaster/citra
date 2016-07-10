@@ -10,12 +10,6 @@
     <height>501</height>
    </rect>
   </property>
-   <property name="minimumSize">
-     <size>
-       <width>441</width>
-       <height>0</height>
-     </size>
-   </property>
   <property name="windowTitle">
    <string>Citra Configuration</string>
   </property>
@@ -40,11 +34,11 @@
        <string>Input</string>
       </attribute>
      </widget>
-      <widget class="ConfigureAudio" name="audioTab">
-        <attribute name="title">
-          <string>Audio</string>
-        </attribute>
-      </widget>
+     <widget class="ConfigureAudio" name="audioTab">
+      <attribute name="title">
+       <string>Audio</string>
+      </attribute>
+     </widget>
      <widget class="ConfigureLayout" name="layoutTab">
       <attribute name="title">
        <string>Layout</string>
@@ -74,12 +68,6 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>ConfigureLayout</class>
-   <extends>QWidget</extends>
-   <header>configure_layout.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>ConfigureSystem</class>
    <extends>QWidget</extends>
    <header>configure_system.h</header>
@@ -89,6 +77,12 @@
    <class>ConfigureAudio</class>
    <extends>QWidget</extends>
    <header>configure_audio.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ConfigureLayout</class>
+   <extends>QWidget</extends>
+   <header>configure_layout.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

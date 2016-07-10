@@ -241,7 +241,7 @@ ResultCode GetConfigInfoBlock(u32 block_id, u32 size, u32 flag, void* output);
  * @param input A pointer where we will read data and write to Config savegame buffer
  * @returns ResultCode indicating the result of the operation, 0 on success
  */
-ResultCode SetConfigInfoBlock(u32 block_id, u32 size, u32 flag, void* input);
+ResultCode SetConfigInfoBlock(u32 block_id, u32 size, u32 flag, const void* input);
 
 /**
  * Creates a block with the specified id and writes the input data to the cfg savegame buffer in memory.

@@ -18,12 +18,6 @@ ConfigureSystem::ConfigureSystem(QWidget *parent) :
     ui(new Ui::ConfigureSystem) {
     ui->setupUi(this);
 
-    // Limits the username length.
-    // setMaxLength seems to count characters in char16_t,
-    // which is what we need because we want to limit the name
-    // to 20 bytes.
-    ui->edit_username->setMaxLength(10);
-
     connect(ui->combo_birthmonth, SIGNAL(currentIndexChanged(int)), SLOT(updateBirthdayComboBox(int)));
 }
 
@@ -34,10 +28,9 @@ void ConfigureSystem::setConfiguration(bool emulation_running) {
     enabled = !emulation_running;
 
     if (!enabled) {
+        ReadSystemSettings();
         ui->group_system_settings->setEnabled(false);
     } else {
-        ui->group_system_settings->setEnabled(true);
-
         // This tab is enabled only when game is not running (i.e. all service are not initialized).
         // Temporarily register archive types and load the config savegame file to memory.
         Service::FS::RegisterArchiveTypes();
@@ -51,25 +44,29 @@ void ConfigureSystem::setConfiguration(bool emulation_running) {
             return;
         }
 
-        // set username
-        username = Service::CFG::GetUsername();
-        ui->edit_username->setText(QString::fromStdU16String(username));
-
-        // set birthday
-        std::tie(birthmonth, birthday) = Service::CFG::GetBirthday();
-        ui->combo_birthmonth->setCurrentIndex(birthmonth - 1);
-        ui->combo_birthday->setCurrentIndex(birthday - 1);
-
-        // set system language
-        language_index = Service::CFG::GetSystemLanguage();
-        ui->combo_language->setCurrentIndex(language_index);
-
-        // set sound output mode
-        sound_index = Service::CFG::GetSoundOutputMode();
-        ui->combo_sound->setCurrentIndex(sound_index);
-
+        ReadSystemSettings();
         ui->label_disable_info->hide();
     }
+}
+
+void ConfigureSystem::ReadSystemSettings() {
+    // set username
+    username = Service::CFG::GetUsername();
+    // ui->edit_username->setText(QString::fromStdU16String(username)); // TODO(wwylele): Use this when we move to Qt 5.5
+    ui->edit_username->setText(QString::fromUtf16(reinterpret_cast<const ushort*>(username.data())));
+
+    // set birthday
+    std::tie(birthmonth, birthday) = Service::CFG::GetBirthday();
+    ui->combo_birthmonth->setCurrentIndex(birthmonth - 1);
+    ui->combo_birthday->setCurrentIndex(birthday - 1);
+
+    // set system language
+    language_index = Service::CFG::GetSystemLanguage();
+    ui->combo_language->setCurrentIndex(language_index);
+
+    // set sound output mode
+    sound_index = Service::CFG::GetSoundOutputMode();
+    ui->combo_sound->setCurrentIndex(sound_index);
 }
 
 void ConfigureSystem::applyConfiguration() {
@@ -79,7 +76,8 @@ void ConfigureSystem::applyConfiguration() {
     bool modified = false;
 
     // apply username
-    std::u16string new_username = ui->edit_username->text().toStdU16String();
+    // std::u16string new_username = ui->edit_username->text().toStdU16String(); // TODO(wwylele): Use this when we move to Qt 5.5
+    std::u16string new_username(reinterpret_cast<const char16_t*>(ui->edit_username->text().utf16()));
     if (new_username != username) {
         Service::CFG::SetUsername(new_username);
         modified = true;

@@ -30,8 +30,9 @@ void ConfigureDialog::setConfiguration() {
 void ConfigureDialog::applyConfiguration() {
     ui->generalTab->applyConfiguration();
     ui->systemTab->applyConfiguration();
-    ui->layoutTab->applyConfiguration();
     ui->inputTab->applyConfiguration();
     ui->audioTab->applyConfiguration();
+    ui->layoutTab->applyConfiguration();
     ui->debugTab->applyConfiguration();
+    Settings::Apply();
 }

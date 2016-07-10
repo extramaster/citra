@@ -26,6 +26,8 @@ public slots:
     void updateBirthdayComboBox(int birthmonth_index);
 
 private:
+    void ReadSystemSettings();
+
     std::unique_ptr<Ui::ConfigureSystem> ui;
     bool enabled;
 

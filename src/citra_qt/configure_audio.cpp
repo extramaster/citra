@@ -40,5 +40,4 @@ void ConfigureAudio::setConfiguration() {
 
 void ConfigureAudio::applyConfiguration() {
     Settings::values.sink_id = ui->output_sink_combo_box->itemText(ui->output_sink_combo_box->currentIndex()).toStdString();
-    Settings::Apply();
 }
