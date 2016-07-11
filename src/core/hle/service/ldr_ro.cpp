@@ -19,9 +19,8 @@ namespace LDR_RO {
 
 static VAddr loaded_crs; ///< the virtual address of the static module
 
-static ResultCode CROFormatError(u32 description) {
-    return ResultCode(static_cast<ErrorDescription>(description), ErrorModule::RO, ErrorSummary::WrongArgument, ErrorLevel::Permanent);
-}
+static const u32 CRO_HEADER_SIZE = 0x138;
+static const u32 CRO_HASH_SIZE = 0x80;
 
 static const ResultCode ERROR_ALREADY_INITIALIZED =
     ResultCode(ErrorDescription::AlreadyInitialized, ErrorModule::RO, ErrorSummary::Internal,        ErrorLevel::Permanent);
@@ -38,8 +37,9 @@ static const ResultCode ERROR_ILLEGAL_ADDRESS =
 static const ResultCode ERROR_NOT_LOADED =
     ResultCode(static_cast<ErrorDescription>(13),    ErrorModule::RO, ErrorSummary::InvalidState,    ErrorLevel::Permanent);
 
-static const u32 CRO_HEADER_SIZE = 0x138;
-static const u32 CRO_HASH_SIZE = 0x80;
+static ResultCode CROFormatError(u32 description) {
+    return ResultCode(static_cast<ErrorDescription>(description), ErrorModule::RO, ErrorSummary::WrongArgument, ErrorLevel::Permanent);
+}
 
 class CROHelper {
     const VAddr address; ///< the virtual address of this module
@@ -110,6 +110,14 @@ class CROHelper {
         BSS    = 3,
     };
 
+    union SegmentTag {
+        u32 raw;
+        BitField<0, 4, u32> segment_index;
+        BitField<4, 28, u32> offset_into_segment;
+        SegmentTag() = default;
+        SegmentTag(u32 raw_) : raw(raw_) {}
+    };
+
     struct SegmentEntry {
         u32 offset;
         u32 size;
@@ -119,22 +127,25 @@ class CROHelper {
     static_assert(sizeof(SegmentEntry) == 12, "SegmentEntry has wrong size");
 
     struct ExportNamedSymbolEntry {
-        u32 name_offset;        // pointing to a substring in ExportStrings
-        u32 symbol_segment_tag; // to self's segment
+        u32 name_offset;            // pointing to a substring in ExportStrings
+        SegmentTag symbol_position; // to self's segment
         static constexpr HeaderField TABLE_OFFSET_FIELD = ExportNamedSymbolTableOffset;
     };
     static_assert(sizeof(ExportNamedSymbolEntry) == 8, "ExportNamedSymbolEntry has wrong size");
 
     struct ExportIndexedSymbolEntry {
-        u32 symbol_segment_tag; // to self's segment
+        SegmentTag symbol_position; // to self's segment
         static constexpr HeaderField TABLE_OFFSET_FIELD = ExportIndexedSymbolTableOffset;
     };
     static_assert(sizeof(ExportIndexedSymbolEntry) == 4, "ExportIndexedSymbolEntry has wrong size");
 
     struct ExportTreeEntry {
-        u16 test_bit;           // bit sddress into the name to test
-        u16 left;               // the highest bit indicates whether the next entry is the last one
-        u16 right;              // the highest bit indicates whether the next entry is the last one
+        u16 test_bit; // bit sddress into the name to test
+        union Child{
+            u16 raw;
+            BitField<0, 15, u16> next_index;
+            BitField<15, 1, u16> is_end;
+        } left, right;
         u16 export_table_index; // index of an ExportNamedSymbolEntry
         static constexpr HeaderField TABLE_OFFSET_FIELD = ExportTreeTableOffset;
     };
@@ -155,8 +166,8 @@ class CROHelper {
     static_assert(sizeof(ImportIndexedSymbolEntry) == 8, "ImportIndexedSymbolEntry has wrong size");
 
     struct ImportAnonymousSymbolEntry {
-        u32 symbol_segment_tag; // to the opponent's segment
-        u32 patch_batch_offset; // pointing to a batch in ExternalPatchTable
+        SegmentTag symbol_position; // to the opponent's segment
+        u32 patch_batch_offset;     // pointing to a batch in ExternalPatchTable
         static constexpr HeaderField TABLE_OFFSET_FIELD = ImportAnonymousSymbolTableOffset;
     };
     static_assert(sizeof(ImportAnonymousSymbolEntry) == 8, "ImportAnonymousSymbolEntry has wrong size");
@@ -193,10 +204,10 @@ class CROHelper {
     };
 
     struct PatchEntry {
-        u32 target_segment_tag; // to self's segment in ExternalPatchTable; to static module segment in StaticPatchTable
+        SegmentTag target_position; // to self's segment as an ExternalPatchEntry; to static module segment as a StaticPatchEntry
         PatchType type;
         u8 is_batch_end;
-        u8 is_batch_resolved;   // set at a batch beginning if the batch is resolved
+        u8 is_batch_resolved;       // set at a batch beginning if the batch is resolved
         INSERT_PADDING_BYTES(1);
         u32 shift;
     };
@@ -211,7 +222,7 @@ class CROHelper {
     };
 
     struct InternalPatchEntry {
-        u32 target_segment_tag; // to self's segment
+        SegmentTag target_position; // to self's segment
         PatchType type;
         u8 symbol_segment;
         INSERT_PADDING_BYTES(2);
@@ -221,8 +232,8 @@ class CROHelper {
     static_assert(sizeof(InternalPatchEntry) == 12, "InternalPatchEntry has wrong size");
 
     struct StaticAnonymousSymbolEntry {
-        u32 symbol_segment_tag; // to self's segment
-        u32 patch_batch_offset; // pointing to a batch in StaticPatchTable
+        SegmentTag symbol_position; // to self's segment
+        u32 patch_batch_offset;     // pointing to a batch in StaticPatchTable
         static constexpr HeaderField TABLE_OFFSET_FIELD = StaticAnonymousSymbolTableOffset;
     };
     static_assert(sizeof(StaticAnonymousSymbolEntry) == 8, "StaticAnonymousSymbolEntry has wrong size");
@@ -289,9 +300,9 @@ class CROHelper {
      * Iterates over all registered auto-link modules, including the static module
      * and do some operation.
      * @param func a function object to operate on a module. It accepts one parameter
-     *        CROHelper and returns ResultVal<bool>. It should return true if continues the iteration,
-     *        false if stops the iteration, or an error code (which will also stop the iteration).
-     * @returns ResultCode indicating the result of the operation, 0 if all iteration success,
+     *        CROHelper and returns ResultVal<bool>. It should return true to continue the iteration,
+     *        false to stop the iteration, or an error code (which will also stop the iteration).
+     * @returns ResultCode indicating the result of the operation, RESULT_SUCCESS if all iteration success,
      *         otherwise error code of the last iteration.
      */
     template <typename T>
@@ -316,7 +327,7 @@ class CROHelper {
      */
     template <typename T>
     void GetEntry(int index, T& data) {
-        static_assert(std::is_pod<T>::value, "The entry type must be POD!");
+        static_assert(std::is_trivially_copyable<T>::value, "The entry type must be trivially copyable!");
         Memory::ReadBlock(GetField(T::TABLE_OFFSET_FIELD) + index * sizeof(T), &data, sizeof(T));
     }
 
@@ -329,35 +340,24 @@ class CROHelper {
      */
     template <typename T>
     void SetEntry(int index, const T& data) {
-        static_assert(std::is_pod<T>::value, "The entry type must be POD!");
+        static_assert(std::is_trivially_copyable<T>::value, "The entry type must be trivially copyable!");
         Memory::WriteBlock(GetField(T::TABLE_OFFSET_FIELD) + index * sizeof(T), &data, sizeof(T));
     }
 
-    /**
-     * Decodes a segment tag into segment index and offset.
-     * @param segment_tag the segment tag to decode
-     * @returns a tuple of (index, offset)
-     */
-    static std::tuple<u32, u32> DecodeSegmentTag(u32 segment_tag) {
-        return std::make_tuple(segment_tag & 0xF, segment_tag >> 4);
-    }
-
     /// Convert a segment tag to virtual address in this module. returns 0 if invalid
-    VAddr SegmentTagToAddress(u32 segment_tag) {
-        u32 index, offset;
-        std::tie(index, offset) = DecodeSegmentTag(segment_tag);
+    VAddr SegmentTagToAddress(SegmentTag segment_tag) {
         u32 segment_num = GetField(SegmentNum);
 
-        if (index >= segment_num)
+        if (segment_tag.segment_index >= segment_num)
             return 0;
 
         SegmentEntry entry;
-        GetEntry(index, entry);
+        GetEntry(segment_tag.segment_index, entry);
 
-        if (offset >= entry.size)
+        if (segment_tag.offset_into_segment >= entry.size)
             return 0;
 
-        return entry.offset + offset;
+        return entry.offset + segment_tag.offset_into_segment;
     }
 
     /**
@@ -372,13 +372,14 @@ class CROHelper {
         u32 len = name.size();
         ExportTreeEntry entry;
         GetEntry(0, entry);
-        u16 next = entry.left;
+        ExportTreeEntry::Child next;
+        next.raw = entry.left.raw;
         u32 found_id;
 
         while (1) {
-            GetEntry(next & 0x7FFF, entry);
+            GetEntry(next.next_index, entry);
 
-            if (next & 0x8000) {
+            if (next.is_end) {
                 found_id = entry.export_table_index;
                 break;
             }
@@ -387,11 +388,11 @@ class CROHelper {
             u16 test_bit_in_byte = entry.test_bit & 7;
 
             if (test_byte >= len) {
-                next = entry.left;
+                next.raw = entry.left.raw;
             } else if((name[test_byte] >> test_bit_in_byte) & 1) {
-                next = entry.right;
+                next.raw = entry.right.raw;
             } else {
-                next = entry.left;
+                next.raw = entry.left.raw;
             }
         }
 
@@ -407,7 +408,7 @@ class CROHelper {
         if (Memory::GetString(symbol_entry.name_offset, export_strings_size) != name)
             return 0;
 
-        return SegmentTagToAddress(symbol_entry.symbol_segment_tag);
+        return SegmentTagToAddress(symbol_entry.symbol_position);
     }
 
     /// Rebases offsets in module header according to module address
@@ -566,7 +567,7 @@ class CROHelper {
             ExportTreeEntry entry;
             GetEntry(i, entry);
 
-            if ((entry.left & 0x7FFF) >= tree_num || (entry.right & 0x7FFF) >= tree_num) {
+            if (entry.left.next_index >= tree_num || entry.right.next_index >= tree_num) {
                 return CROFormatError(0x11);
             }
         }
@@ -770,7 +771,7 @@ class CROHelper {
         bool batch_begin = true;
         for (u32 i = 0; i < external_patch_num; ++i) {
             GetEntry(i, patch);
-            VAddr patch_target = SegmentTagToAddress(patch.target_segment_tag);
+            VAddr patch_target = SegmentTagToAddress(patch.target_position);
 
             if (patch_target == 0) {
                 return CROFormatError(0x12);
@@ -801,7 +802,7 @@ class CROHelper {
         bool batch_begin = true;
         for (u32 i = 0; i < external_patch_num; ++i) {
             GetEntry(i, patch);
-            VAddr patch_target = SegmentTagToAddress(patch.target_segment_tag);
+            VAddr patch_target = SegmentTagToAddress(patch.target_position);
 
             if (patch_target == 0) {
                 return CROFormatError(0x12);
@@ -840,7 +841,7 @@ class CROHelper {
             PatchEntry patch;
             Memory::ReadBlock(patch_address, &patch, sizeof(PatchEntry));
 
-            VAddr patch_target = SegmentTagToAddress(patch.target_segment_tag);
+            VAddr patch_target = SegmentTagToAddress(patch.target_position);
             if (patch_target == 0) {
                 return CROFormatError(0x12);
             }
@@ -882,7 +883,7 @@ class CROHelper {
                 return CROFormatError(0x16);
             }
 
-            u32 symbol_address = SegmentTagToAddress(entry.symbol_segment_tag);
+            u32 symbol_address = SegmentTagToAddress(entry.symbol_position);
             LOG_TRACE(Service_LDR, "CRO \"%s\" exports 0x%08X to the static module", ModuleName().data(), symbol_address);
             ResultCode result = crs.ApplyPatchBatch(batch_address, symbol_address);
             if (result.IsError()) {
@@ -900,20 +901,18 @@ class CROHelper {
         for (u32 i = 0; i < internal_patch_num; ++i) {
             InternalPatchEntry patch;
             GetEntry(i, patch);
-            VAddr target_addressB = SegmentTagToAddress(patch.target_segment_tag);
+            VAddr target_addressB = SegmentTagToAddress(patch.target_position);
             if (target_addressB == 0) {
                 return CROFormatError(0x15);
             }
 
             VAddr target_address;
-            u32 target_segment_index, target_segment_offset;
-            std::tie(target_segment_index, target_segment_offset) = DecodeSegmentTag(patch.target_segment_tag);
             SegmentEntry target_segment;
-            GetEntry(target_segment_index, target_segment);
+            GetEntry(patch.target_position.segment_index, target_segment);
 
             if (target_segment.type == SegmentType::Data) {
                 // If the patch is to the .data segment, we need to patch it in the old buffer
-                target_address = old_data_segment_address + target_segment_offset;
+                target_address = old_data_segment_address + patch.target_position.offset_into_segment;
             } else {
                 target_address = target_addressB;
             }
@@ -940,7 +939,7 @@ class CROHelper {
         for (u32 i = 0; i < internal_patch_num; ++i) {
             InternalPatchEntry patch;
             GetEntry(i, patch);
-            VAddr target_address = SegmentTagToAddress(patch.target_segment_tag);
+            VAddr target_address = SegmentTagToAddress(patch.target_position);
 
             if (target_address == 0) {
                 return CROFormatError(0x15);
@@ -1195,7 +1194,7 @@ class CROHelper {
                         entry.GetImportIndexedSymbolEntry(j, im);
                         ExportIndexedSymbolEntry ex;
                         source.GetEntry(im.index, ex);
-                        u32 symbol_address = source.SegmentTagToAddress(ex.symbol_segment_tag);
+                        u32 symbol_address = source.SegmentTagToAddress(ex.symbol_position);
                         LOG_TRACE(Service_LDR, "    Imports 0x%08X", symbol_address);
                         ResultCode result = ApplyPatchBatch(im.patch_batch_offset, symbol_address);
                         if (result.IsError()) {
@@ -1208,7 +1207,7 @@ class CROHelper {
                     for (u32 j = 0; j < entry.import_anonymous_symbol_num; ++j) {
                         ImportAnonymousSymbolEntry im;
                         entry.GetImportAnonymousSymbolEntry(j, im);
-                        u32 symbol_address = source.SegmentTagToAddress(im.symbol_segment_tag);
+                        u32 symbol_address = source.SegmentTagToAddress(im.symbol_position);
                         LOG_TRACE(Service_LDR, "    Imports 0x%08X", symbol_address);
                         ResultCode result = ApplyPatchBatch(im.patch_batch_offset, symbol_address);
                         if (result.IsError()) {
@@ -1305,7 +1304,7 @@ class CROHelper {
                 entry.GetImportIndexedSymbolEntry(j, im);
                 ExportIndexedSymbolEntry ex;
                 GetEntry(im.index, ex);
-                u32 symbol_address = SegmentTagToAddress(ex.symbol_segment_tag);
+                u32 symbol_address = SegmentTagToAddress(ex.symbol_position);
                 LOG_TRACE(Service_LDR, "    exports symbol 0x%08X", symbol_address);
                 ResultCode result = target.ApplyPatchBatch(im.patch_batch_offset, symbol_address);
                 if (result.IsError()) {
@@ -1319,7 +1318,7 @@ class CROHelper {
             for (u32 j = 0; j < entry.import_anonymous_symbol_num; ++j) {
                 ImportAnonymousSymbolEntry im;
                 entry.GetImportAnonymousSymbolEntry(j, im);
-                u32 symbol_address = SegmentTagToAddress(im.symbol_segment_tag);
+                u32 symbol_address = SegmentTagToAddress(im.symbol_position);
                 LOG_TRACE(Service_LDR, "    exports symbol 0x%08X", symbol_address);
                 ResultCode result = target.ApplyPatchBatch(im.patch_batch_offset, symbol_address);
                 if (result.IsError()) {
