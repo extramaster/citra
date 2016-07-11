@@ -35,41 +35,41 @@
 #define ROTATE_RIGHT_32(n, i) ROTATE_RIGHT(n, i, 32)
 #define ROTATE_LEFT_32(n, i)  ROTATE_LEFT(n, i, 32)
 
-static bool CondPassed(const ARMul_State* cpu, unsigned int cond) {
-    const bool n_flag = cpu->NFlag != 0;
-    const bool z_flag = cpu->ZFlag != 0;
-    const bool c_flag = cpu->CFlag != 0;
-    const bool v_flag = cpu->VFlag != 0;
+static const bool CondPassed(const ARMul_State* cpu, const unsigned int cond) {
+#define N_FLAG (cpu->NFlag != 0)
+#define Z_FLAG (cpu->ZFlag != 0)
+#define C_FLAG (cpu->CFlag != 0)
+#define V_FLAG (cpu->VFlag != 0)
 
     switch (cond) {
     case ConditionCode::EQ:
-        return z_flag;
+        return Z_FLAG;
     case ConditionCode::NE:
-        return !z_flag;
+        return !Z_FLAG;
     case ConditionCode::CS:
-        return c_flag;
+        return C_FLAG;
     case ConditionCode::CC:
-        return !c_flag;
+        return !C_FLAG;
     case ConditionCode::MI:
-        return n_flag;
+        return N_FLAG;
     case ConditionCode::PL:
-        return !n_flag;
+        return !N_FLAG;
     case ConditionCode::VS:
-        return v_flag;
+        return V_FLAG;
     case ConditionCode::VC:
-        return !v_flag;
+        return !V_FLAG;
     case ConditionCode::HI:
-        return (c_flag && !z_flag);
+        return (C_FLAG && !Z_FLAG);
     case ConditionCode::LS:
-        return (!c_flag || z_flag);
+        return (!C_FLAG || Z_FLAG);
     case ConditionCode::GE:
-        return (n_flag == v_flag);
+        return (N_FLAG == V_FLAG);
     case ConditionCode::LT:
-        return (n_flag != v_flag);
+        return (N_FLAG != V_FLAG);
     case ConditionCode::GT:
-        return (!z_flag && (n_flag == v_flag));
+        return (!Z_FLAG && (N_FLAG == V_FLAG));
     case ConditionCode::LE:
-        return (z_flag || (n_flag != v_flag));
+        return (Z_FLAG || (N_FLAG != V_FLAG));
     case ConditionCode::AL:
     case ConditionCode::NV: // Unconditional
         return true;
@@ -1497,7 +1497,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
 
             bool carry;
             bool overflow;
-            u32 result = AddWithCarry(rn_val, SHIFTER_OPERAND, 0, &carry, &overflow);
+            const u32 result = AddWithCarry(rn_val, SHIFTER_OPERAND, 0, &carry, &overflow);
 
             UPDATE_NFLAG(result);
             UPDATE_ZFLAG(result);

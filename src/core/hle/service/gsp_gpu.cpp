@@ -587,10 +587,11 @@ static void TriggerCmdReqQueue(Service::Interface* self) {
     for (unsigned thread_id = 0; thread_id < 0x4; ++thread_id) {
         CommandBuffer* command_buffer = (CommandBuffer*)GetCommandBuffer(thread_id);
 
-        // Iterate through each command...
+        // Iterate through each command... Loop must be serial.
         for (unsigned i = 0; i < command_buffer->number_commands; ++i) {
+#if !defined(ABSOLUTELY_NO_DEBUG)
             g_debugger.GXCommandProcessed((u8*)&command_buffer->commands[i]);
-
+#endif
             // Decode and execute command
             ExecuteCommand(command_buffer->commands[i], thread_id);
 

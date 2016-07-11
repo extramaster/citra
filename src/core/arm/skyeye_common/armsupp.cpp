@@ -22,6 +22,7 @@
 #include "core/arm/skyeye_common/armsupp.h"
 
 // Unsigned sum of absolute difference
+#pragma omp declare simd
 u8 ARMul_UnsignedAbsoluteDifference(u8 left, u8 right)
 {
     if (left > right)
@@ -31,7 +32,8 @@ u8 ARMul_UnsignedAbsoluteDifference(u8 left, u8 right)
 }
 
 // Add with carry, indicates if a carry-out or signed overflow occurred.
-u32 AddWithCarry(u32 left, u32 right, u32 carry_in, bool* carry_out_occurred, bool* overflow_occurred)
+#pragma omp declare simd
+u32 AddWithCarry(const u32 left, const u32 right, const u32 carry_in, bool* carry_out_occurred, bool* overflow_occurred)
 {
     u64 unsigned_sum = (u64)left + (u64)right + (u64)carry_in;
     s64 signed_sum = (s64)(s32)left + (s64)(s32)right + (s64)carry_in;
@@ -47,6 +49,7 @@ u32 AddWithCarry(u32 left, u32 right, u32 carry_in, bool* carry_out_occurred, bo
 }
 
 // Compute whether an addition of A and B, giving RESULT, overflowed.
+#pragma omp declare simd
 bool AddOverflow(u32 a, u32 b, u32 result)
 {
     return ((NEG(a) && NEG(b) && POS(result)) ||
@@ -54,6 +57,7 @@ bool AddOverflow(u32 a, u32 b, u32 result)
 }
 
 // Compute whether a subtraction of A and B, giving RESULT, overflowed.
+#pragma omp declare simd
 bool SubOverflow(u32 a, u32 b, u32 result)
 {
     return ((NEG(a) && POS(b) && POS(result)) ||
@@ -61,6 +65,7 @@ bool SubOverflow(u32 a, u32 b, u32 result)
 }
 
 // Returns true if the Q flag should be set as a result of overflow.
+#pragma omp declare simd
 bool ARMul_AddOverflowQ(u32 a, u32 b)
 {
     u32 result = a + b;
@@ -71,6 +76,7 @@ bool ARMul_AddOverflowQ(u32 a, u32 b)
 }
 
 // 8-bit signed saturated addition
+#pragma omp declare simd
 u8 ARMul_SignedSaturatedAdd8(u8 left, u8 right)
 {
     u8 result = left + right;
@@ -86,6 +92,7 @@ u8 ARMul_SignedSaturatedAdd8(u8 left, u8 right)
 }
 
 // 8-bit signed saturated subtraction
+#pragma omp declare simd
 u8 ARMul_SignedSaturatedSub8(u8 left, u8 right)
 {
     u8 result = left - right;
@@ -101,6 +108,7 @@ u8 ARMul_SignedSaturatedSub8(u8 left, u8 right)
 }
 
 // 16-bit signed saturated addition
+#pragma omp declare simd
 u16 ARMul_SignedSaturatedAdd16(u16 left, u16 right)
 {
     u16 result = left + right;
@@ -116,6 +124,7 @@ u16 ARMul_SignedSaturatedAdd16(u16 left, u16 right)
 }
 
 // 16-bit signed saturated subtraction
+#pragma omp declare simd
 u16 ARMul_SignedSaturatedSub16(u16 left, u16 right)
 {
     u16 result = left - right;
@@ -131,6 +140,7 @@ u16 ARMul_SignedSaturatedSub16(u16 left, u16 right)
 }
 
 // 8-bit unsigned saturated addition
+#pragma omp declare simd
 u8 ARMul_UnsignedSaturatedAdd8(u8 left, u8 right)
 {
     u8 result = left + right;
@@ -142,6 +152,7 @@ u8 ARMul_UnsignedSaturatedAdd8(u8 left, u8 right)
 }
 
 // 16-bit unsigned saturated addition
+#pragma omp declare simd
 u16 ARMul_UnsignedSaturatedAdd16(u16 left, u16 right)
 {
     u16 result = left + right;
@@ -153,6 +164,7 @@ u16 ARMul_UnsignedSaturatedAdd16(u16 left, u16 right)
 }
 
 // 8-bit unsigned saturated subtraction
+#pragma omp declare simd
 u8 ARMul_UnsignedSaturatedSub8(u8 left, u8 right)
 {
     if (left <= right)
@@ -162,6 +174,7 @@ u8 ARMul_UnsignedSaturatedSub8(u8 left, u8 right)
 }
 
 // 16-bit unsigned saturated subtraction
+#pragma omp declare simd
 u16 ARMul_UnsignedSaturatedSub16(u16 left, u16 right)
 {
     if (left <= right)
@@ -171,6 +184,7 @@ u16 ARMul_UnsignedSaturatedSub16(u16 left, u16 right)
 }
 
 // Signed saturation.
+#pragma omp declare simd
 u32 ARMul_SignedSatQ(s32 value, u8 shift, bool* saturation_occurred)
 {
     const u32 max = (1 << shift) - 1;
@@ -190,6 +204,7 @@ u32 ARMul_SignedSatQ(s32 value, u8 shift, bool* saturation_occurred)
 }
 
 // Unsigned saturation
+#pragma omp declare simd
 u32 ARMul_UnsignedSatQ(s32 value, u8 shift, bool* saturation_occurred)
 {
     const u32 max = (1 << shift) - 1;
