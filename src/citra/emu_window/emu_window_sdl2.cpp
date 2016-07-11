@@ -36,7 +36,8 @@ void EmuWindow_SDL2::OnMouseButton(u32 button, u8 state, s32 x, s32 y) {
         } else {
             TouchReleased();
         }
-    } else if (button == SDL_BUTTON_RIGHT) {
+    }
+    else if (button == SDL_BUTTON_RIGHT) {
         if (state == SDL_PRESSED) {
             MotionEmu::BeginTilt(x, y);
         } else {
@@ -73,11 +74,7 @@ EmuWindow_SDL2::EmuWindow_SDL2() {
 
     // Initialize the window
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_CRITICAL(Frontend, "Failed to initialize SDL2! Exiting..."));
-#endif
-
+        LOG_CRITICAL(Frontend, "Failed to initialize SDL2! Exiting...");
         exit(1);
     }
 
@@ -92,38 +89,26 @@ EmuWindow_SDL2::EmuWindow_SDL2() {
 
     std::string window_title = Common::StringFromFormat("Citra | %s-%s", Common::g_scm_branch, Common::g_scm_desc);
     render_window = SDL_CreateWindow(window_title.c_str(),
-                                     SDL_WINDOWPOS_UNDEFINED, // x position
-                                     SDL_WINDOWPOS_UNDEFINED, // y position
-                                     VideoCore::kScreenTopWidth,
-                                     VideoCore::kScreenTopHeight + VideoCore::kScreenBottomHeight,
-                                     SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+        SDL_WINDOWPOS_UNDEFINED, // x position
+        SDL_WINDOWPOS_UNDEFINED, // y position
+        VideoCore::kScreenTopWidth,
+        VideoCore::kScreenTopHeight + VideoCore::kScreenBottomHeight,
+        SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 
     if (render_window == nullptr) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_CRITICAL(Frontend, "Failed to create SDL2 window! Exiting..."));
-#endif
-
+        LOG_CRITICAL(Frontend, "Failed to create SDL2 window! Exiting...");
         exit(1);
     }
 
     gl_context = SDL_GL_CreateContext(render_window);
 
     if (gl_context == nullptr) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_CRITICAL(Frontend, "Failed to create SDL2 GL context! Exiting..."));
-#endif
-
+        LOG_CRITICAL(Frontend, "Failed to create SDL2 GL context! Exiting...");
         exit(1);
     }
 
     if (!gladLoadGLLoader(static_cast<GLADloadproc>(SDL_GL_GetProcAddress))) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_CRITICAL(Frontend, "Failed to initialize GL functions! Exiting..."));
-#endif
-
+        LOG_CRITICAL(Frontend, "Failed to initialize GL functions! Exiting...");
         exit(1);
     }
 

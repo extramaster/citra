@@ -10,7 +10,8 @@ class QTreeWidget;
 class QTreeWidgetItem;
 class EmuThread;
 
-class RegistersWidget : public QDockWidget {
+class RegistersWidget : public QDockWidget
+{
     Q_OBJECT
 
 public:

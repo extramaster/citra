@@ -11,7 +11,8 @@ namespace Ui {
 class ConfigureDebug;
 }
 
-class ConfigureDebug : public QWidget {
+class ConfigureDebug : public QWidget
+{
     Q_OBJECT
 
 public:

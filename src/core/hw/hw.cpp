@@ -36,11 +36,7 @@ inline void Read(T &var, const u32 addr) {
         LCD::Read(var, addr);
         break;
     default:
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(HW_Memory, "unknown Read%lu @ 0x%08X", sizeof(var) * 8, addr));
-#endif
-
+        LOG_ERROR(HW_Memory, "unknown Read%lu @ 0x%08X", sizeof(var) * 8, addr);
     }
 }
 
@@ -69,11 +65,7 @@ inline void Write(u32 addr, const T data) {
         LCD::Write(addr, data);
         break;
     default:
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(HW_Memory, "unknown Write%lu 0x%08X @ 0x%08X", sizeof(data) * 8, (u32)data, addr));
-#endif
-
+        LOG_ERROR(HW_Memory, "unknown Write%lu 0x%08X @ 0x%08X", sizeof(data) * 8, (u32)data, addr);
     }
 }
 
@@ -97,22 +89,14 @@ void Update() {
 void Init() {
     GPU::Init();
     LCD::Init();
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_DEBUG(HW, "initialized OK"));
-#endif
-
+    LOG_DEBUG(HW, "initialized OK");
 }
 
 /// Shutdown hardware
 void Shutdown() {
     GPU::Shutdown();
     LCD::Shutdown();
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_DEBUG(HW, "shutdown OK"));
-#endif
-
+    LOG_DEBUG(HW, "shutdown OK");
 }
 
 }

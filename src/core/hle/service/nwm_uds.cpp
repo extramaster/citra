@@ -30,11 +30,7 @@ static void Shutdown(Service::Interface* self) {
 
     cmd_buff[1] = RESULT_SUCCESS.raw;
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_WARNING(Service_NWM, "(STUBBED) called"));
-#endif
-
+    LOG_WARNING(Service_NWM, "(STUBBED) called");
 }
 
 /**
@@ -73,15 +69,11 @@ static void RecvBeaconBroadcastData(Service::Interface* self) {
 
     cmd_buff[1] = RESULT_SUCCESS.raw;
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
     LOG_WARNING(Service_NWM, "(STUBBED) called out_buffer_size=0x%08X, unk1=0x%08X, unk2=0x%08X,"
                 "mac_address=0x%08X, unk3=0x%08X, wlan_comm_id=0x%08X, ctr_gen_id=0x%08X,"
                 "value=%u, input_handle=0x%08X, new_buffer_size=0x%08X, out_buffer_ptr=0x%08X",
                 out_buffer_size, unk1, unk2, mac_address, unk3, wlan_comm_id, ctr_gen_id, value,
-                input_handle, new_buffer_size, out_buffer_ptr));
-#endif
-
+                input_handle, new_buffer_size, out_buffer_ptr);
 }
 
 /**
@@ -109,12 +101,8 @@ static void Initialize(Service::Interface* self) {
     cmd_buff[2] = 0;
     cmd_buff[3] = Kernel::g_handle_table.Create(handle_event).MoveFrom(); //TODO(purpasmart): Verify if this is a event handle
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
     LOG_WARNING(Service_NWM, "(STUBBED) called unk1=0x%08X, unk2=0x%08X, value=%u, handle=0x%08X",
-                unk1, unk2, value, handle));
-#endif
-
+                unk1, unk2, value, handle);
 }
 
 const Interface::FunctionInfo FunctionTable[] = {

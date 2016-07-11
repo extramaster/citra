@@ -74,9 +74,8 @@ public:
                 // If we are the last observer to be destroyed, tell the debugger context that
                 // it is free to continue. In particular, this is required for a proper Citra
                 // shutdown, when the emulation thread is waiting at a breakpoint.
-                if (context->breakpoint_observers.empty()) {
+                if (context->breakpoint_observers.empty())
                     context->Resume();
-                }
             }
         }
 
@@ -128,9 +127,8 @@ public:
      */
     void OnEvent(Event event, void* data) {
         // This check is left in the header to allow the compiler to inline it.
-        if (!breakpoints[(int)event].enabled) {
+        if (!breakpoints[(int)event].enabled)
             return;
-        }
         // For the rest of event handling, call a separate function.
         DoOnEvent(event, data);
     }

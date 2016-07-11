@@ -9,7 +9,8 @@
 
 ConfigureDebug::ConfigureDebug(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::ConfigureDebug) {
+    ui(new Ui::ConfigureDebug)
+{
     ui->setupUi(this);
     this->setConfiguration();
 }

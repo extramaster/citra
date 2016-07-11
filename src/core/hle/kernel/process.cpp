@@ -52,11 +52,7 @@ void Process::ParseKernelCaps(const u32* kernel_caps, size_t len) {
             continue;
         } else if ((type & 0xF00) == 0xE00) { // 0x0FFF
             // Allowed interrupts list
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-            LOG_WARNING(Loader, "ExHeader allowed interrupts list ignored"));
-#endif
-
+            LOG_WARNING(Loader, "ExHeader allowed interrupts list ignored");
         } else if ((type & 0xF80) == 0xF00) { // 0x07FF
             // Allowed syscalls mask
             unsigned int index = ((descriptor >> 24) & 7) * 24;
@@ -64,8 +60,7 @@ void Process::ParseKernelCaps(const u32* kernel_caps, size_t len) {
 
             while (bits && index < svc_access_mask.size()) {
                 svc_access_mask.set(index, bits & 1);
-                ++index;
-                bits >>= 1;
+                ++index; bits >>= 1;
             }
         } else if ((type & 0xFF0) == 0xFE0) { // 0x00FF
             // Handle table size
@@ -76,11 +71,7 @@ void Process::ParseKernelCaps(const u32* kernel_caps, size_t len) {
         } else if ((type & 0xFFE) == 0xFF8) { // 0x001F
             // Mapped memory range
             if (i+1 >= len || ((kernel_caps[i+1] >> 20) & 0xFFE) != 0xFF8) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-                LOG_WARNING(Loader, "Incomplete exheader memory range descriptor ignored."));
-#endif
-
+                LOG_WARNING(Loader, "Incomplete exheader memory range descriptor ignored.");
                 continue;
             }
             u32 end_desc = kernel_caps[i+1];
@@ -106,17 +97,9 @@ void Process::ParseKernelCaps(const u32* kernel_caps, size_t len) {
 
             int minor = kernel_version & 0xFF;
             int major = (kernel_version >> 8) & 0xFF;
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-            LOG_INFO(Loader, "ExHeader kernel version: %d.%d", major, minor));
-#endif
-
+            LOG_INFO(Loader, "ExHeader kernel version: %d.%d", major, minor);
         } else {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-            LOG_ERROR(Loader, "Unhandled kernel caps descriptor: 0x%08X", descriptor));
-#endif
-
+            LOG_ERROR(Loader, "Unhandled kernel caps descriptor: 0x%08X", descriptor);
         }
     }
 }
@@ -126,7 +109,7 @@ void Process::Run(s32 main_thread_priority, u32 stack_size) {
 
     auto MapSegment = [&](CodeSet::Segment& segment, VMAPermission permissions, MemoryState memory_state) {
         auto vma = vm_manager.MapMemoryBlock(segment.addr, codeset->memory,
-                                             segment.offset, segment.size, memory_state).Unwrap();
+                segment.offset, segment.size, memory_state).Unwrap();
         vm_manager.Reprotect(vma, permissions);
         misc_memory_used += segment.size;
         memory_region->used += segment.size;
@@ -139,8 +122,8 @@ void Process::Run(s32 main_thread_priority, u32 stack_size) {
 
     // Allocate and map stack
     vm_manager.MapMemoryBlock(Memory::HEAP_VADDR_END - stack_size,
-                              std::make_shared<std::vector<u8>>(stack_size, 0), 0, stack_size, MemoryState::Locked
-                             ).Unwrap();
+            std::make_shared<std::vector<u8>>(stack_size, 0), 0, stack_size, MemoryState::Locked
+            ).Unwrap();
     misc_memory_used += stack_size;
     memory_region->used += stack_size;
 
@@ -202,9 +185,7 @@ ResultCode Process::HeapFree(VAddr target, u32 size) {
     }
 
     ResultCode result = vm_manager.UnmapRange(target, size);
-    if (result.IsError()) {
-        return result;
-    }
+    if (result.IsError()) return result;
 
     heap_used -= size;
     memory_region->used -= size;
@@ -223,7 +204,7 @@ ResultVal<VAddr> Process::LinearAllocate(VAddr target, u32 size, VMAPermission p
     }
 
     if (target < GetLinearHeapBase() || target + size > GetLinearHeapLimit() ||
-            target > heap_end || target + size < target) {
+        target > heap_end || target + size < target) {
 
         return ERR_INVALID_ADDRESS;
     }
@@ -252,7 +233,7 @@ ResultCode Process::LinearFree(VAddr target, u32 size) {
     auto& linheap_memory = memory_region->linear_heap_memory;
 
     if (target < GetLinearHeapBase() || target + size > GetLinearHeapLimit() ||
-            target + size < target) {
+        target + size < target) {
 
         return ERR_INVALID_ADDRESS;
     }
@@ -267,9 +248,7 @@ ResultCode Process::LinearFree(VAddr target, u32 size) {
     }
 
     ResultCode result = vm_manager.UnmapRange(target, size);
-    if (result.IsError()) {
-        return result;
-    }
+    if (result.IsError()) return result;
 
     linear_heap_used -= size;
     memory_region->used -= size;

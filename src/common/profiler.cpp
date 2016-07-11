@@ -14,7 +14,7 @@ namespace Common {
 namespace Profiling {
 
 ProfilingManager::ProfilingManager()
-    : last_frame_end(Clock::now()), this_frame_start(Clock::now()) {
+        : last_frame_end(Clock::now()), this_frame_start(Clock::now()) {
 }
 
 void ProfilingManager::BeginFrame() {
@@ -31,7 +31,7 @@ void ProfilingManager::FinishFrame() {
 }
 
 TimingResultsAggregator::TimingResultsAggregator(size_t window_size)
-    : max_window_size(window_size), window_size(0) {
+        : max_window_size(window_size), window_size(0) {
     interframe_times.resize(window_size, Duration::zero());
     frame_times.resize(window_size, Duration::zero());
 }
@@ -45,12 +45,10 @@ void TimingResultsAggregator::AddFrame(const ProfilingFrameResult& frame_result)
     frame_times[cursor] = frame_result.frame_time;
 
     ++cursor;
-    if (cursor == max_window_size) {
+    if (cursor == max_window_size)
         cursor = 0;
-    }
-    if (window_size < max_window_size) {
+    if (window_size < max_window_size)
         ++window_size;
-    }
 }
 
 static AggregatedDuration AggregateField(const std::vector<Duration>& v, size_t len) {
@@ -64,9 +62,8 @@ static AggregatedDuration AggregateField(const std::vector<Duration>& v, size_t 
         result.min = std::min(result.min, value);
         result.max = std::max(result.max, value);
     }
-    if (len != 0) {
+    if (len != 0)
         result.avg /= len;
-    }
 
     return result;
 }

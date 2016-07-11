@@ -52,14 +52,14 @@ public:
 
     void Wait() {
         std::unique_lock<std::mutex> lk(mutex);
-        condvar.wait(lk, [&] { return is_set; });
+        condvar.wait(lk, [&]{ return is_set; });
         is_set = false;
     }
 
     template <class Clock, class Duration>
     bool WaitUntil(const std::chrono::time_point<Clock,Duration>& time) {
         std::unique_lock<std::mutex> lk(mutex);
-        if (!condvar.wait_until(lk, time, [&] { return is_set; })) return false;
+        if (!condvar.wait_until(lk, time, [&]{ return is_set; })) return false;
         is_set = false;
         return true;
     }
@@ -90,7 +90,7 @@ public:
             waiting = 0;
             condvar.notify_all();
         } else {
-            condvar.wait(lk, [this, current_generation] { return current_generation != generation; });
+            condvar.wait(lk, [this, current_generation]{ return current_generation != generation; });
         }
     }
 

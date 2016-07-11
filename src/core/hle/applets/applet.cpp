@@ -23,16 +23,16 @@
 // Specializes std::hash for AppletId, so that we can use it in std::unordered_map.
 // Workaround for libstdc++ bug: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=60970
 namespace std {
-template <>
-struct hash<Service::APT::AppletId> {
-    typedef Service::APT::AppletId argument_type;
-    typedef std::size_t result_type;
+    template <>
+    struct hash<Service::APT::AppletId> {
+        typedef Service::APT::AppletId argument_type;
+        typedef std::size_t result_type;
 
-    result_type operator()(const argument_type& id_code) const {
-        typedef std::underlying_type<argument_type>::type Type;
-        return std::hash<Type>()(static_cast<Type>(id_code));
-    }
-};
+        result_type operator()(const argument_type& id_code) const {
+            typedef std::underlying_type<argument_type>::type Type;
+            return std::hash<Type>()(static_cast<Type>(id_code));
+        }
+    };
 }
 
 namespace HLE {
@@ -58,11 +58,7 @@ ResultCode Applet::Create(Service::APT::AppletId id) {
         applets[id] = std::make_shared<ErrEula>(id);
         break;
     default:
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(Service_APT, "Could not create applet %u", id));
-#endif
-
+        LOG_ERROR(Service_APT, "Could not create applet %u", id);
         // TODO(Subv): Find the right error code
         return ResultCode(ErrorDescription::NotFound, ErrorModule::Applet, ErrorSummary::NotSupported, ErrorLevel::Permanent);
     }
@@ -72,9 +68,8 @@ ResultCode Applet::Create(Service::APT::AppletId id) {
 
 std::shared_ptr<Applet> Applet::Get(Service::APT::AppletId id) {
     auto itr = applets.find(id);
-    if (itr != applets.end()) {
+    if (itr != applets.end())
         return itr->second;
-    }
     return nullptr;
 }
 
@@ -89,7 +84,7 @@ static void AppletUpdateEvent(u64 applet_id, int cycles_late) {
     // If the applet is still running after the last update, reschedule the event
     if (applet->IsRunning()) {
         CoreTiming::ScheduleEvent(usToCycles(applet_update_interval_us) - cycles_late,
-                                  applet_update_event, applet_id);
+            applet_update_event, applet_id);
     } else {
         // Otherwise the applet has terminated, in which case we should clean it up
         applets[id] = nullptr;
@@ -98,9 +93,8 @@ static void AppletUpdateEvent(u64 applet_id, int cycles_late) {
 
 ResultCode Applet::Start(const Service::APT::AppletStartupParameter& parameter) {
     ResultCode result = StartImpl(parameter);
-    if (result.IsError()) {
+    if (result.IsError())
         return result;
-    }
     // Schedule the update event
     CoreTiming::ScheduleEvent(usToCycles(applet_update_interval_us), applet_update_event, static_cast<u64>(id));
     return result;
@@ -109,9 +103,8 @@ ResultCode Applet::Start(const Service::APT::AppletStartupParameter& parameter) 
 bool IsLibraryAppletRunning() {
     // Check the applets map for instances of any applet
     for (auto itr = applets.begin(); itr != applets.end(); ++itr)
-        if (itr->second != nullptr) {
+        if (itr->second != nullptr)
             return true;
-        }
     return false;
 }
 

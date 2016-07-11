@@ -11,7 +11,8 @@ namespace Ui {
 class ConfigureDialog;
 }
 
-class ConfigureDialog : public QDialog {
+class ConfigureDialog : public QDialog
+{
     Q_OBJECT
 
 public:

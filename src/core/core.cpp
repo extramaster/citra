@@ -42,11 +42,7 @@ void RunLoop(int tight_loop) {
     // If we don't have a currently active thread then don't execute instructions,
     // instead advance to the next event and try to yield to the next thread
     if (Kernel::GetCurrentThread() == nullptr) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_TRACE(Core_ARM11, "Idling"));
-#endif
-
+        LOG_TRACE(Core_ARM11, "Idling");
         CoreTiming::Idle();
         CoreTiming::Advance();
         HLE::Reschedule(__func__);
@@ -80,22 +76,14 @@ void Init() {
     g_sys_core = std::make_unique<ARM_DynCom>(USER32MODE);
     g_app_core = std::make_unique<ARM_DynCom>(USER32MODE);
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_DEBUG(Core, "Initialized OK"));
-#endif
-
+    LOG_DEBUG(Core, "Initialized OK");
 }
 
 void Shutdown() {
     g_app_core.reset();
     g_sys_core.reset();
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_DEBUG(Core, "Shutdown OK"));
-#endif
-
+    LOG_DEBUG(Core, "Shutdown OK");
 }
 
 } // namespace

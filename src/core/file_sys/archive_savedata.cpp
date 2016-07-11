@@ -22,7 +22,7 @@ namespace FileSys {
 
 static std::string GetSaveDataContainerPath(const std::string& sdmc_directory) {
     return Common::StringFromFormat("%sNintendo 3DS/%s/%s/title/", sdmc_directory.c_str(),
-                                    SYSTEM_ID.c_str(), SDCARD_ID.c_str());
+            SYSTEM_ID.c_str(), SDCARD_ID.c_str());
 }
 
 static std::string GetSaveDataPath(const std::string& mount_location, u64 program_id) {
@@ -38,12 +38,8 @@ static std::string GetSaveDataMetadataPath(const std::string& mount_location, u6
 }
 
 ArchiveFactory_SaveData::ArchiveFactory_SaveData(const std::string& sdmc_directory)
-    : mount_point(GetSaveDataContainerPath(sdmc_directory)) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_INFO(Service_FS, "Directory %s set as SaveData.", this->mount_point.c_str()));
-#endif
-
+        : mount_point(GetSaveDataContainerPath(sdmc_directory)) {
+    LOG_INFO(Service_FS, "Directory %s set as SaveData.", this->mount_point.c_str());
 }
 
 ResultVal<std::unique_ptr<ArchiveBackend>> ArchiveFactory_SaveData::Open(const Path& path) {
@@ -54,7 +50,7 @@ ResultVal<std::unique_ptr<ArchiveBackend>> ArchiveFactory_SaveData::Open(const P
         // Returning the NotFormatted error code will signal the game to provision the SaveData archive
         // with the files and folders that it expects.
         return ResultCode(ErrorDescription::FS_NotFormatted, ErrorModule::FS,
-                          ErrorSummary::InvalidState, ErrorLevel::Status);
+            ErrorSummary::InvalidState, ErrorLevel::Status);
     }
 
     auto archive = std::make_unique<DiskArchive>(std::move(concrete_mount_point));
@@ -82,11 +78,7 @@ ResultVal<ArchiveFormatInfo> ArchiveFactory_SaveData::GetFormatInfo(const Path& 
     FileUtil::IOFile file(metadata_path, "rb");
 
     if (!file.IsOpen()) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(Service_FS, "Could not open metadata information for archive"));
-#endif
-
+        LOG_ERROR(Service_FS, "Could not open metadata information for archive");
         // TODO(Subv): Verify error code
         return ResultCode(ErrorDescription::FS_NotFormatted, ErrorModule::FS, ErrorSummary::InvalidState, ErrorLevel::Status);
     }

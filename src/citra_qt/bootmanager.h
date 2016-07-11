@@ -19,7 +19,8 @@ class GGLWidgetInternal;
 class GMainWindow;
 class GRenderWindow;
 
-class EmuThread : public QThread {
+class EmuThread : public QThread
+{
     Q_OBJECT
 
 public:
@@ -57,9 +58,7 @@ public:
      * @return True if the emulation thread is running, otherwise false
      * @note This function is thread-safe
      */
-    bool IsRunning() {
-        return running;
-    }
+    bool IsRunning() { return running; }
 
     /**
      * Requests for the emulation thread to stop running
@@ -94,7 +93,8 @@ signals:
     void DebugModeLeft();
 };
 
-class GRenderWindow : public QWidget, public EmuWindow {
+class GRenderWindow : public QWidget, public EmuWindow
+{
     Q_OBJECT
 
 public:

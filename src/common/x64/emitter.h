@@ -34,9 +34,11 @@
 #define PTRBITS 32
 #endif
 
-namespace Gen {
+namespace Gen
+{
 
-enum X64Reg {
+enum X64Reg
+{
     EAX = 0, EBX = 3, ECX = 1, EDX = 2,
     ESI = 6, EDI = 7, EBP = 5, ESP = 4,
 
@@ -61,7 +63,8 @@ enum X64Reg {
     INVALID_REG = 0xFFFFFFFF
 };
 
-enum CCFlags {
+enum CCFlags
+{
     CC_O   = 0,
     CC_NO  = 1,
     CC_B   = 2, CC_C   = 2, CC_NAE = 2,
@@ -80,12 +83,14 @@ enum CCFlags {
     CC_NLE = 0xF, CC_G   = 0xF
 };
 
-enum {
+enum
+{
     NUMGPRs = 16,
     NUMXMMs = 16,
 };
 
-enum {
+enum
+{
     SCALE_NONE = 0,
     SCALE_1 = 1,
     SCALE_2 = 2,
@@ -152,7 +157,8 @@ enum FloatRound {
 class XEmitter;
 
 // RIP addressing does not benefit from micro op fusion on Core arch
-struct OpArg {
+struct OpArg
+{
     friend class XEmitter;
 
     constexpr OpArg() = default;  // dummy op arg, used for storage
@@ -160,10 +166,12 @@ struct OpArg {
         : scale(static_cast<u8>(scale_))
         , offsetOrBaseReg(static_cast<u16>(rmReg))
         , indexReg(static_cast<u16>(scaledReg))
-        , offset(offset_) {
+        , offset(offset_)
+    {
     }
 
-    constexpr bool operator==(const OpArg &b) const {
+    constexpr bool operator==(const OpArg &b) const
+    {
         return operandReg      == b.operandReg      &&
                scale           == b.scale           &&
                offsetOrBaseReg == b.offsetOrBaseReg &&
@@ -177,49 +185,37 @@ struct OpArg {
     void WriteSingleByteOp(XEmitter *emit, u8 op, X64Reg operandReg, int bits);
     void WriteNormalOp(XEmitter *emit, bool toRM, NormalOp op, const OpArg &operand, int bits) const;
 
-    constexpr bool IsImm() const {
-        return scale == SCALE_IMM8 || scale == SCALE_IMM16 || scale == SCALE_IMM32 || scale == SCALE_IMM64;
-    }
-    constexpr bool IsSimpleReg() const {
-        return scale == SCALE_NONE;
-    }
-    constexpr bool IsSimpleReg(X64Reg reg) const {
+    constexpr bool IsImm() const { return scale == SCALE_IMM8 || scale == SCALE_IMM16 || scale == SCALE_IMM32 || scale == SCALE_IMM64; }
+    constexpr bool IsSimpleReg() const { return scale == SCALE_NONE; }
+    constexpr bool IsSimpleReg(X64Reg reg) const
+    {
         return IsSimpleReg() && GetSimpleReg() == reg;
     }
 
-    int GetImmBits() const {
-        switch (scale) {
-        case SCALE_IMM8:
-            return 8;
-        case SCALE_IMM16:
-            return 16;
-        case SCALE_IMM32:
-            return 32;
-        case SCALE_IMM64:
-            return 64;
-        default:
-            return -1;
+    int GetImmBits() const
+    {
+        switch (scale)
+        {
+        case SCALE_IMM8: return 8;
+        case SCALE_IMM16: return 16;
+        case SCALE_IMM32: return 32;
+        case SCALE_IMM64: return 64;
+        default: return -1;
         }
     }
 
     void SetImmBits(int bits) {
-        switch (bits) {
-        case 8:
-            scale = SCALE_IMM8;
-            break;
-        case 16:
-            scale = SCALE_IMM16;
-            break;
-        case 32:
-            scale = SCALE_IMM32;
-            break;
-        case 64:
-            scale = SCALE_IMM64;
-            break;
+        switch (bits)
+        {
+            case 8: scale = SCALE_IMM8; break;
+            case 16: scale = SCALE_IMM16; break;
+            case 32: scale = SCALE_IMM32; break;
+            case 64: scale = SCALE_IMM64; break;
         }
     }
 
-    constexpr X64Reg GetSimpleReg() const {
+    constexpr X64Reg GetSimpleReg() const
+    {
         return scale == SCALE_NONE
                ? static_cast<X64Reg>(offsetOrBaseReg)
                : INVALID_REG;
@@ -243,46 +239,36 @@ private:
 };
 
 template <typename T>
-inline OpArg M(const T *ptr)       {
-    return OpArg(reinterpret_cast<u64>(ptr), static_cast<int>(SCALE_RIP));
-}
-constexpr OpArg R(X64Reg value)    {
-    return OpArg(0, SCALE_NONE, value);
-}
-constexpr OpArg MatR(X64Reg value) {
-    return OpArg(0, SCALE_ATREG, value);
-}
+inline OpArg M(const T *ptr)       { return OpArg(reinterpret_cast<u64>(ptr), static_cast<int>(SCALE_RIP)); }
+constexpr OpArg R(X64Reg value)    { return OpArg(0, SCALE_NONE, value); }
+constexpr OpArg MatR(X64Reg value) { return OpArg(0, SCALE_ATREG, value); }
 
-constexpr OpArg MDisp(X64Reg value, int offset) {
+constexpr OpArg MDisp(X64Reg value, int offset)
+{
     return OpArg(static_cast<u32>(offset), SCALE_ATREG, value);
 }
 
-constexpr OpArg MComplex(X64Reg base, X64Reg scaled, int scale, int offset) {
+constexpr OpArg MComplex(X64Reg base, X64Reg scaled, int scale, int offset)
+{
     return OpArg(offset, scale, base, scaled);
 }
 
-constexpr OpArg MScaled(X64Reg scaled, int scale, int offset) {
+constexpr OpArg MScaled(X64Reg scaled, int scale, int offset)
+{
     return scale == SCALE_1
            ? OpArg(offset, SCALE_ATREG, scaled)
            : OpArg(offset, scale | 0x20, RAX, scaled);
 }
 
-constexpr OpArg MRegSum(X64Reg base, X64Reg offset) {
+constexpr OpArg MRegSum(X64Reg base, X64Reg offset)
+{
     return MComplex(base, offset, 1, 0);
 }
 
-constexpr OpArg Imm8 (u8 imm)  {
-    return OpArg(imm, SCALE_IMM8);
-}
-constexpr OpArg Imm16(u16 imm) {
-    return OpArg(imm, SCALE_IMM16);    //rarely used
-}
-constexpr OpArg Imm32(u32 imm) {
-    return OpArg(imm, SCALE_IMM32);
-}
-constexpr OpArg Imm64(u64 imm) {
-    return OpArg(imm, SCALE_IMM64);
-}
+constexpr OpArg Imm8 (u8 imm)  { return OpArg(imm, SCALE_IMM8);  }
+constexpr OpArg Imm16(u16 imm) { return OpArg(imm, SCALE_IMM16); } //rarely used
+constexpr OpArg Imm32(u32 imm) { return OpArg(imm, SCALE_IMM32); }
+constexpr OpArg Imm64(u64 imm) { return OpArg(imm, SCALE_IMM64); }
 constexpr OpArg UImmAuto(u32 imm) {
     return OpArg(imm, imm >= 128 ? SCALE_IMM32 : SCALE_IMM8);
 }
@@ -291,7 +277,8 @@ constexpr OpArg SImmAuto(s32 imm) {
 }
 
 template <typename T>
-OpArg ImmPtr(const T* imm) {
+OpArg ImmPtr(const T* imm)
+{
 #ifdef _ARCH_64
     return Imm64(reinterpret_cast<u64>(imm));
 #else
@@ -299,11 +286,13 @@ OpArg ImmPtr(const T* imm) {
 #endif
 }
 
-inline u32 PtrOffset(const void* ptr, const void* base) {
+inline u32 PtrOffset(const void* ptr, const void* base)
+{
 #ifdef _ARCH_64
     s64 distance = (s64)ptr-(s64)base;
     if (distance >= 0x80000000LL ||
-            distance < -0x80000000LL) {
+        distance < -0x80000000LL)
+    {
         ASSERT_MSG(0, "pointer offset out of range");
         return 0;
     }
@@ -319,12 +308,14 @@ inline u32 PtrOffset(const void* ptr, const void* base) {
 //usage: struct {int e;} s; STRUCT_OFFSET(s,e)
 #define STRUCT_OFFSET(str,elem) ((u32)((u64)&(str).elem-(u64)&(str)))
 
-struct FixupBranch {
+struct FixupBranch
+{
     u8 *ptr;
     int type; //0 = 8bit 1 = 32bit
 };
 
-enum SSECompare {
+enum SSECompare
+{
     EQ = 0,
     LT,
     LE,
@@ -335,7 +326,8 @@ enum SSECompare {
     ORD,
 };
 
-class XEmitter {
+class XEmitter
+{
     friend struct OpArg;  // for Write8 etc
 private:
     u8 *code;
@@ -371,14 +363,8 @@ protected:
     void Write64(u64 value);
 
 public:
-    XEmitter() {
-        code = nullptr;
-        flags_locked = false;
-    }
-    XEmitter(u8 *code_ptr) {
-        code = code_ptr;
-        flags_locked = false;
-    }
+    XEmitter() { code = nullptr; flags_locked = false; }
+    XEmitter(u8 *code_ptr) { code = code_ptr; flags_locked = false; }
     virtual ~XEmitter() {}
 
     void WriteModRM(int mod, int rm, int reg);
@@ -392,12 +378,8 @@ public:
     const u8 *GetCodePtr() const;
     u8 *GetWritableCodePtr();
 
-    void LockFlags() {
-        flags_locked = true;
-    }
-    void UnlockFlags() {
-        flags_locked = false;
-    }
+    void LockFlags() { flags_locked = true; }
+    void UnlockFlags() { flags_locked = false; }
 
     // Looking for one of these? It's BANNED!! Some instructions are slow on modern CPU
     // INC, DEC, LOOP, LOOPNE, LOOPE, ENTER, LEAVE, XCHG, XLAT, REP MOVSB/MOVSD, REP SCASD + other string instr.,
@@ -468,7 +450,8 @@ public:
     void BSR(int bits, X64Reg dest, const OpArg& src); // Top bit to bottom bit
 
     // Cache control
-    enum PrefetchLevel {
+    enum PrefetchLevel
+    {
         PF_NTA, //Non-temporal (data used once and only once)
         PF_T0,  //All cache levels
         PF_T1,  //Levels 2+ (aliased to T0 on AMD)
@@ -509,19 +492,11 @@ public:
 
     // Extend EAX into EDX in various ways
     void CWD(int bits = 16);
-    void CDQ() {
-        CWD(32);
-    }
-    void CQO() {
-        CWD(64);
-    }
+    void CDQ() {CWD(32);}
+    void CQO() {CWD(64);}
     void CBW(int bits = 8);
-    void CWDE() {
-        CBW(16);
-    }
-    void CDQE() {
-        CBW(32);
-    }
+    void CWDE() {CBW(16);}
+    void CDQE() {CBW(32);}
 
     // Load effective address
     void LEA(int bits, X64Reg dest, OpArg src);
@@ -618,27 +593,13 @@ public:
     void CMPSS(X64Reg regOp, const OpArg& arg, u8 compare);
     void CMPSD(X64Reg regOp, const OpArg& arg, u8 compare);
 
-    void CMPEQSS(X64Reg regOp, const OpArg& arg) {
-        CMPSS(regOp, arg, CMP_EQ);
-    }
-    void CMPLTSS(X64Reg regOp, const OpArg& arg) {
-        CMPSS(regOp, arg, CMP_LT);
-    }
-    void CMPLESS(X64Reg regOp, const OpArg& arg) {
-        CMPSS(regOp, arg, CMP_LE);
-    }
-    void CMPUNORDSS(X64Reg regOp, const OpArg& arg) {
-        CMPSS(regOp, arg, CMP_UNORD);
-    }
-    void CMPNEQSS(X64Reg regOp, const OpArg& arg) {
-        CMPSS(regOp, arg, CMP_NEQ);
-    }
-    void CMPNLTSS(X64Reg regOp, const OpArg& arg) {
-        CMPSS(regOp, arg, CMP_NLT);
-    }
-    void CMPORDSS(X64Reg regOp, const OpArg& arg) {
-        CMPSS(regOp, arg, CMP_ORD);
-    }
+    void CMPEQSS(X64Reg regOp, const OpArg& arg) { CMPSS(regOp, arg, CMP_EQ); }
+    void CMPLTSS(X64Reg regOp, const OpArg& arg) { CMPSS(regOp, arg, CMP_LT); }
+    void CMPLESS(X64Reg regOp, const OpArg& arg) { CMPSS(regOp, arg, CMP_LE); }
+    void CMPUNORDSS(X64Reg regOp, const OpArg& arg) { CMPSS(regOp, arg, CMP_UNORD); }
+    void CMPNEQSS(X64Reg regOp, const OpArg& arg) { CMPSS(regOp, arg, CMP_NEQ); }
+    void CMPNLTSS(X64Reg regOp, const OpArg& arg) { CMPSS(regOp, arg, CMP_NLT); }
+    void CMPORDSS(X64Reg regOp, const OpArg& arg) { CMPSS(regOp, arg, CMP_ORD); }
 
     // SSE/SSE2: Floating point packed arithmetic (x4 for float, x2 for double)
     void ADDPS(X64Reg regOp, const OpArg& arg);
@@ -878,57 +839,25 @@ public:
     void ROUNDPS(X64Reg dest, const OpArg& arg, u8 mode);
     void ROUNDPD(X64Reg dest, const OpArg& arg, u8 mode);
 
-    void ROUNDNEARSS(X64Reg dest, const OpArg& arg) {
-        ROUNDSS(dest, arg, FROUND_NEAREST);
-    }
-    void ROUNDFLOORSS(X64Reg dest, const OpArg& arg) {
-        ROUNDSS(dest, arg, FROUND_FLOOR);
-    }
-    void ROUNDCEILSS(X64Reg dest, const OpArg& arg) {
-        ROUNDSS(dest, arg, FROUND_CEIL);
-    }
-    void ROUNDZEROSS(X64Reg dest, const OpArg& arg) {
-        ROUNDSS(dest, arg, FROUND_ZERO);
-    }
+    void ROUNDNEARSS(X64Reg dest, const OpArg& arg) { ROUNDSS(dest, arg, FROUND_NEAREST); }
+    void ROUNDFLOORSS(X64Reg dest, const OpArg& arg) { ROUNDSS(dest, arg, FROUND_FLOOR); }
+    void ROUNDCEILSS(X64Reg dest, const OpArg& arg) { ROUNDSS(dest, arg, FROUND_CEIL); }
+    void ROUNDZEROSS(X64Reg dest, const OpArg& arg) { ROUNDSS(dest, arg, FROUND_ZERO); }
 
-    void ROUNDNEARSD(X64Reg dest, const OpArg& arg) {
-        ROUNDSD(dest, arg, FROUND_NEAREST);
-    }
-    void ROUNDFLOORSD(X64Reg dest, const OpArg& arg) {
-        ROUNDSD(dest, arg, FROUND_FLOOR);
-    }
-    void ROUNDCEILSD(X64Reg dest, const OpArg& arg) {
-        ROUNDSD(dest, arg, FROUND_CEIL);
-    }
-    void ROUNDZEROSD(X64Reg dest, const OpArg& arg) {
-        ROUNDSD(dest, arg, FROUND_ZERO);
-    }
+    void ROUNDNEARSD(X64Reg dest, const OpArg& arg) { ROUNDSD(dest, arg, FROUND_NEAREST); }
+    void ROUNDFLOORSD(X64Reg dest, const OpArg& arg) { ROUNDSD(dest, arg, FROUND_FLOOR); }
+    void ROUNDCEILSD(X64Reg dest, const OpArg& arg) { ROUNDSD(dest, arg, FROUND_CEIL); }
+    void ROUNDZEROSD(X64Reg dest, const OpArg& arg) { ROUNDSD(dest, arg, FROUND_ZERO); }
 
-    void ROUNDNEARPS(X64Reg dest, const OpArg& arg) {
-        ROUNDPS(dest, arg, FROUND_NEAREST);
-    }
-    void ROUNDFLOORPS(X64Reg dest, const OpArg& arg) {
-        ROUNDPS(dest, arg, FROUND_FLOOR);
-    }
-    void ROUNDCEILPS(X64Reg dest, const OpArg& arg) {
-        ROUNDPS(dest, arg, FROUND_CEIL);
-    }
-    void ROUNDZEROPS(X64Reg dest, const OpArg& arg) {
-        ROUNDPS(dest, arg, FROUND_ZERO);
-    }
+    void ROUNDNEARPS(X64Reg dest, const OpArg& arg) { ROUNDPS(dest, arg, FROUND_NEAREST); }
+    void ROUNDFLOORPS(X64Reg dest, const OpArg& arg) { ROUNDPS(dest, arg, FROUND_FLOOR); }
+    void ROUNDCEILPS(X64Reg dest, const OpArg& arg) { ROUNDPS(dest, arg, FROUND_CEIL); }
+    void ROUNDZEROPS(X64Reg dest, const OpArg& arg) { ROUNDPS(dest, arg, FROUND_ZERO); }
 
-    void ROUNDNEARPD(X64Reg dest, const OpArg& arg) {
-        ROUNDPD(dest, arg, FROUND_NEAREST);
-    }
-    void ROUNDFLOORPD(X64Reg dest, const OpArg& arg) {
-        ROUNDPD(dest, arg, FROUND_FLOOR);
-    }
-    void ROUNDCEILPD(X64Reg dest, const OpArg& arg) {
-        ROUNDPD(dest, arg, FROUND_CEIL);
-    }
-    void ROUNDZEROPD(X64Reg dest, const OpArg& arg) {
-        ROUNDPD(dest, arg, FROUND_ZERO);
-    }
+    void ROUNDNEARPD(X64Reg dest, const OpArg& arg) { ROUNDPD(dest, arg, FROUND_NEAREST); }
+    void ROUNDFLOORPD(X64Reg dest, const OpArg& arg) { ROUNDPD(dest, arg, FROUND_FLOOR); }
+    void ROUNDCEILPD(X64Reg dest, const OpArg& arg) { ROUNDPD(dest, arg, FROUND_CEIL); }
+    void ROUNDZEROPD(X64Reg dest, const OpArg& arg) { ROUNDPD(dest, arg, FROUND_ZERO); }
 
     // AVX
     void VADDSD(X64Reg regOp1, X64Reg regOp2, const OpArg& arg);
@@ -1099,15 +1028,11 @@ public:
      */
     void ABI_PopRegistersAndAdjustStack(BitSet32 mask, size_t rsp_alignment, size_t needed_frame_size = 0);
 
-#ifdef _M_IX86
-    static int ABI_GetNumXMMRegs() {
-        return 8;
-    }
-#else
-    static int ABI_GetNumXMMRegs() {
-        return 16;
-    }
-#endif
+    #ifdef _M_IX86
+    static int ABI_GetNumXMMRegs() { return 8; }
+    #else
+    static int ABI_GetNumXMMRegs() { return 16; }
+    #endif
 };  // class XEmitter
 
 

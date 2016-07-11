@@ -177,14 +177,10 @@ void RendererOpenGL::LoadFBToScreenInfo(const GPU::Regs::FramebufferConfig& fram
     const PAddr framebuffer_addr = framebuffer.active_fb == 0 ?
             framebuffer.address_left1 : framebuffer.address_left2;
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
     LOG_TRACE(Render_OpenGL, "0x%08x bytes from 0x%08x(%dx%d), fmt %x",
         framebuffer.stride * framebuffer.height,
         framebuffer_addr, (int)framebuffer.width,
-        (int)framebuffer.height, (int)framebuffer.format));
-#endif
-
+        (int)framebuffer.height, (int)framebuffer.format);
 
     int bpp = GPU::Regs::BytesPerPixel(framebuffer.color_format);
     size_t pixel_stride = framebuffer.stride / bpp;
@@ -475,12 +471,8 @@ static void APIENTRY DebugHandler(GLenum source, GLenum type, GLuint id, GLenum 
         level = Log::Level::Debug;
         break;
     }
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
     LOG_GENERIC(Log::Class::Render_OpenGL, level, "%s %s %d: %s",
-                GetSource(source), GetType(type), id, message));
-#endif
-
+                GetSource(source), GetType(type), id, message);
 }
 
 /// Initialize the renderer
@@ -492,21 +484,9 @@ bool RendererOpenGL::Init() {
         glDebugMessageCallback(DebugHandler, nullptr);
     }
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_INFO(Render_OpenGL, "GL_VERSION: %s", glGetString(GL_VERSION)));
-#endif
-
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_INFO(Render_OpenGL, "GL_VENDOR: %s", glGetString(GL_VENDOR)));
-#endif
-
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_INFO(Render_OpenGL, "GL_RENDERER: %s", glGetString(GL_RENDERER)));
-#endif
-
+    LOG_INFO(Render_OpenGL, "GL_VERSION: %s", glGetString(GL_VERSION));
+    LOG_INFO(Render_OpenGL, "GL_VENDOR: %s", glGetString(GL_VENDOR));
+    LOG_INFO(Render_OpenGL, "GL_RENDERER: %s", glGetString(GL_RENDERER));
     if (!GLAD_GL_VERSION_3_3) {
         return false;
     }

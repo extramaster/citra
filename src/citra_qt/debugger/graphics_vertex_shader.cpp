@@ -42,7 +42,8 @@ int GraphicsVertexShaderModel::rowCount(const QModelIndex& parent) const {
 
 QVariant GraphicsVertexShaderModel::headerData(int section, Qt::Orientation orientation, int role) const {
     switch(role) {
-    case Qt::DisplayRole: {
+    case Qt::DisplayRole:
+    {
         if (section == 0) {
             return tr("Offset");
         } else if (section == 1) {
@@ -71,32 +72,31 @@ static std::string SelectorToString(u32 selector) {
 static void print_input(std::ostringstream& output, const SourceRegister& input,
                         bool negate, const std::string& swizzle_mask, bool align = true,
                         const std::string& address_register_name = std::string()) {
-    if (align) {
+    if (align)
         output << std::setw(4) << std::right;
-    }
     output << ((negate ? "-" : "") + input.GetName());
 
-    if (!address_register_name.empty()) {
+    if (!address_register_name.empty())
         output << '[' << address_register_name << ']';
-    }
     output << '.' << swizzle_mask;
 };
 
 QVariant GraphicsVertexShaderModel::data(const QModelIndex& index, int role) const {
     switch (role) {
-    case Qt::DisplayRole: {
+    case Qt::DisplayRole:
+    {
         switch (index.column()) {
         case 0:
-            if (par->info.HasLabel(index.row())) {
+            if (par->info.HasLabel(index.row()))
                 return QString::fromStdString(par->info.GetLabel(index.row()));
-            }
 
             return QString("%1").arg(4*index.row(), 4, 16, QLatin1Char('0'));
 
         case 1:
             return QString("%1").arg(par->info.code[index.row()].hex, 8, 16, QLatin1Char('0'));
 
-        case 2: {
+        case 2:
+        {
             std::ostringstream output;
             output.flags(std::ios::uppercase);
 
@@ -118,7 +118,7 @@ QVariant GraphicsVertexShaderModel::data(const QModelIndex& index, int role) con
             const OpCode opcode = instr.opcode;
             const OpCode::Info opcode_info = opcode.GetInfo();
             const u32 operand_desc_id = opcode_info.type == OpCode::Type::MultiplyAdd ?
-                                        instr.mad.operand_desc_id.Value() : instr.common.operand_desc_id.Value();
+                instr.mad.operand_desc_id.Value() : instr.common.operand_desc_id.Value();
             const SwizzlePattern swizzle = par->info.swizzle_info[operand_desc_id].pattern;
 
             // longest known instruction name: "setemit "
@@ -136,10 +136,12 @@ QVariant GraphicsVertexShaderModel::data(const QModelIndex& index, int role) con
                 break;
 
             case OpCode::Type::Arithmetic:
-            case OpCode::Type::MultiplyAdd: {
+            case OpCode::Type::MultiplyAdd:
+            {
                 // Use custom code for special instructions
                 switch (opcode.EffectiveOpCode()) {
-                case OpCode::Id::CMP: {
+                case OpCode::Id::CMP:
+                {
                     AlignToColumn(kOpcodeColumnWidth);
 
                     // NOTE: CMP always writes both cc components, so we do not consider the dest mask here.
@@ -164,7 +166,8 @@ QVariant GraphicsVertexShaderModel::data(const QModelIndex& index, int role) con
                 }
 
                 case OpCode::Id::MAD:
-                case OpCode::Id::MADI: {
+                case OpCode::Id::MADI:
+                {
                     AlignToColumn(kOpcodeColumnWidth);
 
                     bool src_is_inverted = 0 != (opcode_info.subtype & OpCode::Info::SrcInversed);
@@ -177,21 +180,22 @@ QVariant GraphicsVertexShaderModel::data(const QModelIndex& index, int role) con
                     print_input(output, src1, swizzle.negate_src1, SelectorToString(swizzle.src1_selector));
                     AlignToColumn(kInputOperandColumnWidth);
                     if (src_is_inverted) {
-                        print_input(output, src2, swizzle.negate_src2, SelectorToString(swizzle.src2_selector));
+                      print_input(output, src2, swizzle.negate_src2, SelectorToString(swizzle.src2_selector));
                     } else {
-                        print_input(output, src2, swizzle.negate_src2, SelectorToString(swizzle.src2_selector), true, instr.mad.AddressRegisterName());
+                      print_input(output, src2, swizzle.negate_src2, SelectorToString(swizzle.src2_selector), true, instr.mad.AddressRegisterName());
                     }
                     AlignToColumn(kInputOperandColumnWidth);
                     if (src_is_inverted) {
-                        print_input(output, src3, swizzle.negate_src3, SelectorToString(swizzle.src3_selector), true, instr.mad.AddressRegisterName());
+                      print_input(output, src3, swizzle.negate_src3, SelectorToString(swizzle.src3_selector), true, instr.mad.AddressRegisterName());
                     } else {
-                        print_input(output, src3, swizzle.negate_src3, SelectorToString(swizzle.src3_selector));
+                      print_input(output, src3, swizzle.negate_src3, SelectorToString(swizzle.src3_selector));
                     }
                     AlignToColumn(kInputOperandColumnWidth);
                     break;
                 }
 
-                default: {
+                default:
+                {
                     AlignToColumn(kOpcodeColumnWidth);
 
                     bool src_is_inverted = 0 != (opcode_info.subtype & OpCode::Info::SrcInversed);
@@ -224,7 +228,8 @@ QVariant GraphicsVertexShaderModel::data(const QModelIndex& index, int role) con
             }
 
             case OpCode::Type::Conditional:
-            case OpCode::Type::UniformFlowControl: {
+            case OpCode::Type::UniformFlowControl:
+            {
                 output << ' ';
 
                 switch (opcode.EffectiveOpCode()) {
@@ -237,9 +242,7 @@ QVariant GraphicsVertexShaderModel::data(const QModelIndex& index, int role) con
                         output << '(';
 
                         if (instr.flow_control.op != instr.flow_control.JustY) {
-                            if (instr.flow_control.refx) {
-                                output << '!';
-                            }
+                            if (instr.flow_control.refx) output << '!';
                             output << "cc.x";
                         }
 
@@ -250,9 +253,7 @@ QVariant GraphicsVertexShaderModel::data(const QModelIndex& index, int role) con
                         }
 
                         if (instr.flow_control.op != instr.flow_control.JustX) {
-                            if (instr.flow_control.refy) {
-                                output << '!';
-                            }
+                            if (instr.flow_control.refy) output << '!';
                             output << "cc.y";
                         }
 
@@ -299,7 +300,8 @@ QVariant GraphicsVertexShaderModel::data(const QModelIndex& index, int role) con
     case Qt::FontRole:
         return GetMonospaceFont();
 
-    case Qt::BackgroundRole: {
+    case Qt::BackgroundRole:
+    {
         // Highlight current instruction
         int current_record_index = par->cycle_index->value();
         if (current_record_index < static_cast<int>(par->debug_data.records.size())) {
@@ -311,9 +313,8 @@ QVariant GraphicsVertexShaderModel::data(const QModelIndex& index, int role) con
 
         // Use a grey background for instructions which have no debug data associated to them
         for (const auto& record : par->debug_data.records)
-            if (index.row() == static_cast<int>(record.instruction_offset)) {
+            if (index.row() == static_cast<int>(record.instruction_offset))
                 return QVariant();
-            }
 
         return QBrush(QColor(192, 192, 192));
     }
@@ -331,7 +332,7 @@ QVariant GraphicsVertexShaderModel::data(const QModelIndex& index, int role) con
 
 void GraphicsVertexShaderWidget::DumpShader() {
     QString filename = QFileDialog::getSaveFileName(this, tr("Save Shader Dump"), "shader_dump.shbin",
-                       tr("Shader Binary (*.shbin)"));
+                                                    tr("Shader Binary (*.shbin)"));
 
     if (filename.isEmpty()) {
         // If the user canceled the dialog, don't dump anything.
@@ -345,8 +346,8 @@ void GraphicsVertexShaderWidget::DumpShader() {
 }
 
 GraphicsVertexShaderWidget::GraphicsVertexShaderWidget(std::shared_ptr< Pica::DebugContext > debug_context,
-        QWidget* parent)
-    : BreakPointObserverDock(debug_context, "Pica Vertex Shader", parent) {
+                                                       QWidget* parent)
+        : BreakPointObserverDock(debug_context, "Pica Vertex Shader", parent) {
     setObjectName("PicaVertexShader");
 
     // Clear input vertex data so that it contains valid float values in case a debug shader
@@ -408,9 +409,8 @@ GraphicsVertexShaderWidget::GraphicsVertexShaderWidget(std::shared_ptr< Pica::De
             row_layout->setContentsMargins(0, 0, 0, 0);
 
             row_layout->addWidget(new QLabel(tr("Attribute %1").arg(i, 2)));
-            for (unsigned comp = 0; comp < 4; ++comp) {
+            for (unsigned comp = 0; comp < 4; ++comp)
                 row_layout->addWidget(input_data[4 * i + comp]);
-            }
 
             row_layout->addWidget(input_data_mapping[i] = new QLabel);
 
@@ -536,38 +536,28 @@ void GraphicsVertexShaderWidget::OnCycleIndexChanged(int index) {
     QString text;
 
     auto& record = debug_data.records[index];
-    if (record.mask & Pica::Shader::DebugDataRecord::SRC1) {
+    if (record.mask & Pica::Shader::DebugDataRecord::SRC1)
         text += tr("SRC1: %1, %2, %3, %4\n").arg(record.src1.x.ToFloat32()).arg(record.src1.y.ToFloat32()).arg(record.src1.z.ToFloat32()).arg(record.src1.w.ToFloat32());
-    }
-    if (record.mask & Pica::Shader::DebugDataRecord::SRC2) {
+    if (record.mask & Pica::Shader::DebugDataRecord::SRC2)
         text += tr("SRC2: %1, %2, %3, %4\n").arg(record.src2.x.ToFloat32()).arg(record.src2.y.ToFloat32()).arg(record.src2.z.ToFloat32()).arg(record.src2.w.ToFloat32());
-    }
-    if (record.mask & Pica::Shader::DebugDataRecord::SRC3) {
+    if (record.mask & Pica::Shader::DebugDataRecord::SRC3)
         text += tr("SRC3: %1, %2, %3, %4\n").arg(record.src3.x.ToFloat32()).arg(record.src3.y.ToFloat32()).arg(record.src3.z.ToFloat32()).arg(record.src3.w.ToFloat32());
-    }
-    if (record.mask & Pica::Shader::DebugDataRecord::DEST_IN) {
+    if (record.mask & Pica::Shader::DebugDataRecord::DEST_IN)
         text += tr("DEST_IN: %1, %2, %3, %4\n").arg(record.dest_in.x.ToFloat32()).arg(record.dest_in.y.ToFloat32()).arg(record.dest_in.z.ToFloat32()).arg(record.dest_in.w.ToFloat32());
-    }
-    if (record.mask & Pica::Shader::DebugDataRecord::DEST_OUT) {
+    if (record.mask & Pica::Shader::DebugDataRecord::DEST_OUT)
         text += tr("DEST_OUT: %1, %2, %3, %4\n").arg(record.dest_out.x.ToFloat32()).arg(record.dest_out.y.ToFloat32()).arg(record.dest_out.z.ToFloat32()).arg(record.dest_out.w.ToFloat32());
-    }
 
-    if (record.mask & Pica::Shader::DebugDataRecord::ADDR_REG_OUT) {
+    if (record.mask & Pica::Shader::DebugDataRecord::ADDR_REG_OUT)
         text += tr("Addres Registers: %1, %2\n").arg(record.address_registers[0]).arg(record.address_registers[1]);
-    }
-    if (record.mask & Pica::Shader::DebugDataRecord::CMP_RESULT) {
+    if (record.mask & Pica::Shader::DebugDataRecord::CMP_RESULT)
         text += tr("Compare Result: %1, %2\n").arg(record.conditional_code[0] ? "true" : "false").arg(record.conditional_code[1] ? "true" : "false");
-    }
 
-    if (record.mask & Pica::Shader::DebugDataRecord::COND_BOOL_IN) {
+    if (record.mask & Pica::Shader::DebugDataRecord::COND_BOOL_IN)
         text += tr("Static Condition: %1\n").arg(record.cond_bool ? "true" : "false");
-    }
-    if (record.mask & Pica::Shader::DebugDataRecord::COND_CMP_IN) {
+    if (record.mask & Pica::Shader::DebugDataRecord::COND_CMP_IN)
         text += tr("Dynamic Conditions: %1, %2\n").arg(record.cond_cmp[0] ? "true" : "false").arg(record.cond_cmp[1] ? "true" : "false");
-    }
-    if (record.mask & Pica::Shader::DebugDataRecord::LOOP_INT_IN) {
+    if (record.mask & Pica::Shader::DebugDataRecord::LOOP_INT_IN)
         text += tr("Loop Parameters: %1 (repeats), %2 (initializer), %3 (increment), %4\n").arg(record.loop_int.x).arg(record.loop_int.y).arg(record.loop_int.z).arg(record.loop_int.w);
-    }
 
     text += tr("Instruction offset: 0x%1").arg(4 * record.instruction_offset, 4, 16, QLatin1Char('0'));
     if (record.mask & Pica::Shader::DebugDataRecord::NEXT_INSTR) {

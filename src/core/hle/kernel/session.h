@@ -115,14 +115,10 @@ public:
     Session();
     ~Session() override;
 
-    std::string GetTypeName() const override {
-        return "Session";
-    }
+    std::string GetTypeName() const override { return "Session"; }
 
     static const HandleType HANDLE_TYPE = HandleType::Session;
-    HandleType GetHandleType() const override {
-        return HANDLE_TYPE;
-    }
+    HandleType GetHandleType() const override { return HANDLE_TYPE; }
 
     /**
      * Handles a synchronous call to this session using HLE emulation. Emulated <-> emulated calls

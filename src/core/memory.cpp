@@ -78,11 +78,7 @@ static PageTable main_page_table;
 static PageTable* current_page_table = &main_page_table;
 
 static void MapPages(u32 base, u32 size, u8* memory, PageType type) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_DEBUG(HW_Memory, "Mapping %p onto %08X-%08X", memory, base * PAGE_SIZE, (base + size) * PAGE_SIZE));
-#endif
-
+    LOG_DEBUG(HW_Memory, "Mapping %p onto %08X-%08X", memory, base * PAGE_SIZE, (base + size) * PAGE_SIZE);
 
     u32 end = base + size;
 
@@ -91,7 +87,7 @@ static void MapPages(u32 base, u32 size, u8* memory, PageType type) {
 
         // Since pages are unmapped on shutdown after video core is shutdown, the renderer may be null here
         if (current_page_table->attributes[base] == PageType::RasterizerCachedMemory ||
-                current_page_table->attributes[base] == PageType::RasterizerCachedSpecial) {
+            current_page_table->attributes[base] == PageType::RasterizerCachedSpecial) {
             RasterizerFlushAndInvalidateRegion(VirtualToPhysicalAddress(base << PAGE_BITS), PAGE_SIZE);
         }
 
@@ -100,9 +96,8 @@ static void MapPages(u32 base, u32 size, u8* memory, PageType type) {
         current_page_table->cached_res_count[base] = 0;
 
         base += 1;
-        if (memory != nullptr) {
+        if (memory != nullptr)
             memory += PAGE_SIZE;
-        }
     }
 }
 
@@ -183,16 +178,13 @@ T Read(const VAddr vaddr) {
     PageType type = current_page_table->attributes[vaddr >> PAGE_BITS];
     switch (type) {
     case PageType::Unmapped:
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(HW_Memory, "unmapped Read%lu @ 0x%08X", sizeof(T) * 8, vaddr));
-#endif
-
+        LOG_ERROR(HW_Memory, "unmapped Read%lu @ 0x%08X", sizeof(T) * 8, vaddr);
         return 0;
     case PageType::Memory:
         ASSERT_MSG(false, "Mapped memory page without a pointer @ %08X", vaddr);
         break;
-    case PageType::RasterizerCachedMemory: {
+    case PageType::RasterizerCachedMemory:
+    {
         RasterizerFlushRegion(VirtualToPhysicalAddress(vaddr), sizeof(T));
 
         T value;
@@ -201,7 +193,8 @@ T Read(const VAddr vaddr) {
     }
     case PageType::Special:
         return ReadMMIO<T>(GetMMIOHandler(vaddr), vaddr);
-    case PageType::RasterizerCachedSpecial: {
+    case PageType::RasterizerCachedSpecial:
+    {
         RasterizerFlushRegion(VirtualToPhysicalAddress(vaddr), sizeof(T));
 
         return ReadMMIO<T>(GetMMIOHandler(vaddr), vaddr);
@@ -226,16 +219,13 @@ void Write(const VAddr vaddr, const T data) {
     PageType type = current_page_table->attributes[vaddr >> PAGE_BITS];
     switch (type) {
     case PageType::Unmapped:
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(HW_Memory, "unmapped Write%lu 0x%08X @ 0x%08X", sizeof(data) * 8, (u32) data, vaddr));
-#endif
-
+        LOG_ERROR(HW_Memory, "unmapped Write%lu 0x%08X @ 0x%08X", sizeof(data) * 8, (u32) data, vaddr);
         return;
     case PageType::Memory:
         ASSERT_MSG(false, "Mapped memory page without a pointer @ %08X", vaddr);
         break;
-    case PageType::RasterizerCachedMemory: {
+    case PageType::RasterizerCachedMemory:
+    {
         RasterizerFlushAndInvalidateRegion(VirtualToPhysicalAddress(vaddr), sizeof(T));
 
         std::memcpy(GetPointerFromVMA(vaddr), &data, sizeof(T));
@@ -244,7 +234,8 @@ void Write(const VAddr vaddr, const T data) {
     case PageType::Special:
         WriteMMIO<T>(GetMMIOHandler(vaddr), vaddr, data);
         break;
-    case PageType::RasterizerCachedSpecial: {
+    case PageType::RasterizerCachedSpecial:
+    {
         RasterizerFlushAndInvalidateRegion(VirtualToPhysicalAddress(vaddr), sizeof(T));
 
         WriteMMIO<T>(GetMMIOHandler(vaddr), vaddr, data);
@@ -257,13 +248,11 @@ void Write(const VAddr vaddr, const T data) {
 
 bool IsValidVirtualAddress(const VAddr vaddr) {
     const u8* page_pointer = current_page_table->pointers[vaddr >> PAGE_BITS];
-    if (page_pointer) {
+    if (page_pointer)
         return true;
-    }
 
-    if (current_page_table->attributes[vaddr >> PAGE_BITS] != PageType::Special) {
+    if (current_page_table->attributes[vaddr >> PAGE_BITS] != PageType::Special)
         return false;
-    }
 
     MMIORegionPointer mmio_region = GetMMIOHandler(vaddr);
     if (mmio_region) {
@@ -287,11 +276,7 @@ u8* GetPointer(const VAddr vaddr) {
         return GetPointerFromVMA(vaddr);
     }
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_ERROR(HW_Memory, "unknown GetPointer @ 0x%08x", vaddr));
-#endif
-
+    LOG_ERROR(HW_Memory, "unknown GetPointer @ 0x%08x", vaddr);
     return nullptr;
 }
 
@@ -301,9 +286,8 @@ std::string GetString(VAddr vaddr, u32 max_length) {
     string.reserve(max_length);
     for (u32 i = 0; i < max_length; ++i) {
         char c = Read8(vaddr);
-        if (!c) {
+        if (!c)
             break;
-        }
         string.push_back(c);
         ++vaddr;
     }
@@ -405,11 +389,7 @@ void ReadBlock(const VAddr src_addr, void* dest_buffer, const size_t size) {
 
         switch (current_page_table->attributes[page_index]) {
         case PageType::Unmapped: {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-            LOG_ERROR(HW_Memory, "unmapped ReadBlock @ 0x%08X (start address = 0x%08X, size = %zu)", current_vaddr, src_addr, size));
-#endif
-
+            LOG_ERROR(HW_Memory, "unmapped ReadBlock @ 0x%08X (start address = 0x%08X, size = %zu)", current_vaddr, src_addr, size);
             std::memset(dest_buffer, 0, copy_amount);
             break;
         }
@@ -478,11 +458,7 @@ void WriteBlock(const VAddr dest_addr, const void* src_buffer, const size_t size
 
         switch (current_page_table->attributes[page_index]) {
         case PageType::Unmapped: {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-            LOG_ERROR(HW_Memory, "unmapped WriteBlock @ 0x%08X (start address = 0x%08X, size = %zu)", current_vaddr, dest_addr, size));
-#endif
-
+            LOG_ERROR(HW_Memory, "unmapped WriteBlock @ 0x%08X (start address = 0x%08X, size = %zu)", current_vaddr, dest_addr, size);
             break;
         }
         case PageType::Memory: {
@@ -536,11 +512,7 @@ void ZeroBlock(const VAddr dest_addr, const size_t size) {
 
         switch (current_page_table->attributes[page_index]) {
         case PageType::Unmapped: {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-            LOG_ERROR(HW_Memory, "unmapped ZeroBlock @ 0x%08X (start address = 0x%08X, size = %zu)", current_vaddr, dest_addr, size));
-#endif
-
+            LOG_ERROR(HW_Memory, "unmapped ZeroBlock @ 0x%08X (start address = 0x%08X, size = %zu)", current_vaddr, dest_addr, size);
             break;
         }
         case PageType::Memory: {
@@ -591,11 +563,7 @@ void CopyBlock(VAddr dest_addr, VAddr src_addr, const size_t size) {
 
         switch (current_page_table->attributes[page_index]) {
         case PageType::Unmapped: {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-            LOG_ERROR(HW_Memory, "unmapped CopyBlock @ 0x%08X (start address = 0x%08X, size = %zu)", current_vaddr, src_addr, size));
-#endif
-
+            LOG_ERROR(HW_Memory, "unmapped CopyBlock @ 0x%08X (start address = 0x%08X, size = %zu)", current_vaddr, src_addr, size);
             ZeroBlock(dest_addr, copy_amount);
             break;
         }
@@ -696,11 +664,7 @@ PAddr VirtualToPhysicalAddress(const VAddr addr) {
         return addr - NEW_LINEAR_HEAP_VADDR + FCRAM_PADDR;
     }
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_ERROR(HW_Memory, "Unknown virtual address @ 0x%08X", addr));
-#endif
-
+    LOG_ERROR(HW_Memory, "Unknown virtual address @ 0x%08X", addr);
     // To help with debugging, set bit on address so that it's obviously invalid.
     return addr | 0x80000000;
 }
@@ -718,11 +682,7 @@ VAddr PhysicalToVirtualAddress(const PAddr addr) {
         return addr - IO_AREA_PADDR + IO_AREA_VADDR;
     }
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_ERROR(HW_Memory, "Unknown physical address @ 0x%08X", addr));
-#endif
-
+    LOG_ERROR(HW_Memory, "Unknown physical address @ 0x%08X", addr);
     // To help with debugging, set bit on address so that it's obviously invalid.
     return addr | 0x80000000;
 }

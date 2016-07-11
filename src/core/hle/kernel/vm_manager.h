@@ -16,12 +16,12 @@
 namespace Kernel {
 
 const ResultCode ERR_INVALID_ADDRESS{ // 0xE0E01BF5
-    ErrorDescription::InvalidAddress, ErrorModule::OS,
-    ErrorSummary::InvalidArgument, ErrorLevel::Usage};
+        ErrorDescription::InvalidAddress, ErrorModule::OS,
+        ErrorSummary::InvalidArgument, ErrorLevel::Usage};
 
 const ResultCode ERR_INVALID_ADDRESS_STATE{ // 0xE0A01BF5
-    ErrorDescription::InvalidAddress, ErrorModule::OS,
-    ErrorSummary::InvalidState, ErrorLevel::Usage};
+        ErrorDescription::InvalidAddress, ErrorModule::OS,
+        ErrorSummary::InvalidState, ErrorLevel::Usage};
 
 enum class VMAType : u8 {
     /// VMA represents an unmapped region of the address space.
@@ -151,7 +151,7 @@ public:
      * @param state MemoryState tag to attach to the VMA.
      */
     ResultVal<VMAHandle> MapMemoryBlock(VAddr target, std::shared_ptr<std::vector<u8>> block,
-                                        size_t offset, u32 size, MemoryState state);
+            size_t offset, u32 size, MemoryState state);
 
     /**
      * Maps an unmanaged host memory pointer at a given address.

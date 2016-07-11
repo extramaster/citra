@@ -51,8 +51,8 @@ void FormatLogMessage(const Entry& entry, char* out_text, size_t text_len) {
     const char* level_name = GetLevelName(entry.log_level);
 
     snprintf(out_text, text_len, "[%4u.%06u] %s <%s> %s: %s",
-             time_seconds, time_fractional, class_name, level_name,
-             TrimSourcePath(entry.location.c_str()), entry.message.c_str());
+        time_seconds, time_fractional, class_name, level_name,
+        TrimSourcePath(entry.location.c_str()), entry.message.c_str());
 }
 
 void PrintMessage(const Entry& entry) {
@@ -72,23 +72,17 @@ void PrintColoredMessage(const Entry& entry) {
     WORD color = 0;
     switch (entry.log_level) {
     case Level::Trace: // Grey
-        color = FOREGROUND_INTENSITY;
-        break;
+        color = FOREGROUND_INTENSITY; break;
     case Level::Debug: // Cyan
-        color = FOREGROUND_GREEN | FOREGROUND_BLUE;
-        break;
+        color = FOREGROUND_GREEN | FOREGROUND_BLUE; break;
     case Level::Info: // Bright gray
-        color = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
-        break;
+        color = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE; break;
     case Level::Warning: // Bright yellow
-        color = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY;
-        break;
+        color = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY; break;
     case Level::Error: // Bright red
-        color = FOREGROUND_RED | FOREGROUND_INTENSITY;
-        break;
+        color = FOREGROUND_RED | FOREGROUND_INTENSITY; break;
     case Level::Critical: // Bright magenta
-        color = FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
-        break;
+        color = FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY; break;
     case Level::Count:
         UNREACHABLE();
     }
@@ -99,23 +93,17 @@ void PrintColoredMessage(const Entry& entry) {
     const char* color = "";
     switch (entry.log_level) {
     case Level::Trace: // Grey
-        color = ESC "[1;30m";
-        break;
+        color = ESC "[1;30m"; break;
     case Level::Debug: // Cyan
-        color = ESC "[0;36m";
-        break;
+        color = ESC "[0;36m"; break;
     case Level::Info: // Bright gray
-        color = ESC "[0;37m";
-        break;
+        color = ESC "[0;37m"; break;
     case Level::Warning: // Bright yellow
-        color = ESC "[1;33m";
-        break;
+        color = ESC "[1;33m"; break;
     case Level::Error: // Bright red
-        color = ESC "[1;31m";
-        break;
+        color = ESC "[1;31m"; break;
     case Level::Critical: // Bright magenta
-        color = ESC "[1;35m";
-        break;
+        color = ESC "[1;35m"; break;
     case Level::Count:
         UNREACHABLE();
     }

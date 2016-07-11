@@ -48,9 +48,8 @@ public:
     }
 
     ~SynchronizedRef() {
-        if (wrapper) {
+        if (wrapper)
             wrapper->mutex.unlock();
-        }
     }
 
     SynchronizedRef& operator=(SynchronizedRef&) = delete;
@@ -59,19 +58,11 @@ public:
         return *this;
     }
 
-    T& operator*() {
-        return wrapper->data;
-    }
-    const T& operator*() const {
-        return wrapper->data;
-    }
+    T& operator*() { return wrapper->data; }
+    const T& operator*() const { return wrapper->data; }
 
-    T* operator->() {
-        return &wrapper->data;
-    }
-    const T* operator->() const {
-        return &wrapper->data;
-    }
+    T* operator->() { return &wrapper->data; }
+    const T* operator->() const { return &wrapper->data; }
 
 private:
     SynchronizedWrapper<T>* wrapper;

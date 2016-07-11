@@ -22,58 +22,57 @@
 
 using namespace Common::Profiling;
 
-static QVariant GetDataForColumn(int col, const AggregatedDuration& duration) {
+static QVariant GetDataForColumn(int col, const AggregatedDuration& duration)
+{
     static auto duration_to_float = [](Duration dur) -> float {
         using FloatMs = std::chrono::duration<float, std::chrono::milliseconds::period>;
         return std::chrono::duration_cast<FloatMs>(dur).count();
     };
 
     switch (col) {
-    case 1:
-        return duration_to_float(duration.avg);
-    case 2:
-        return duration_to_float(duration.min);
-    case 3:
-        return duration_to_float(duration.max);
-    default:
-        return QVariant();
+    case 1: return duration_to_float(duration.avg);
+    case 2: return duration_to_float(duration.min);
+    case 3: return duration_to_float(duration.max);
+    default: return QVariant();
     }
 }
 
-ProfilerModel::ProfilerModel(QObject* parent) : QAbstractItemModel(parent) {
+ProfilerModel::ProfilerModel(QObject* parent) : QAbstractItemModel(parent)
+{
     updateProfilingInfo();
 }
 
-QVariant ProfilerModel::headerData(int section, Qt::Orientation orientation, int role) const {
+QVariant ProfilerModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
-        case 0:
-            return tr("Category");
-        case 1:
-            return tr("Avg");
-        case 2:
-            return tr("Min");
-        case 3:
-            return tr("Max");
+        case 0: return tr("Category");
+        case 1: return tr("Avg");
+        case 2: return tr("Min");
+        case 3: return tr("Max");
         }
     }
 
     return QVariant();
 }
 
-QModelIndex ProfilerModel::index(int row, int column, const QModelIndex& parent) const {
+QModelIndex ProfilerModel::index(int row, int column, const QModelIndex& parent) const
+{
     return createIndex(row, column);
 }
 
-QModelIndex ProfilerModel::parent(const QModelIndex& child) const {
+QModelIndex ProfilerModel::parent(const QModelIndex& child) const
+{
     return QModelIndex();
 }
 
-int ProfilerModel::columnCount(const QModelIndex& parent) const {
+int ProfilerModel::columnCount(const QModelIndex& parent) const
+{
     return 4;
 }
 
-int ProfilerModel::rowCount(const QModelIndex& parent) const {
+int ProfilerModel::rowCount(const QModelIndex& parent) const
+{
     if (parent.isValid()) {
         return 0;
     } else {
@@ -81,7 +80,8 @@ int ProfilerModel::rowCount(const QModelIndex& parent) const {
     }
 }
 
-QVariant ProfilerModel::data(const QModelIndex& index, int role) const {
+QVariant ProfilerModel::data(const QModelIndex& index, int role) const
+{
     if (role == Qt::DisplayRole) {
         if (index.row() == 0) {
             if (index.column() == 0) {
@@ -101,12 +101,14 @@ QVariant ProfilerModel::data(const QModelIndex& index, int role) const {
     return QVariant();
 }
 
-void ProfilerModel::updateProfilingInfo() {
+void ProfilerModel::updateProfilingInfo()
+{
     results = GetTimingResultsAggregator()->GetAggregatedResults();
     emit dataChanged(createIndex(0, 1), createIndex(rowCount() - 1, 3));
 }
 
-ProfilerWidget::ProfilerWidget(QWidget* parent) : QDockWidget(parent) {
+ProfilerWidget::ProfilerWidget(QWidget* parent) : QDockWidget(parent)
+{
     ui.setupUi(this);
 
     model = new ProfilerModel(this);
@@ -116,7 +118,8 @@ ProfilerWidget::ProfilerWidget(QWidget* parent) : QDockWidget(parent) {
     connect(&update_timer, SIGNAL(timeout()), model, SLOT(updateProfilingInfo()));
 }
 
-void ProfilerWidget::setProfilingInfoUpdateEnabled(bool enable) {
+void ProfilerWidget::setProfilingInfoUpdateEnabled(bool enable)
+{
     if (enable) {
         update_timer.start(100);
         model->updateProfilingInfo();
@@ -155,7 +158,8 @@ private:
 #endif
 
 MicroProfileDialog::MicroProfileDialog(QWidget* parent)
-    : QWidget(parent, Qt::Dialog) {
+    : QWidget(parent, Qt::Dialog)
+{
     setObjectName("MicroProfile");
     setWindowTitle(tr("MicroProfile"));
     resize(1000, 600);

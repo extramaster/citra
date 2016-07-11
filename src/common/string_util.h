@@ -26,7 +26,8 @@ std::string StringFromFormat(const char* format, ...);
 bool CharArrayFromFormatV(char* out, int outsize, const char* format, va_list args);
 
 template<size_t Count>
-inline void CharArrayFromFormat(char (& out)[Count], const char* format, ...) {
+inline void CharArrayFromFormat(char (& out)[Count], const char* format, ...)
+{
     va_list args;
     va_start(args, format);
     CharArrayFromFormatV(out, Count, format, args);
@@ -41,7 +42,8 @@ std::string StripQuotes(const std::string &s);
 
 // Thousand separator. Turns 12345678 into 12,345,678
 template <typename I>
-std::string ThousandSeparate(I value, int spaces = 0) {
+std::string ThousandSeparate(I value, int spaces = 0)
+{
     std::ostringstream oss;
 
 // std::locale("") seems to be broken on many platforms
@@ -59,16 +61,18 @@ bool TryParse(const std::string &str, bool *output);
 bool TryParse(const std::string &str, u32 *output);
 
 template <typename N>
-static bool TryParse(const std::string &str, N *const output) {
+static bool TryParse(const std::string &str, N *const output)
+{
     std::istringstream iss(str);
 
     N tmp = 0;
-    if (iss >> tmp) {
+    if (iss >> tmp)
+    {
         *output = tmp;
         return true;
-    } else {
-        return false;
     }
+    else
+        return false;
 }
 
 // TODO: kill this
@@ -95,21 +99,17 @@ std::string UTF16ToUTF8(const std::wstring& input);
 std::wstring UTF8ToUTF16W(const std::string& str);
 
 #ifdef _UNICODE
-inline std::string TStrToUTF8(const std::wstring& str) {
-    return UTF16ToUTF8(str);
-}
+inline std::string TStrToUTF8(const std::wstring& str)
+{ return UTF16ToUTF8(str); }
 
-inline std::wstring UTF8ToTStr(const std::string& str) {
-    return UTF8ToUTF16W(str);
-}
+inline std::wstring UTF8ToTStr(const std::string& str)
+{ return UTF8ToUTF16W(str); }
 #else
-inline std::string TStrToUTF8(const std::string& str) {
-    return str;
-}
+inline std::string TStrToUTF8(const std::string& str)
+{ return str; }
 
-inline std::string UTF8ToTStr(const std::string& str) {
-    return str;
-}
+inline std::string UTF8ToTStr(const std::string& str)
+{ return str; }
 #endif
 
 #endif

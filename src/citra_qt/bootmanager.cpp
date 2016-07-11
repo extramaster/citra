@@ -49,20 +49,17 @@ void EmuThread::run() {
     bool was_active = false;
     while (!stop_run) {
         if (running) {
-            if (!was_active) {
+            if (!was_active)
                 emit DebugModeLeft();
-            }
 
             Core::RunLoop();
 
             was_active = running || exec_step;
-            if (!was_active && !stop_run) {
+            if (!was_active && !stop_run)
                 emit DebugModeEntered();
-            }
         } else if (exec_step) {
-            if (!was_active) {
+            if (!was_active)
                 emit DebugModeLeft();
-            }
 
             exec_step = false;
             Core::SingleStep();
@@ -72,7 +69,7 @@ void EmuThread::run() {
             was_active = false;
         } else {
             std::unique_lock<std::mutex> lock(running_mutex);
-            running_cv.wait(lock, [this] { return IsRunning() || exec_step || stop_run; });
+            running_cv.wait(lock, [this]{ return IsRunning() || exec_step || stop_run; });
         }
     }
 
@@ -88,10 +85,11 @@ void EmuThread::run() {
 
 // This class overrides paintEvent and resizeEvent to prevent the GUI thread from stealing GL context.
 // The corresponding functionality is handled in EmuThread instead
-class GGLWidgetInternal : public QGLWidget {
+class GGLWidgetInternal : public QGLWidget
+{
 public:
     GGLWidgetInternal(QGLFormat fmt, GRenderWindow* parent)
-        : QGLWidget(fmt, parent), parent(parent) {
+                     : QGLWidget(fmt, parent), parent(parent) {
     }
 
     void paintEvent(QPaintEvent* ev) override {
@@ -105,12 +103,8 @@ public:
         parent->OnFramebufferSizeChanged();
     }
 
-    void DisablePainting() {
-        do_painting = false;
-    }
-    void EnablePainting() {
-        do_painting = true;
-    }
+    void DisablePainting() { do_painting = false; }
+    void EnablePainting() { do_painting = true; }
 
 private:
     GRenderWindow* parent;
@@ -150,7 +144,8 @@ GRenderWindow::GRenderWindow(QWidget* parent, EmuThread* emu_thread) :
 
 }
 
-void GRenderWindow::moveContext() {
+void GRenderWindow::moveContext()
+{
     DoneCurrent();
     // We need to move GL context to the swapping thread in Qt5
 #if QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
@@ -160,7 +155,8 @@ void GRenderWindow::moveContext() {
 #endif
 }
 
-void GRenderWindow::SwapBuffers() {
+void GRenderWindow::SwapBuffers()
+{
 #if !defined(QT_NO_DEBUG)
     // Qt debug runtime prints a bogus warning on the console if you haven't called makeCurrent
     // since the last time you called swapBuffers. This presumably means something if you're using
@@ -171,11 +167,13 @@ void GRenderWindow::SwapBuffers() {
     child->swapBuffers();
 }
 
-void GRenderWindow::MakeCurrent() {
+void GRenderWindow::MakeCurrent()
+{
     child->makeCurrent();
 }
 
-void GRenderWindow::DoneCurrent() {
+void GRenderWindow::DoneCurrent()
+{
     child->doneCurrent();
 }
 
@@ -187,7 +185,8 @@ void GRenderWindow::PollEvents() {
 // Older versions get the window size (density independent pixels),
 // and hence, do not support DPI scaling ("retina" displays).
 // The result will be a viewport that is smaller than the extent of the window.
-void GRenderWindow::OnFramebufferSizeChanged() {
+void GRenderWindow::OnFramebufferSizeChanged()
+{
     // Screen changes potentially incur a change in screen DPI, hence we should update the framebuffer size
     qreal pixelRatio = windowPixelRatio();
     unsigned width = child->QPaintDevice::width() * pixelRatio;
@@ -195,32 +194,36 @@ void GRenderWindow::OnFramebufferSizeChanged() {
     UpdateCurrentFramebufferLayout(width, height);
 }
 
-void GRenderWindow::BackupGeometry() {
+void GRenderWindow::BackupGeometry()
+{
     geometry = ((QGLWidget*)this)->saveGeometry();
 }
 
-void GRenderWindow::RestoreGeometry() {
+void GRenderWindow::RestoreGeometry()
+{
     // We don't want to back up the geometry here (obviously)
     QWidget::restoreGeometry(geometry);
 }
 
-void GRenderWindow::restoreGeometry(const QByteArray& geometry) {
+void GRenderWindow::restoreGeometry(const QByteArray& geometry)
+{
     // Make sure users of this class don't need to deal with backing up the geometry themselves
     QWidget::restoreGeometry(geometry);
     BackupGeometry();
 }
 
-QByteArray GRenderWindow::saveGeometry() {
+QByteArray GRenderWindow::saveGeometry()
+{
     // If we are a top-level widget, store the current geometry
     // otherwise, store the last backup
-    if (parent() == nullptr) {
+    if (parent() == nullptr)
         return ((QGLWidget*)this)->saveGeometry();
-    } else {
+    else
         return geometry;
-    }
 }
 
-qreal GRenderWindow::windowPixelRatio() {
+qreal GRenderWindow::windowPixelRatio()
+{
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     // windowHandle() might not be accessible until the window is displayed to screen.
     return windowHandle() ? windowHandle()->screen()->devicePixelRatio() : 1.0f;
@@ -235,15 +238,18 @@ void GRenderWindow::closeEvent(QCloseEvent* event) {
     QWidget::closeEvent(event);
 }
 
-void GRenderWindow::keyPressEvent(QKeyEvent* event) {
+void GRenderWindow::keyPressEvent(QKeyEvent* event)
+{
     KeyMap::PressKey(*this, { event->key(), keyboard_id });
 }
 
-void GRenderWindow::keyReleaseEvent(QKeyEvent* event) {
+void GRenderWindow::keyReleaseEvent(QKeyEvent* event)
+{
     KeyMap::ReleaseKey(*this, { event->key(), keyboard_id });
 }
 
-void GRenderWindow::mousePressEvent(QMouseEvent *event) {
+void GRenderWindow::mousePressEvent(QMouseEvent *event)
+{
     auto pos = event->pos();
     if (event->button() == Qt::LeftButton) {
         qreal pixelRatio = windowPixelRatio();
@@ -254,7 +260,8 @@ void GRenderWindow::mousePressEvent(QMouseEvent *event) {
     }
 }
 
-void GRenderWindow::mouseMoveEvent(QMouseEvent *event) {
+void GRenderWindow::mouseMoveEvent(QMouseEvent *event)
+{
     auto pos = event->pos();
     qreal pixelRatio = windowPixelRatio();
     this->TouchMoved(std::max(static_cast<unsigned>(pos.x() * pixelRatio), 0u),
@@ -262,22 +269,24 @@ void GRenderWindow::mouseMoveEvent(QMouseEvent *event) {
     MotionEmu::Tilt(pos.x(), pos.y());
 }
 
-void GRenderWindow::mouseReleaseEvent(QMouseEvent *event) {
-    if (event->button() == Qt::LeftButton) {
+void GRenderWindow::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton)
         this->TouchReleased();
-    } else if (event->button() == Qt::RightButton) {
+    else if (event->button() == Qt::RightButton)
         MotionEmu::EndTilt();
-    }
 }
 
-void GRenderWindow::ReloadSetKeymaps() {
+void GRenderWindow::ReloadSetKeymaps()
+{
     KeyMap::ClearKeyMapping(keyboard_id);
     for (int i = 0; i < Settings::NativeInput::NUM_INPUTS; ++i) {
         KeyMap::SetKeyMapping({ Settings::values.input_mappings[Settings::NativeInput::All[i]], keyboard_id }, KeyMap::mapping_targets[i]);
     }
 }
 
-void GRenderWindow::OnClientAreaResized(unsigned width, unsigned height) {
+void GRenderWindow::OnClientAreaResized(unsigned width, unsigned height)
+{
     NotifyClientAreaSizeChanged(std::make_pair(width, height));
 }
 
@@ -301,7 +310,7 @@ void GRenderWindow::showEvent(QShowEvent * event) {
     QWidget::showEvent(event);
 
     // windowHandle() is not initialized until the Window is shown, so we connect it here.
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-    connect(this->windowHandle(), SIGNAL(screenChanged(QScreen*)), this, SLOT(OnFramebufferSizeChanged()), Qt::UniqueConnection);
-#endif
+    #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+        connect(this->windowHandle(), SIGNAL(screenChanged(QScreen*)), this, SLOT(OnFramebufferSizeChanged()), Qt::UniqueConnection);
+    #endif
 }

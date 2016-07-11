@@ -40,7 +40,7 @@ public:
      * @param name Optional object name, used for debugging purposes.
      */
     static SharedPtr<SharedMemory> Create(SharedPtr<Process> owner_process, u32 size, MemoryPermission permissions,
-                                          MemoryPermission other_permissions, VAddr address = 0, MemoryRegion region = MemoryRegion::BASE, std::string name = "Unknown");
+            MemoryPermission other_permissions, VAddr address = 0, MemoryRegion region = MemoryRegion::BASE, std::string name = "Unknown");
 
     /**
      * Creates a shared memory object from a block of memory managed by an HLE applet.
@@ -52,19 +52,13 @@ public:
      * @param name Optional object name, used for debugging purposes.
      */
     static SharedPtr<SharedMemory> CreateForApplet(std::shared_ptr<std::vector<u8>> heap_block, u32 offset, u32 size,
-            MemoryPermission permissions, MemoryPermission other_permissions, std::string name = "Unknown Applet");
+                                                   MemoryPermission permissions, MemoryPermission other_permissions, std::string name = "Unknown Applet");
 
-    std::string GetTypeName() const override {
-        return "SharedMemory";
-    }
-    std::string GetName() const override {
-        return name;
-    }
+    std::string GetTypeName() const override { return "SharedMemory"; }
+    std::string GetName() const override { return name; }
 
     static const HandleType HANDLE_TYPE = HandleType::SharedMemory;
-    HandleType GetHandleType() const override {
-        return HANDLE_TYPE;
-    }
+    HandleType GetHandleType() const override { return HANDLE_TYPE; }
 
     /**
      * Converts the specified MemoryPermission into the equivalent VMAPermission.

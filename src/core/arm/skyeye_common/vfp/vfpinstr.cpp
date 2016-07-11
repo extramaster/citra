@@ -19,7 +19,8 @@ struct vmla_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vmla)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vmla)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vmla_inst));
     vmla_inst *inst_cream = (vmla_inst *)inst_base->component;
 
@@ -34,7 +35,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vmla)(unsigned int inst, int index) {
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VMLA_INST: {
+VMLA_INST:
+{
     if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
         CHECK_VFP_ENABLED;
 
@@ -42,11 +44,10 @@ VMLA_INST: {
 
         int ret;
 
-        if (inst_cream->dp_operation) {
+        if (inst_cream->dp_operation)
             ret = vfp_double_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        } else {
+        else
             ret = vfp_single_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        }
 
         CHECK_VFP_CDP_RET;
     }
@@ -67,7 +68,8 @@ struct vmls_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vmls)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vmls)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vmls_inst));
     vmls_inst *inst_cream = (vmls_inst *)inst_base->component;
 
@@ -82,7 +84,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vmls)(unsigned int inst, int index) {
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VMLS_INST: {
+VMLS_INST:
+{
     if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
         CHECK_VFP_ENABLED;
 
@@ -90,11 +93,10 @@ VMLS_INST: {
 
         int ret;
 
-        if (inst_cream->dp_operation) {
+        if (inst_cream->dp_operation)
             ret = vfp_double_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        } else {
+        else
             ret = vfp_single_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        }
 
         CHECK_VFP_CDP_RET;
     }
@@ -115,7 +117,8 @@ struct vnmla_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vnmla)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vnmla)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vnmla_inst));
     vnmla_inst *inst_cream = (vnmla_inst *)inst_base->component;
 
@@ -130,7 +133,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vnmla)(unsigned int inst, int index) {
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VNMLA_INST: {
+VNMLA_INST:
+{
     if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
         CHECK_VFP_ENABLED;
 
@@ -138,11 +142,10 @@ VNMLA_INST: {
 
         int ret;
 
-        if (inst_cream->dp_operation) {
+        if (inst_cream->dp_operation)
             ret = vfp_double_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        } else {
+        else
             ret = vfp_single_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        }
 
         CHECK_VFP_CDP_RET;
     }
@@ -164,7 +167,8 @@ struct vnmls_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vnmls)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vnmls)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vnmls_inst));
     vnmls_inst *inst_cream = (vnmls_inst *)inst_base->component;
 
@@ -179,7 +183,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vnmls)(unsigned int inst, int index) {
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VNMLS_INST: {
+VNMLS_INST:
+{
     if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
         CHECK_VFP_ENABLED;
 
@@ -187,11 +192,10 @@ VNMLS_INST: {
 
         int ret;
 
-        if (inst_cream->dp_operation) {
+        if (inst_cream->dp_operation)
             ret = vfp_double_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        } else {
+        else
             ret = vfp_single_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        }
 
         CHECK_VFP_CDP_RET;
     }
@@ -212,7 +216,8 @@ struct vnmul_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vnmul)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vnmul)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vnmul_inst));
     vnmul_inst *inst_cream = (vnmul_inst *)inst_base->component;
 
@@ -227,7 +232,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vnmul)(unsigned int inst, int index) {
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VNMUL_INST: {
+VNMUL_INST:
+{
     if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
         CHECK_VFP_ENABLED;
 
@@ -235,11 +241,10 @@ VNMUL_INST: {
 
         int ret;
 
-        if (inst_cream->dp_operation) {
+        if (inst_cream->dp_operation)
             ret = vfp_double_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        } else {
+        else
             ret = vfp_single_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        }
 
         CHECK_VFP_CDP_RET;
     }
@@ -260,7 +265,8 @@ struct vmul_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vmul)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vmul)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vmul_inst));
     vmul_inst *inst_cream = (vmul_inst *)inst_base->component;
 
@@ -275,7 +281,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vmul)(unsigned int inst, int index) {
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VMUL_INST: {
+VMUL_INST:
+{
     if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
         CHECK_VFP_ENABLED;
 
@@ -283,11 +290,10 @@ VMUL_INST: {
 
         int ret;
 
-        if (inst_cream->dp_operation) {
+        if (inst_cream->dp_operation)
             ret = vfp_double_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        } else {
+        else
             ret = vfp_single_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        }
 
         CHECK_VFP_CDP_RET;
     }
@@ -308,7 +314,8 @@ struct vadd_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vadd)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vadd)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vadd_inst));
     vadd_inst *inst_cream = (vadd_inst *)inst_base->component;
 
@@ -323,7 +330,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vadd)(unsigned int inst, int index) {
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VADD_INST: {
+VADD_INST:
+{
     if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
         CHECK_VFP_ENABLED;
 
@@ -331,11 +339,10 @@ VADD_INST: {
 
         int ret;
 
-        if (inst_cream->dp_operation) {
+        if (inst_cream->dp_operation)
             ret = vfp_double_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        } else {
+        else
             ret = vfp_single_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        }
 
         CHECK_VFP_CDP_RET;
     }
@@ -356,7 +363,8 @@ struct vsub_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vsub)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vsub)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vsub_inst));
     vsub_inst *inst_cream = (vsub_inst *)inst_base->component;
 
@@ -371,7 +379,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vsub)(unsigned int inst, int index) {
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VSUB_INST: {
+VSUB_INST:
+{
     if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
         CHECK_VFP_ENABLED;
 
@@ -379,11 +388,10 @@ VSUB_INST: {
 
         int ret;
 
-        if (inst_cream->dp_operation) {
+        if (inst_cream->dp_operation)
             ret = vfp_double_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        } else {
+        else
             ret = vfp_single_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        }
 
         CHECK_VFP_CDP_RET;
     }
@@ -404,7 +412,8 @@ struct vdiv_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vdiv)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vdiv)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vdiv_inst));
     vdiv_inst *inst_cream = (vdiv_inst *)inst_base->component;
 
@@ -419,7 +428,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vdiv)(unsigned int inst, int index) {
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VDIV_INST: {
+VDIV_INST:
+{
     if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
         CHECK_VFP_ENABLED;
 
@@ -427,11 +437,10 @@ VDIV_INST: {
 
         int ret;
 
-        if (inst_cream->dp_operation) {
+        if (inst_cream->dp_operation)
             ret = vfp_double_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        } else {
+        else
             ret = vfp_single_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        }
 
         CHECK_VFP_CDP_RET;
     }
@@ -454,7 +463,8 @@ struct vmovi_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vmovi)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vmovi)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vmovi_inst));
     vmovi_inst *inst_cream = (vmovi_inst *)inst_base->component;
 
@@ -465,16 +475,16 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vmovi)(unsigned int inst, int index) {
     inst_cream->single = BIT(inst, 8) == 0;
     inst_cream->d      = (inst_cream->single ? BITS(inst,12,15)<<1 | BIT(inst,22) : BITS(inst,12,15) | BIT(inst,22)<<4);
     unsigned int imm8 = BITS(inst, 16, 19) << 4 | BITS(inst, 0, 3);
-    if (inst_cream->single) {
+    if (inst_cream->single)
         inst_cream->imm = BIT(imm8, 7)<<31 | (BIT(imm8, 6)==0)<<30 | (BIT(imm8, 6) ? 0x1f : 0)<<25 | BITS(imm8, 0, 5)<<19;
-    } else {
+    else
         inst_cream->imm = BIT(imm8, 7)<<31 | (BIT(imm8, 6)==0)<<30 | (BIT(imm8, 6) ? 0xff : 0)<<22 | BITS(imm8, 0, 5)<<16;
-    }
     return inst_base;
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VMOVI_INST: {
+VMOVI_INST:
+{
     if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
         CHECK_VFP_ENABLED;
 
@@ -501,7 +511,8 @@ struct vmovr_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vmovr)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vmovr)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vmovr_inst));
     vmovr_inst *inst_cream = (vmovr_inst *)inst_base->component;
 
@@ -516,7 +527,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vmovr)(unsigned int inst, int index) {
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VMOVR_INST: {
+VMOVR_INST:
+{
     if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
         CHECK_VFP_ENABLED;
 
@@ -541,7 +553,8 @@ typedef struct _vabs_inst {
 } vabs_inst;
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vabs)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vabs)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vabs_inst));
     vabs_inst *inst_cream = (vabs_inst *)inst_base->component;
 
@@ -556,7 +569,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vabs)(unsigned int inst, int index) {
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VABS_INST: {
+VABS_INST:
+{
     if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
         CHECK_VFP_ENABLED;
 
@@ -564,11 +578,10 @@ VABS_INST: {
 
         int ret;
 
-        if (inst_cream->dp_operation) {
+        if (inst_cream->dp_operation)
             ret = vfp_double_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        } else {
+        else
             ret = vfp_single_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        }
 
         CHECK_VFP_CDP_RET;
     }
@@ -590,7 +603,8 @@ struct vneg_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vneg)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vneg)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vneg_inst));
     vneg_inst *inst_cream = (vneg_inst *)inst_base->component;
 
@@ -605,7 +619,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vneg)(unsigned int inst, int index) {
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VNEG_INST: {
+VNEG_INST:
+{
     if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
         CHECK_VFP_ENABLED;
 
@@ -613,11 +628,10 @@ VNEG_INST: {
 
         int ret;
 
-        if (inst_cream->dp_operation) {
+        if (inst_cream->dp_operation)
             ret = vfp_double_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        } else {
+        else
             ret = vfp_single_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        }
 
         CHECK_VFP_CDP_RET;
     }
@@ -638,7 +652,8 @@ struct vsqrt_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vsqrt)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vsqrt)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vsqrt_inst));
     vsqrt_inst *inst_cream = (vsqrt_inst *)inst_base->component;
 
@@ -653,7 +668,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vsqrt)(unsigned int inst, int index) {
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VSQRT_INST: {
+VSQRT_INST:
+{
     if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
         CHECK_VFP_ENABLED;
 
@@ -661,11 +677,10 @@ VSQRT_INST: {
 
         int ret;
 
-        if (inst_cream->dp_operation) {
+        if (inst_cream->dp_operation)
             ret = vfp_double_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        } else {
+        else
             ret = vfp_single_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        }
 
         CHECK_VFP_CDP_RET;
     }
@@ -686,7 +701,8 @@ struct vcmp_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vcmp)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vcmp)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vcmp_inst));
     vcmp_inst *inst_cream = (vcmp_inst *)inst_base->component;
 
@@ -701,7 +717,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vcmp)(unsigned int inst, int index) {
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VCMP_INST: {
+VCMP_INST:
+{
     if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
         CHECK_VFP_ENABLED;
 
@@ -709,11 +726,10 @@ VCMP_INST: {
 
         int ret;
 
-        if (inst_cream->dp_operation) {
+        if (inst_cream->dp_operation)
             ret = vfp_double_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        } else {
+        else
             ret = vfp_single_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        }
 
         CHECK_VFP_CDP_RET;
     }
@@ -734,7 +750,8 @@ struct vcmp2_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vcmp2)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vcmp2)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vcmp2_inst));
     vcmp2_inst *inst_cream = (vcmp2_inst *)inst_base->component;
 
@@ -749,7 +766,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vcmp2)(unsigned int inst, int index) {
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VCMP2_INST: {
+VCMP2_INST:
+{
     if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
         CHECK_VFP_ENABLED;
 
@@ -757,11 +775,10 @@ VCMP2_INST: {
 
         int ret;
 
-        if (inst_cream->dp_operation) {
+        if (inst_cream->dp_operation)
             ret = vfp_double_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        } else {
+        else
             ret = vfp_single_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        }
 
         CHECK_VFP_CDP_RET;
     }
@@ -782,7 +799,8 @@ struct vcvtbds_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vcvtbds)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vcvtbds)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vcvtbds_inst));
     vcvtbds_inst *inst_cream = (vcvtbds_inst *)inst_base->component;
 
@@ -797,7 +815,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vcvtbds)(unsigned int inst, int index)
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VCVTBDS_INST: {
+VCVTBDS_INST:
+{
     if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
         CHECK_VFP_ENABLED;
 
@@ -805,11 +824,10 @@ VCVTBDS_INST: {
 
         int ret;
 
-        if (inst_cream->dp_operation) {
+        if (inst_cream->dp_operation)
             ret = vfp_double_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        } else {
+        else
             ret = vfp_single_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        }
 
         CHECK_VFP_CDP_RET;
     }
@@ -830,7 +848,8 @@ struct vcvtbff_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vcvtbff)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vcvtbff)(unsigned int inst, int index)
+{
     VFP_DEBUG_UNTESTED(VCVTBFF);
 
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vcvtbff_inst));
@@ -847,7 +866,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vcvtbff)(unsigned int inst, int index)
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VCVTBFF_INST: {
+VCVTBFF_INST:
+{
     if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
         CHECK_VFP_ENABLED;
 
@@ -855,11 +875,10 @@ VCVTBFF_INST: {
 
         int ret;
 
-        if (inst_cream->dp_operation) {
+        if (inst_cream->dp_operation)
             ret = vfp_double_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        } else {
+        else
             ret = vfp_single_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        }
 
         CHECK_VFP_CDP_RET;
     }
@@ -880,7 +899,8 @@ struct vcvtbfi_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vcvtbfi)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vcvtbfi)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vcvtbfi_inst));
     vcvtbfi_inst *inst_cream = (vcvtbfi_inst *)inst_base->component;
 
@@ -895,7 +915,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vcvtbfi)(unsigned int inst, int index)
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VCVTBFI_INST: {
+VCVTBFI_INST:
+{
     if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
         CHECK_VFP_ENABLED;
 
@@ -903,11 +924,10 @@ VCVTBFI_INST: {
 
         int ret;
 
-        if (inst_cream->dp_operation) {
+        if (inst_cream->dp_operation)
             ret = vfp_double_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        } else {
+        else
             ret = vfp_single_cpdo(cpu, inst_cream->instr, cpu->VFP[VFP_FPSCR]);
-        }
 
         CHECK_VFP_CDP_RET;
     }
@@ -935,7 +955,8 @@ struct vmovbrs_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vmovbrs)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vmovbrs)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vmovbrs_inst));
     vmovbrs_inst *inst_cream = (vmovbrs_inst *)inst_base->component;
 
@@ -951,7 +972,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vmovbrs)(unsigned int inst, int index)
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VMOVBRS_INST: {
+VMOVBRS_INST:
+{
     if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
         CHECK_VFP_ENABLED;
 
@@ -977,7 +999,8 @@ struct vmsr_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vmsr)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vmsr)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vmsr_inst));
     vmsr_inst *inst_cream = (vmsr_inst *)inst_base->component;
 
@@ -992,7 +1015,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vmsr)(unsigned int inst, int index) {
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VMSR_INST: {
+VMSR_INST:
+{
     if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
         /* FIXME: special case for access to FPSID and FPEXC, VFP must be disabled ,
            and in privileged mode */
@@ -1004,16 +1028,18 @@ VMSR_INST: {
         unsigned int reg = inst_cream->reg;
         unsigned int rt  = inst_cream->Rt;
 
-        if (reg == 1) {
+        if (reg == 1)
+        {
             cpu->VFP[VFP_FPSCR] = cpu->Reg[rt];
-        } else if (cpu->InAPrivilegedMode()) {
-            if (reg == 8) {
+        }
+        else if (cpu->InAPrivilegedMode())
+        {
+            if (reg == 8)
                 cpu->VFP[VFP_FPEXC] = cpu->Reg[rt];
-            } else if (reg == 9) {
+            else if (reg == 9)
                 cpu->VFP[VFP_FPINST] = cpu->Reg[rt];
-            } else if (reg == 10) {
+            else if (reg == 10)
                 cpu->VFP[VFP_FPINST2] = cpu->Reg[rt];
-            }
         }
     }
     cpu->Reg[15] += cpu->GetInstructionSize();
@@ -1036,7 +1062,8 @@ struct vmovbrc_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vmovbrc)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vmovbrc)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vmovbrc_inst));
     vmovbrc_inst *inst_cream = (vmovbrc_inst *)inst_base->component;
 
@@ -1054,7 +1081,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vmovbrc)(unsigned int inst, int index)
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VMOVBRC_INST: {
+VMOVBRC_INST:
+{
     if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
         CHECK_VFP_ENABLED;
 
@@ -1080,7 +1108,8 @@ struct vmrs_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vmrs)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vmrs)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vmrs_inst));
     vmrs_inst *inst_cream = (vmrs_inst *)inst_base->component;
 
@@ -1095,7 +1124,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vmrs)(unsigned int inst, int index) {
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VMRS_INST: {
+VMRS_INST:
+{
     if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
         /* FIXME: special case for access to FPSID and FPEXC, VFP must be disabled,
            and in privileged mode */
@@ -1107,29 +1137,40 @@ VMRS_INST: {
         unsigned int reg = inst_cream->reg;
         unsigned int rt  = inst_cream->Rt;
 
-        if (reg == 1) { // FPSCR
-            if (rt != 15) {
+        if (reg == 1) // FPSCR
+        {
+            if (rt != 15)
+            {
                 cpu->Reg[rt] = cpu->VFP[VFP_FPSCR];
-            } else {
+            }
+            else
+            {
                 cpu->NFlag = (cpu->VFP[VFP_FPSCR] >> 31) & 1;
                 cpu->ZFlag = (cpu->VFP[VFP_FPSCR] >> 30) & 1;
                 cpu->CFlag = (cpu->VFP[VFP_FPSCR] >> 29) & 1;
                 cpu->VFlag = (cpu->VFP[VFP_FPSCR] >> 28) & 1;
             }
-        } else if (reg == 0) {
+        }
+        else if (reg == 0)
+        {
             cpu->Reg[rt] = cpu->VFP[VFP_FPSID];
-        } else if (reg == 6) {
+        }
+        else if (reg == 6)
+        {
             cpu->Reg[rt] = cpu->VFP[VFP_MVFR1];
-        } else if (reg == 7) {
+        }
+        else if (reg == 7)
+        {
             cpu->Reg[rt] = cpu->VFP[VFP_MVFR0];
-        } else if (cpu->InAPrivilegedMode()) {
-            if (reg == 8) {
+        }
+        else if (cpu->InAPrivilegedMode())
+        {
+            if (reg == 8)
                 cpu->Reg[rt] = cpu->VFP[VFP_FPEXC];
-            } else if (reg == 9) {
+            else if (reg == 9)
                 cpu->Reg[rt] = cpu->VFP[VFP_FPINST];
-            } else if (reg == 10) {
+            else if (reg == 10)
                 cpu->Reg[rt] = cpu->VFP[VFP_FPINST2];
-            }
         }
     }
     cpu->Reg[15] += cpu->GetInstructionSize();
@@ -1152,7 +1193,8 @@ struct vmovbcr_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vmovbcr)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vmovbcr)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vmovbcr_inst));
     vmovbcr_inst *inst_cream = (vmovbcr_inst *)inst_base->component;
 
@@ -1170,7 +1212,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vmovbcr)(unsigned int inst, int index)
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VMOVBCR_INST: {
+VMOVBCR_INST:
+{
     if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
         CHECK_VFP_ENABLED;
 
@@ -1203,7 +1246,8 @@ struct vmovbrrss_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vmovbrrss)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vmovbrrss)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vmovbrrss_inst));
     vmovbrrss_inst *inst_cream = (vmovbrrss_inst *)inst_base->component;
 
@@ -1220,14 +1264,15 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vmovbrrss)(unsigned int inst, int inde
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VMOVBRRSS_INST: {
+VMOVBRRSS_INST:
+{
     if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
         CHECK_VFP_ENABLED;
 
         vmovbrrss_inst* const inst_cream = (vmovbrrss_inst*)inst_base->component;
 
         VMOVBRRSS(cpu, inst_cream->to_arm, inst_cream->t, inst_cream->t2, inst_cream->m,
-                  &cpu->Reg[inst_cream->t], &cpu->Reg[inst_cream->t2]);
+            &cpu->Reg[inst_cream->t], &cpu->Reg[inst_cream->t2]);
     }
     cpu->Reg[15] += cpu->GetInstructionSize();
     INC_PC(sizeof(vmovbrrss_inst));
@@ -1249,7 +1294,8 @@ struct vmovbrrd_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vmovbrrd)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vmovbrrd)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vmovbrrd_inst));
     vmovbrrd_inst *inst_cream = (vmovbrrd_inst *)inst_base->component;
 
@@ -1266,14 +1312,15 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vmovbrrd)(unsigned int inst, int index
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VMOVBRRD_INST: {
+VMOVBRRD_INST:
+{
     if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
         CHECK_VFP_ENABLED;
 
         vmovbrrd_inst *inst_cream = (vmovbrrd_inst *)inst_base->component;
 
         VMOVBRRD(cpu, inst_cream->to_arm, inst_cream->t, inst_cream->t2, inst_cream->m,
-                 &(cpu->Reg[inst_cream->t]), &(cpu->Reg[inst_cream->t2]));
+            &(cpu->Reg[inst_cream->t]), &(cpu->Reg[inst_cream->t2]));
     }
     cpu->Reg[15] += cpu->GetInstructionSize();
     INC_PC(sizeof(vmovbrrd_inst));
@@ -1300,7 +1347,8 @@ struct vstr_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vstr)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vstr)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vstr_inst));
     vstr_inst *inst_cream = (vstr_inst *)inst_base->component;
 
@@ -1318,7 +1366,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vstr)(unsigned int inst, int index) {
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VSTR_INST: {
+VSTR_INST:
+{
     if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
         CHECK_VFP_ENABLED;
 
@@ -1327,9 +1376,12 @@ VSTR_INST: {
         unsigned int base = (inst_cream->n == 15 ? (cpu->Reg[inst_cream->n] & 0xFFFFFFFC) + 8 : cpu->Reg[inst_cream->n]);
         addr = (inst_cream->add ? base + inst_cream->imm32 : base - inst_cream->imm32);
 
-        if (inst_cream->single) {
+        if (inst_cream->single)
+        {
             cpu->WriteMemory32(addr, cpu->ExtReg[inst_cream->d]);
-        } else {
+        }
+        else
+        {
             const u32 word1 = cpu->ExtReg[inst_cream->d*2+0];
             const u32 word2 = cpu->ExtReg[inst_cream->d*2+1];
 
@@ -1361,7 +1413,8 @@ struct vpush_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vpush)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vpush)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vpush_inst));
     vpush_inst *inst_cream = (vpush_inst *)inst_base->component;
 
@@ -1378,7 +1431,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vpush)(unsigned int inst, int index) {
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VPUSH_INST: {
+VPUSH_INST:
+{
     if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
         CHECK_VFP_ENABLED;
 
@@ -1386,11 +1440,15 @@ VPUSH_INST: {
 
         addr = cpu->Reg[R13] - inst_cream->imm32;
 
-        for (unsigned int i = 0; i < inst_cream->regs; i++) {
-            if (inst_cream->single) {
+        for (unsigned int i = 0; i < inst_cream->regs; i++)
+        {
+            if (inst_cream->single)
+            {
                 cpu->WriteMemory32(addr, cpu->ExtReg[inst_cream->d+i]);
                 addr += 4;
-            } else {
+            }
+            else
+            {
                 const u32 word1 = cpu->ExtReg[(inst_cream->d+i)*2+0];
                 const u32 word2 = cpu->ExtReg[(inst_cream->d+i)*2+1];
 
@@ -1430,7 +1488,8 @@ struct vstm_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vstm)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vstm)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vstm_inst));
     vstm_inst *inst_cream = (vstm_inst *)inst_base->component;
 
@@ -1450,7 +1509,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vstm)(unsigned int inst, int index) {
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VSTM_INST: { /* encoding 1 */
+VSTM_INST: /* encoding 1 */
+{
     if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
         CHECK_VFP_ENABLED;
 
@@ -1459,19 +1519,21 @@ VSTM_INST: { /* encoding 1 */
         u32 address = cpu->Reg[inst_cream->n];
 
         // Only possible in ARM mode, where PC accesses have an 8 byte offset.
-        if (inst_cream->n == 15) {
+        if (inst_cream->n == 15)
             address += 8;
-        }
 
-        if (inst_cream->add == 0) {
+        if (inst_cream->add == 0)
             address -= inst_cream->imm32;
-        }
 
-        for (unsigned int i = 0; i < inst_cream->regs; i++) {
-            if (inst_cream->single) {
+        for (unsigned int i = 0; i < inst_cream->regs; i++)
+        {
+            if (inst_cream->single)
+            {
                 cpu->WriteMemory32(address, cpu->ExtReg[inst_cream->d+i]);
                 address += 4;
-            } else {
+            }
+            else
+            {
                 const u32 word1 = cpu->ExtReg[(inst_cream->d+i)*2+0];
                 const u32 word2 = cpu->ExtReg[(inst_cream->d+i)*2+1];
 
@@ -1488,7 +1550,7 @@ VSTM_INST: { /* encoding 1 */
         }
         if (inst_cream->wback) {
             cpu->Reg[inst_cream->n] = (inst_cream->add ? cpu->Reg[inst_cream->n] + inst_cream->imm32 :
-                                       cpu->Reg[inst_cream->n] - inst_cream->imm32);
+                cpu->Reg[inst_cream->n] - inst_cream->imm32);
         }
     }
     cpu->Reg[15] += 4;
@@ -1511,7 +1573,8 @@ struct vpop_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vpop)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vpop)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vpop_inst));
     vpop_inst *inst_cream = (vpop_inst *)inst_base->component;
 
@@ -1528,7 +1591,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vpop)(unsigned int inst, int index) {
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VPOP_INST: {
+VPOP_INST:
+{
     if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
         CHECK_VFP_ENABLED;
 
@@ -1536,11 +1600,15 @@ VPOP_INST: {
 
         addr = cpu->Reg[R13];
 
-        for (unsigned int i = 0; i < inst_cream->regs; i++) {
-            if (inst_cream->single) {
+        for (unsigned int i = 0; i < inst_cream->regs; i++)
+        {
+            if (inst_cream->single)
+            {
                 cpu->ExtReg[inst_cream->d+i] = cpu->ReadMemory32(addr);
                 addr += 4;
-            } else {
+            }
+            else
+            {
                 const u32 word1 = cpu->ReadMemory32(addr + 0);
                 const u32 word2 = cpu->ReadMemory32(addr + 4);
 
@@ -1578,7 +1646,8 @@ struct vldr_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vldr)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vldr)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vldr_inst));
     vldr_inst *inst_cream = (vldr_inst *)inst_base->component;
 
@@ -1596,7 +1665,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vldr)(unsigned int inst, int index) {
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VLDR_INST: {
+VLDR_INST:
+{
     if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
         CHECK_VFP_ENABLED;
 
@@ -1605,9 +1675,12 @@ VLDR_INST: {
         unsigned int base = (inst_cream->n == 15 ? (cpu->Reg[inst_cream->n] & 0xFFFFFFFC) + 8 : cpu->Reg[inst_cream->n]);
         addr = (inst_cream->add ? base + inst_cream->imm32 : base - inst_cream->imm32);
 
-        if (inst_cream->single) {
+        if (inst_cream->single)
+        {
             cpu->ExtReg[inst_cream->d] = cpu->ReadMemory32(addr);
-        } else {
+        }
+        else
+        {
             const u32 word1 = cpu->ReadMemory32(addr + 0);
             const u32 word2 = cpu->ReadMemory32(addr + 4);
 
@@ -1642,7 +1715,8 @@ struct vldm_inst {
 };
 #endif
 #ifdef VFP_INTERPRETER_TRANS
-static ARM_INST_PTR INTERPRETER_TRANSLATE(vldm)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(vldm)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(vldm_inst));
     vldm_inst *inst_cream = (vldm_inst *)inst_base->component;
 
@@ -1662,7 +1736,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(vldm)(unsigned int inst, int index) {
 }
 #endif
 #ifdef VFP_INTERPRETER_IMPL
-VLDM_INST: {
+VLDM_INST:
+{
     if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
         CHECK_VFP_ENABLED;
 
@@ -1671,19 +1746,21 @@ VLDM_INST: {
         u32 address = cpu->Reg[inst_cream->n];
 
         // Only possible in ARM mode, where PC accesses have an 8 byte offset.
-        if (inst_cream->n == 15) {
+        if (inst_cream->n == 15)
             address += 8;
-        }
 
-        if (inst_cream->add == 0) {
+        if (inst_cream->add == 0)
             address -= inst_cream->imm32;
-        }
 
-        for (unsigned int i = 0; i < inst_cream->regs; i++) {
-            if (inst_cream->single) {
+        for (unsigned int i = 0; i < inst_cream->regs; i++)
+        {
+            if (inst_cream->single)
+            {
                 cpu->ExtReg[inst_cream->d+i] = cpu->ReadMemory32(address);
                 address += 4;
-            } else {
+            }
+            else
+            {
                 const u32 word1 = cpu->ReadMemory32(address + 0);
                 const u32 word2 = cpu->ReadMemory32(address + 4);
 
@@ -1700,7 +1777,7 @@ VLDM_INST: {
         }
         if (inst_cream->wback) {
             cpu->Reg[inst_cream->n] = (inst_cream->add ? cpu->Reg[inst_cream->n] + inst_cream->imm32 :
-                                       cpu->Reg[inst_cream->n] - inst_cream->imm32);
+                cpu->Reg[inst_cream->n] - inst_cream->imm32);
         }
     }
     cpu->Reg[15] += cpu->GetInstructionSize();

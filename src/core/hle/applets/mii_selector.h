@@ -67,9 +67,7 @@ public:
     ResultCode ReceiveParameter(const Service::APT::MessageParameter& parameter) override;
     ResultCode StartImpl(const Service::APT::AppletStartupParameter& parameter) override;
     void Update() override;
-    bool IsRunning() const override {
-        return started;
-    }
+    bool IsRunning() const override { return started; }
 
     /// This SharedMemory will be created when we receive the LibAppJustStarted message.
     /// It holds the framebuffer info retrieved by the application with GSPGPU::ImportDisplayCaptureInfo

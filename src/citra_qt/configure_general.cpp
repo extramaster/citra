@@ -10,7 +10,8 @@
 
 ConfigureGeneral::ConfigureGeneral(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::ConfigureGeneral) {
+    ui(new Ui::ConfigureGeneral)
+{
     ui->setupUi(this);
     this->setConfiguration();
 }

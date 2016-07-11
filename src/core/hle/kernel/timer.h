@@ -21,17 +21,11 @@ public:
      */
     static SharedPtr<Timer> Create(ResetType reset_type, std::string name = "Unknown");
 
-    std::string GetTypeName() const override {
-        return "Timer";
-    }
-    std::string GetName() const override {
-        return name;
-    }
+    std::string GetTypeName() const override { return "Timer"; }
+    std::string GetName() const override { return name; }
 
     static const HandleType HANDLE_TYPE = HandleType::Timer;
-    HandleType GetHandleType() const override {
-        return HANDLE_TYPE;
-    }
+    HandleType GetHandleType() const override { return HANDLE_TYPE; }
 
     ResetType reset_type;                   ///< The ResetType of this timer
 

@@ -18,29 +18,17 @@
 namespace FileSys {
 
 ArchiveFactory_SDMC::ArchiveFactory_SDMC(const std::string& sdmc_directory) : sdmc_directory(sdmc_directory) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_INFO(Service_FS, "Directory %s set as SDMC.", sdmc_directory.c_str()));
-#endif
-
+    LOG_INFO(Service_FS, "Directory %s set as SDMC.", sdmc_directory.c_str());
 }
 
 bool ArchiveFactory_SDMC::Initialize() {
     if (!Settings::values.use_virtual_sd) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_WARNING(Service_FS, "SDMC disabled by config."));
-#endif
-
+        LOG_WARNING(Service_FS, "SDMC disabled by config.");
         return false;
     }
 
     if (!FileUtil::CreateFullPath(sdmc_directory)) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(Service_FS, "Unable to create SDMC path."));
-#endif
-
+        LOG_ERROR(Service_FS, "Unable to create SDMC path.");
         return false;
     }
 
@@ -59,11 +47,7 @@ ResultCode ArchiveFactory_SDMC::Format(const Path& path, const FileSys::ArchiveF
 
 ResultVal<ArchiveFormatInfo> ArchiveFactory_SDMC::GetFormatInfo(const Path& path) const {
     // TODO(Subv): Implement
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_ERROR(Service_FS, "Unimplemented GetFormatInfo archive %s", GetName().c_str()));
-#endif
-
+    LOG_ERROR(Service_FS, "Unimplemented GetFormatInfo archive %s", GetName().c_str());
     return ResultCode(-1);
 }
 } // namespace FileSys

@@ -59,17 +59,12 @@ static void OpenFile(Service::Interface* self) {
     ArchiveHandle archive_handle = MakeArchiveHandle(cmd_buff[2], cmd_buff[3]);
     auto filename_type    = static_cast<FileSys::LowPathType>(cmd_buff[4]);
     u32 filename_size     = cmd_buff[5];
-    FileSys::Mode mode;
-    mode.hex = cmd_buff[6];
+    FileSys::Mode mode; mode.hex = cmd_buff[6];
     u32 attributes        = cmd_buff[7]; // TODO(Link Mauve): do something with those attributes.
     u32 filename_ptr      = cmd_buff[9];
     FileSys::Path file_path(filename_type, filename_size, filename_ptr);
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_DEBUG(Service_FS, "path=%s, mode=%d attrs=%u", file_path.DebugStr().c_str(), mode.hex, attributes));
-#endif
-
+    LOG_DEBUG(Service_FS, "path=%s, mode=%d attrs=%u", file_path.DebugStr().c_str(), mode.hex, attributes);
 
     ResultVal<SharedPtr<File>> file_res = OpenFileFromArchive(archive_handle, file_path, mode);
     cmd_buff[1] = file_res.Code().raw;
@@ -77,11 +72,7 @@ static void OpenFile(Service::Interface* self) {
         cmd_buff[3] = Kernel::g_handle_table.Create(*file_res).MoveFrom();
     } else {
         cmd_buff[3] = 0;
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(Service_FS, "failed to get a handle for file %s", file_path.DebugStr().c_str()));
-#endif
-
+        LOG_ERROR(Service_FS, "failed to get a handle for file %s", file_path.DebugStr().c_str());
     }
 }
 
@@ -112,29 +103,20 @@ static void OpenFileDirectly(Service::Interface* self) {
     u32 archivename_size  = cmd_buff[4];
     auto filename_type    = static_cast<FileSys::LowPathType>(cmd_buff[5]);
     u32 filename_size     = cmd_buff[6];
-    FileSys::Mode mode;
-    mode.hex = cmd_buff[7];
+    FileSys::Mode mode; mode.hex = cmd_buff[7];
     u32 attributes        = cmd_buff[8]; // TODO(Link Mauve): do something with those attributes.
     u32 archivename_ptr   = cmd_buff[10];
     u32 filename_ptr      = cmd_buff[12];
     FileSys::Path archive_path(archivename_type, archivename_size, archivename_ptr);
     FileSys::Path file_path(filename_type, filename_size, filename_ptr);
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
     LOG_DEBUG(Service_FS, "archive_id=0x%08X archive_path=%s file_path=%s, mode=%u attributes=%d",
-              archive_id, archive_path.DebugStr().c_str(), file_path.DebugStr().c_str(), mode.hex, attributes));
-#endif
-
+              archive_id, archive_path.DebugStr().c_str(), file_path.DebugStr().c_str(), mode.hex, attributes);
 
     ResultVal<ArchiveHandle> archive_handle = OpenArchive(archive_id, archive_path);
     if (archive_handle.Failed()) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
         LOG_ERROR(Service_FS, "failed to get a handle for archive archive_id=0x%08X archive_path=%s",
-                  archive_id, archive_path.DebugStr().c_str()));
-#endif
-
+                  archive_id, archive_path.DebugStr().c_str());
         cmd_buff[1] = archive_handle.Code().raw;
         cmd_buff[3] = 0;
         return;
@@ -147,12 +129,8 @@ static void OpenFileDirectly(Service::Interface* self) {
         cmd_buff[3] = Kernel::g_handle_table.Create(*file_res).MoveFrom();
     } else {
         cmd_buff[3] = 0;
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
         LOG_ERROR(Service_FS, "failed to get a handle for file %s mode=%u attributes=%d",
-                  file_path.DebugStr().c_str(), mode.hex, attributes));
-#endif
-
+                  file_path.DebugStr().c_str(), mode.hex, attributes);
     }
 }
 
@@ -177,12 +155,8 @@ static void DeleteFile(Service::Interface* self) {
 
     FileSys::Path file_path(filename_type, filename_size, filename_ptr);
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
     LOG_DEBUG(Service_FS, "type=%d size=%d data=%s",
-              filename_type, filename_size, file_path.DebugStr().c_str()));
-#endif
-
+              filename_type, filename_size, file_path.DebugStr().c_str());
 
     cmd_buff[1] = DeleteFileFromArchive(archive_handle, file_path).raw;
 }
@@ -218,13 +192,9 @@ static void RenameFile(Service::Interface* self) {
     FileSys::Path src_file_path(src_filename_type, src_filename_size, src_filename_ptr);
     FileSys::Path dest_file_path(dest_filename_type, dest_filename_size, dest_filename_ptr);
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
     LOG_DEBUG(Service_FS, "src_type=%d src_size=%d src_data=%s dest_type=%d dest_size=%d dest_data=%s",
               src_filename_type, src_filename_size, src_file_path.DebugStr().c_str(),
-              dest_filename_type, dest_filename_size, dest_file_path.DebugStr().c_str()));
-#endif
-
+              dest_filename_type, dest_filename_size, dest_file_path.DebugStr().c_str());
 
     cmd_buff[1] = RenameFileBetweenArchives(src_archive_handle, src_file_path, dest_archive_handle, dest_file_path).raw;
 }
@@ -250,12 +220,8 @@ static void DeleteDirectory(Service::Interface* self) {
 
     FileSys::Path dir_path(dirname_type, dirname_size, dirname_ptr);
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
     LOG_DEBUG(Service_FS, "type=%d size=%d data=%s",
-              dirname_type, dirname_size, dir_path.DebugStr().c_str()));
-#endif
-
+              dirname_type, dirname_size, dir_path.DebugStr().c_str());
 
     cmd_buff[1] = DeleteDirectoryFromArchive(archive_handle, dir_path).raw;
 }
@@ -284,11 +250,7 @@ static void CreateFile(Service::Interface* self) {
 
     FileSys::Path file_path(filename_type, filename_size, filename_ptr);
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_DEBUG(Service_FS, "type=%d size=%llu data=%s", filename_type, file_size, file_path.DebugStr().c_str()));
-#endif
-
+    LOG_DEBUG(Service_FS, "type=%d size=%llu data=%s", filename_type, file_size, file_path.DebugStr().c_str());
 
     cmd_buff[1] = CreateFileInArchive(archive_handle, file_path, file_size).raw;
 }
@@ -314,11 +276,7 @@ static void CreateDirectory(Service::Interface* self) {
 
     FileSys::Path dir_path(dirname_type, dirname_size, dirname_ptr);
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_DEBUG(Service_FS, "type=%d size=%d data=%s", dirname_type, dirname_size, dir_path.DebugStr().c_str()));
-#endif
-
+    LOG_DEBUG(Service_FS, "type=%d size=%d data=%s", dirname_type, dirname_size, dir_path.DebugStr().c_str());
 
     cmd_buff[1] = CreateDirectoryFromArchive(archive_handle, dir_path).raw;
 }
@@ -354,13 +312,9 @@ static void RenameDirectory(Service::Interface* self) {
     FileSys::Path src_dir_path(src_dirname_type, src_dirname_size, src_dirname_ptr);
     FileSys::Path dest_dir_path(dest_dirname_type, dest_dirname_size, dest_dirname_ptr);
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
     LOG_DEBUG(Service_FS, "src_type=%d src_size=%d src_data=%s dest_type=%d dest_size=%d dest_data=%s",
               src_dirname_type, src_dirname_size, src_dir_path.DebugStr().c_str(),
-              dest_dirname_type, dest_dirname_size, dest_dir_path.DebugStr().c_str()));
-#endif
-
+              dest_dirname_type, dest_dirname_size, dest_dir_path.DebugStr().c_str());
 
     cmd_buff[1] = RenameDirectoryBetweenArchives(src_archive_handle, src_dir_path, dest_archive_handle, dest_dir_path).raw;
 }
@@ -388,23 +342,15 @@ static void OpenDirectory(Service::Interface* self) {
 
     FileSys::Path dir_path(dirname_type, dirname_size, dirname_ptr);
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_DEBUG(Service_FS, "type=%d size=%d data=%s", dirname_type, dirname_size, dir_path.DebugStr().c_str()));
-#endif
-
+    LOG_DEBUG(Service_FS, "type=%d size=%d data=%s", dirname_type, dirname_size, dir_path.DebugStr().c_str());
 
     ResultVal<SharedPtr<Directory>> dir_res = OpenDirectoryFromArchive(archive_handle, dir_path);
     cmd_buff[1] = dir_res.Code().raw;
     if (dir_res.Succeeded()) {
         cmd_buff[3] = Kernel::g_handle_table.Create(*dir_res).MoveFrom();
     } else {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
         LOG_ERROR(Service_FS, "failed to get a handle for directory type=%d size=%d data=%s",
-                  dirname_type, dirname_size, dir_path.DebugStr().c_str()));
-#endif
-
+                  dirname_type, dirname_size, dir_path.DebugStr().c_str());
     }
 }
 
@@ -432,11 +378,7 @@ static void OpenArchive(Service::Interface* self) {
     u32 archivename_ptr   = cmd_buff[5];
     FileSys::Path archive_path(archivename_type, archivename_size, archivename_ptr);
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_DEBUG(Service_FS, "archive_id=0x%08X archive_path=%s", archive_id, archive_path.DebugStr().c_str()));
-#endif
-
+    LOG_DEBUG(Service_FS, "archive_id=0x%08X archive_path=%s", archive_id, archive_path.DebugStr().c_str());
 
     ResultVal<ArchiveHandle> handle = OpenArchive(archive_id, archive_path);
 
@@ -447,12 +389,8 @@ static void OpenArchive(Service::Interface* self) {
         cmd_buff[3] = (*handle >> 32) & 0xFFFFFFFF;
     } else {
         cmd_buff[2] = cmd_buff[3] = 0;
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
         LOG_ERROR(Service_FS, "failed to get a handle for archive archive_id=0x%08X archive_path=%s",
-                  archive_id, archive_path.DebugStr().c_str()));
-#endif
-
+                  archive_id, archive_path.DebugStr().c_str());
     }
 }
 
@@ -499,11 +437,7 @@ static void ControlArchive(Service::Interface* self) {
         cmd_buff[0] = IPC::MakeHeader(0x0, 1, 0); // 0x40
         cmd_buff[1] = ResultCode(ErrorDescription::OS_InvalidBufferDescriptor, ErrorModule::OS,
                                  ErrorSummary::WrongArgument, ErrorLevel::Permanent).raw; // 0xD9001830
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(Service_FS, "Check input_buffer_mapping_translation failed"));
-#endif
-
+        LOG_ERROR(Service_FS, "Check input_buffer_mapping_translation failed");
         return;
     }
 
@@ -511,11 +445,7 @@ static void ControlArchive(Service::Interface* self) {
         cmd_buff[0] = IPC::MakeHeader(0x0, 1, 0); // 0x40
         cmd_buff[1] = ResultCode(ErrorDescription::OS_InvalidBufferDescriptor, ErrorModule::OS,
                                  ErrorSummary::WrongArgument, ErrorLevel::Permanent).raw; // 0xD9001830
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(Service_FS, "Check output_buffer_mapping_translation failed"));
-#endif
-
+        LOG_ERROR(Service_FS, "Check output_buffer_mapping_translation failed");
         return;
     }
 
@@ -527,11 +457,7 @@ static void ControlArchive(Service::Interface* self) {
         cmd_buff[3] = input_buffer;
         cmd_buff[4] = output_translation;
         cmd_buff[5] = output_buffer;
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_WARNING(Service_FS, "(STUBBED) Commits save data changes, archive_handle=0x%08X",archive_handle));
-#endif
-
+        LOG_WARNING(Service_FS, "(STUBBED) Commits save data changes, archive_handle=0x%08X",archive_handle);
         break;
     case 1: // Action 1 : Retrieves a file's last-modified timestamp.
         cmd_buff[0] = IPC::MakeHeader(0x80D, 1, 4); // 0x080d0044
@@ -540,17 +466,13 @@ static void ControlArchive(Service::Interface* self) {
         cmd_buff[3] = input_buffer;
         cmd_buff[4] = output_translation;
         cmd_buff[5] = output_buffer;
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_WARNING(Service_FS, "Retrieves a file's last-modified timestamp"));
-#endif
-
+        LOG_WARNING(Service_FS, "Retrieves a file's last-modified timestamp");
         break;
     case 30877:
     default:
         cmd_buff[0] = IPC::MakeHeader(0x80D, 1, 0);
         cmd_buff[1] = ResultCode(ErrorDescription::NotImplemented, ErrorModule::FS,
-                                 ErrorSummary::NotSupported, ErrorLevel::Permanent).raw;
+            ErrorSummary::NotSupported, ErrorLevel::Permanent).raw;
         UNIMPLEMENTED();
         return;
     }
@@ -602,11 +524,7 @@ static void IsSdmcWriteable(Service::Interface* self) {
     // If the SD isn't enabled, it can't be writeable...else, stubbed true
     cmd_buff[2] = Settings::values.use_virtual_sd ? 1 : 0;
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_DEBUG(Service_FS, " (STUBBED)"));
-#endif
-
+    LOG_DEBUG(Service_FS, " (STUBBED)");
 }
 
 /**
@@ -630,11 +548,7 @@ static void IsSdmcWriteable(Service::Interface* self) {
  */
 static void FormatSaveData(Service::Interface* self) {
     u32* cmd_buff = Kernel::GetCommandBuffer();
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_WARNING(Service_FS, "(STUBBED)"));
-#endif
-
+    LOG_WARNING(Service_FS, "(STUBBED)");
 
     auto archive_id = static_cast<FS::ArchiveIdCode>(cmd_buff[1]);
     auto archivename_type = static_cast<FileSys::LowPathType>(cmd_buff[2]);
@@ -642,18 +556,10 @@ static void FormatSaveData(Service::Interface* self) {
     u32 archivename_ptr = cmd_buff[11];
     FileSys::Path archive_path(archivename_type, archivename_size, archivename_ptr);
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_DEBUG(Service_FS, "archive_path=%s", archive_path.DebugStr().c_str()));
-#endif
-
+    LOG_DEBUG(Service_FS, "archive_path=%s", archive_path.DebugStr().c_str());
 
     if (archive_id != FS::ArchiveIdCode::SaveData) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(Service_FS, "tried to format an archive different than SaveData, %u", archive_id));
-#endif
-
+        LOG_ERROR(Service_FS, "tried to format an archive different than SaveData, %u", archive_id);
         cmd_buff[1] = ResultCode(ErrorDescription::FS_InvalidPath, ErrorModule::FS,
                                  ErrorSummary::InvalidArgument, ErrorLevel::Usage).raw;
         return;
@@ -661,11 +567,7 @@ static void FormatSaveData(Service::Interface* self) {
 
     if (archive_path.GetType() != FileSys::LowPathType::Empty) {
         // TODO(Subv): Implement formatting the SaveData of other games
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(Service_FS, "archive LowPath type other than empty is currently unsupported"));
-#endif
-
+        LOG_ERROR(Service_FS, "archive LowPath type other than empty is currently unsupported");
         cmd_buff[1] = UnimplementedFunction(ErrorModule::FS).raw;
         return;
     }
@@ -703,11 +605,7 @@ static void FormatThisUserSaveData(Service::Interface* self) {
 
     cmd_buff[1] = FormatArchive(ArchiveIdCode::SaveData, format_info).raw;
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_TRACE(Service_FS, "called"));
-#endif
-
+    LOG_TRACE(Service_FS, "called");
 }
 
 /**
@@ -763,15 +661,11 @@ static void CreateExtSaveData(Service::Interface* self) {
     u32 icon_size = cmd_buff[9];
     VAddr icon_buffer = cmd_buff[11];
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
     LOG_WARNING(Service_FS, "(STUBBED) savedata_high=%08X savedata_low=%08X cmd_buff[3]=%08X "
-                "cmd_buff[4]=%08X cmd_buff[5]=%08X cmd_buff[6]=%08X cmd_buff[7]=%08X cmd_buff[8]=%08X "
-                "icon_size=%08X icon_descriptor=%08X icon_buffer=%08X", save_high, save_low,
-                cmd_buff[3], cmd_buff[4], cmd_buff[5], cmd_buff[6], cmd_buff[7], cmd_buff[8], icon_size,
-                cmd_buff[10], icon_buffer));
-#endif
-
+            "cmd_buff[4]=%08X cmd_buff[5]=%08X cmd_buff[6]=%08X cmd_buff[7]=%08X cmd_buff[8]=%08X "
+            "icon_size=%08X icon_descriptor=%08X icon_buffer=%08X", save_high, save_low,
+            cmd_buff[3], cmd_buff[4], cmd_buff[5], cmd_buff[6], cmd_buff[7], cmd_buff[8], icon_size,
+            cmd_buff[10], icon_buffer);
 
     FileSys::ArchiveFormatInfo format_info;
     format_info.number_directories = cmd_buff[5];
@@ -799,12 +693,8 @@ static void DeleteExtSaveData(Service::Interface* self) {
     u32 save_high = cmd_buff[3];
     u32 unknown = cmd_buff[4]; // TODO(Subv): Figure out what this is
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
     LOG_WARNING(Service_FS, "(STUBBED) save_low=%08X save_high=%08X media_type=%08X unknown=%08X",
-                save_low, save_high, cmd_buff[1] & 0xFF, unknown));
-#endif
-
+            save_low, save_high, cmd_buff[1] & 0xFF, unknown);
 
     cmd_buff[1] = DeleteExtSaveData(media_type, save_high, save_low).raw;
 }
@@ -821,11 +711,7 @@ static void CardSlotIsInserted(Service::Interface* self) {
     u32* cmd_buff = Kernel::GetCommandBuffer();
     cmd_buff[1] = RESULT_SUCCESS.raw;
     cmd_buff[2] = 0;
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_WARNING(Service_FS, "(STUBBED) called"));
-#endif
-
+    LOG_WARNING(Service_FS, "(STUBBED) called");
 }
 
 /**
@@ -866,14 +752,10 @@ static void CreateSystemSaveData(Service::Interface* self) {
     u32 savedata_high = cmd_buff[1];
     u32 savedata_low = cmd_buff[2];
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
     LOG_WARNING(Service_FS, "(STUBBED) savedata_high=%08X savedata_low=%08X cmd_buff[3]=%08X "
-                "cmd_buff[4]=%08X cmd_buff[5]=%08X cmd_buff[6]=%08X cmd_buff[7]=%08X cmd_buff[8]=%08X "
-                "cmd_buff[9]=%08X", savedata_high, savedata_low, cmd_buff[3], cmd_buff[4], cmd_buff[5],
-                cmd_buff[6], cmd_buff[7], cmd_buff[8], cmd_buff[9]));
-#endif
-
+            "cmd_buff[4]=%08X cmd_buff[5]=%08X cmd_buff[6]=%08X cmd_buff[7]=%08X cmd_buff[8]=%08X "
+            "cmd_buff[9]=%08X", savedata_high, savedata_low, cmd_buff[3], cmd_buff[4], cmd_buff[5],
+            cmd_buff[6], cmd_buff[7], cmd_buff[8], cmd_buff[9]);
 
     cmd_buff[1] = CreateSystemSaveData(savedata_high, savedata_low).raw;
 }
@@ -900,14 +782,10 @@ static void CreateLegacySystemSaveData(Service::Interface* self) {
     u32* cmd_buff = Kernel::GetCommandBuffer();
     u32 savedata_id = cmd_buff[1];
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
     LOG_WARNING(Service_FS, "(STUBBED) savedata_id=%08X cmd_buff[3]=%08X "
-                "cmd_buff[4]=%08X cmd_buff[5]=%08X cmd_buff[6]=%08X cmd_buff[7]=%08X cmd_buff[8]=%08X "
-                "cmd_buff[9]=%08X", savedata_id, cmd_buff[3], cmd_buff[4], cmd_buff[5],
-                cmd_buff[6], cmd_buff[7], cmd_buff[8], cmd_buff[9]));
-#endif
-
+            "cmd_buff[4]=%08X cmd_buff[5]=%08X cmd_buff[6]=%08X cmd_buff[7]=%08X cmd_buff[8]=%08X "
+            "cmd_buff[9]=%08X", savedata_id, cmd_buff[3], cmd_buff[4], cmd_buff[5],
+            cmd_buff[6], cmd_buff[7], cmd_buff[8], cmd_buff[9]);
 
     cmd_buff[0] = IPC::MakeHeader(0x810, 0x1, 0);
     // With this command, the SystemSaveData always has save_high = 0 (Always created in the NAND)
@@ -933,12 +811,8 @@ static void InitializeWithSdkVersion(Service::Interface* self) {
 
     cmd_buff[1] = RESULT_SUCCESS.raw;
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
     LOG_WARNING(Service_FS, "(STUBBED) called unk1=0x%08X, unk2=0x%08X, unk3=0x%08X",
-                unk1, unk2, unk3));
-#endif
-
+                unk1, unk2, unk3);
 }
 
 /**
@@ -956,11 +830,7 @@ static void SetPriority(Service::Interface* self) {
 
     cmd_buff[1] = RESULT_SUCCESS.raw;
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_DEBUG(Service_FS, "called priority=0x%X", priority));
-#endif
-
+    LOG_DEBUG(Service_FS, "called priority=0x%X", priority);
 }
 
 /**
@@ -975,21 +845,13 @@ static void GetPriority(Service::Interface* self) {
     u32* cmd_buff = Kernel::GetCommandBuffer();
 
     if (priority == -1) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_INFO(Service_FS, "priority was not set, priority=0x%X", priority));
-#endif
-
+        LOG_INFO(Service_FS, "priority was not set, priority=0x%X", priority);
     }
 
     cmd_buff[1] = RESULT_SUCCESS.raw;
     cmd_buff[2] = priority;
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_DEBUG(Service_FS, "called priority=0x%X", priority));
-#endif
-
+    LOG_DEBUG(Service_FS, "called priority=0x%X", priority);
 }
 
 /**
@@ -1007,11 +869,7 @@ static void GetPriority(Service::Interface* self) {
 static void GetArchiveResource(Service::Interface* self) {
     u32* cmd_buff = Kernel::GetCommandBuffer();
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_WARNING(Service_FS, "(STUBBED) called Media type=0x%08X", cmd_buff[1]));
-#endif
-
+    LOG_WARNING(Service_FS, "(STUBBED) called Media type=0x%08X", cmd_buff[1]);
 
     cmd_buff[1] = RESULT_SUCCESS.raw;
     cmd_buff[2] = 512;
@@ -1046,22 +904,14 @@ static void GetFormatInfo(Service::Interface* self) {
     u32 archivename_ptr = cmd_buff[5];
     FileSys::Path archive_path(archivename_type, archivename_size, archivename_ptr);
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_DEBUG(Service_FS, "archive_path=%s", archive_path.DebugStr().c_str()));
-#endif
-
+    LOG_DEBUG(Service_FS, "archive_path=%s", archive_path.DebugStr().c_str());
 
     cmd_buff[0] = IPC::MakeHeader(0x0845, 5, 0);
 
     auto format_info = GetArchiveFormatInfo(archive_id, archive_path);
 
     if (format_info.Failed()) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(Service_FS, "Failed to retrieve the format info"));
-#endif
-
+        LOG_ERROR(Service_FS, "Failed to retrieve the format info");
         cmd_buff[1] = format_info.Code().raw;
         return;
     }

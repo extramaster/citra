@@ -147,11 +147,7 @@ static const u8 NO_SRC_REG_SWIZZLE = 0x1b;
 static const u8 NO_DEST_REG_MASK = 0xf;
 
 static void LogCritical(const char* msg) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_CRITICAL(HW_GPU, "%s", msg));
-#endif
-
+    LOG_CRITICAL(HW_GPU, "%s", msg);
 }
 
 void JitShader::Compile_Assert(bool condition, const char* msg) {
@@ -190,7 +186,7 @@ void JitShader::Compile_SwizzleSrc(Instruction instr, unsigned src_num, SourceRe
     unsigned offset_src;
 
     if (instr.opcode.Value().EffectiveOpCode() == OpCode::Id::MAD ||
-            instr.opcode.Value().EffectiveOpCode() == OpCode::Id::MADI) {
+        instr.opcode.Value().EffectiveOpCode() == OpCode::Id::MADI) {
         operand_desc_id = instr.mad.operand_desc_id;
         offset_src = is_inverted ? 3 : 2;
         address_register_index = instr.mad.address_register_index;
@@ -243,7 +239,7 @@ void JitShader::Compile_DestEnable(Instruction instr,X64Reg src) {
     DestRegister dest;
     unsigned operand_desc_id;
     if (instr.opcode.Value().EffectiveOpCode() == OpCode::Id::MAD ||
-            instr.opcode.Value().EffectiveOpCode() == OpCode::Id::MADI) {
+        instr.opcode.Value().EffectiveOpCode() == OpCode::Id::MADI) {
         operand_desc_id = instr.mad.operand_desc_id;
         dest = instr.mad.dest.Value();
     } else {
@@ -748,16 +744,15 @@ void JitShader::Compile_SETEMIT(Instruction instr) {
 }
 
 void JitShader::Compile_JMP(Instruction instr) {
-    if (instr.opcode.Value() == OpCode::Id::JMPC) {
+    if (instr.opcode.Value() == OpCode::Id::JMPC)
         Compile_EvaluateCondition(instr);
-    } else if (instr.opcode.Value() == OpCode::Id::JMPU) {
+    else if (instr.opcode.Value() == OpCode::Id::JMPU)
         Compile_UniformCondition(instr);
-    } else {
+    else
         UNREACHABLE();
-    }
 
     bool inverted_condition = (instr.opcode.Value() == OpCode::Id::JMPU) &&
-                              (instr.flow_control.num_instructions & 1);
+        (instr.flow_control.num_instructions & 1);
 
     FixupBranch b = J_CC(inverted_condition ? CC_Z : CC_NZ, true);
     fixup_branches.push_back({ b, instr.flow_control.dest_offset });
@@ -798,12 +793,8 @@ void JitShader::Compile_NextInstr() {
         ((*this).*instr_func)(instr);
     } else {
         // Unhandled instruction
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
         LOG_CRITICAL(HW_GPU, "Unhandled instruction: 0x%02x (0x%08x)",
-                     instr.opcode.Value().EffectiveOpCode(), instr.hex));
-#endif
-
+                instr.opcode.Value().EffectiveOpCode(), instr.hex);
     }
 }
 
@@ -884,11 +875,7 @@ void JitShader::Compile(const ShaderSetup& setup) {
     uintptr_t size = reinterpret_cast<uintptr_t>(GetCodePtr()) - reinterpret_cast<uintptr_t>(program);
     ASSERT_MSG(size <= MAX_SHADER_SIZE, "Compiled a shader that exceeds the allocated size!");
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_DEBUG(HW_GPU, "Compiled shader size=%lu", size));
-#endif
-
+    LOG_DEBUG(HW_GPU, "Compiled shader size=%lu", size);
 
     // We don't need the setup anymore
     this->setup = nullptr;

@@ -17,9 +17,7 @@ namespace HLE {
 /// Preprocessing filters. There is an independent set of filters for each Source.
 class SourceFilters final {
 public:
-    SourceFilters() {
-        Reset();
-    }
+    SourceFilters() { Reset(); }
 
     /// Reset internal state.
     void Reset();
@@ -56,9 +54,7 @@ private:
     bool biquad_filter_enabled;
 
     struct SimpleFilter {
-        SimpleFilter() {
-            Reset();
-        }
+        SimpleFilter() { Reset(); }
 
         /// Resets internal state.
         void Reset();
@@ -84,9 +80,7 @@ private:
     } simple_filter;
 
     struct BiquadFilter {
-        BiquadFilter() {
-            Reset();
-        }
+        BiquadFilter() { Reset(); }
 
         /// Resets internal state.
         void Reset();

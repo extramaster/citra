@@ -28,17 +28,13 @@ public:
      */
     bool Initialize();
 
-    std::string GetName() const override {
-        return "ExtSaveData";
-    }
+    std::string GetName() const override { return "ExtSaveData"; }
 
     ResultVal<std::unique_ptr<ArchiveBackend>> Open(const Path& path) override;
     ResultCode Format(const Path& path, const FileSys::ArchiveFormatInfo& format_info) override;
     ResultVal<ArchiveFormatInfo> GetFormatInfo(const Path& path) const override;
 
-    const std::string& GetMountPoint() const {
-        return mount_point;
-    }
+    const std::string& GetMountPoint() const { return mount_point; }
 
     /**
      * Writes the SMDH icon of the ExtSaveData to file

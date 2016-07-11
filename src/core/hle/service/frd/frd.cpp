@@ -27,11 +27,7 @@ void GetMyPresence(Service::Interface* self) {
 
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_WARNING(Service_FRD, "(STUBBED) called"));
-#endif
-
+    LOG_WARNING(Service_FRD, "(STUBBED) called");
 }
 
 void GetFriendKeyList(Service::Interface* self) {
@@ -48,12 +44,8 @@ void GetFriendKeyList(Service::Interface* self) {
 
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
     cmd_buff[2] = 0; // 0 friends
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
     LOG_WARNING(Service_FRD, "(STUBBED) called, unknown=%d, frd_count=%d, frd_key_addr=0x%08X",
-                unknown, frd_count, frd_key_addr));
-#endif
-
+                unknown, frd_count, frd_key_addr);
 }
 
 void GetFriendProfile(Service::Interface* self) {
@@ -69,12 +61,8 @@ void GetFriendProfile(Service::Interface* self) {
     }
 
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
     LOG_WARNING(Service_FRD, "(STUBBED) called, count=%d, frd_key_addr=0x%08X, profiles_addr=0x%08X",
-                count, frd_key_addr, profiles_addr));
-#endif
-
+                count, frd_key_addr, profiles_addr);
 }
 
 void GetFriendAttributeFlags(Service::Interface* self) {
@@ -90,12 +78,8 @@ void GetFriendAttributeFlags(Service::Interface* self) {
     }
 
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
     LOG_WARNING(Service_FRD, "(STUBBED) called, count=%d, frd_key_addr=0x%08X, attr_flags_addr=0x%08X",
-                count, frd_key_addr, attr_flags_addr));
-#endif
-
+                count, frd_key_addr, attr_flags_addr);
 }
 
 void GetMyFriendKey(Service::Interface* self) {
@@ -103,11 +87,7 @@ void GetMyFriendKey(Service::Interface* self) {
 
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
     Memory::WriteBlock(cmd_buff[2], &my_friend_key, sizeof(FriendKey));
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_WARNING(Service_FRD, "(STUBBED) called"));
-#endif
-
+    LOG_WARNING(Service_FRD, "(STUBBED) called");
 }
 
 void GetMyScreenName(Service::Interface* self) {
@@ -116,11 +96,7 @@ void GetMyScreenName(Service::Interface* self) {
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
     // TODO: (mailwl) get the name from config
     Common::UTF8ToUTF16("Citra").copy(reinterpret_cast<char16_t*>(&cmd_buff[2]), 11);
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_WARNING(Service_FRD, "(STUBBED) called"));
-#endif
-
+    LOG_WARNING(Service_FRD, "(STUBBED) called");
 }
 
 void Init() {

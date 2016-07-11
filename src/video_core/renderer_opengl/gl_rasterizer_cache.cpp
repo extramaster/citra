@@ -35,21 +35,19 @@ struct FormatTuple {
 };
 
 static const std::array<FormatTuple, 5> fb_format_tuples = {{
-        { GL_RGBA8,   GL_RGBA, GL_UNSIGNED_INT_8_8_8_8 },   // RGBA8
-        { GL_RGB8,    GL_BGR,  GL_UNSIGNED_BYTE },          // RGB8
-        { GL_RGB5_A1, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1 }, // RGB5A1
-        { GL_RGB565,  GL_RGB,  GL_UNSIGNED_SHORT_5_6_5 },   // RGB565
-        { GL_RGBA4,   GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4 }, // RGBA4
-    }
-};
+    { GL_RGBA8,   GL_RGBA, GL_UNSIGNED_INT_8_8_8_8 },   // RGBA8
+    { GL_RGB8,    GL_BGR,  GL_UNSIGNED_BYTE },          // RGB8
+    { GL_RGB5_A1, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1 }, // RGB5A1
+    { GL_RGB565,  GL_RGB,  GL_UNSIGNED_SHORT_5_6_5 },   // RGB565
+    { GL_RGBA4,   GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4 }, // RGBA4
+}};
 
 static const std::array<FormatTuple, 4> depth_format_tuples = {{
-        { GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT },    // D16
-        {},
-        { GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT },      // D24
-        { GL_DEPTH24_STENCIL8,  GL_DEPTH_STENCIL,   GL_UNSIGNED_INT_24_8 }, // D24S8
-    }
-};
+    { GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT },    // D16
+    {},
+    { GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT },      // D24
+    { GL_DEPTH24_STENCIL8,  GL_DEPTH_STENCIL,   GL_UNSIGNED_INT_24_8 }, // D24S8
+}};
 
 RasterizerCacheOpenGL::RasterizerCacheOpenGL() {
     transfer_framebuffers[0].Create();
@@ -241,8 +239,9 @@ CachedSurface* RasterizerCacheOpenGL::GetSurface(const CachedSurface& params, bo
 
             // Check if the request matches the surface exactly
             if (params.addr == surface->addr &&
-                    params.width == surface->width && params.height == surface->height &&
-                    params.pixel_format == surface->pixel_format) {
+                params.width == surface->width && params.height == surface->height &&
+                params.pixel_format == surface->pixel_format)
+            {
                 // Make sure optional param-matching criteria are fulfilled
                 bool tiling_match = (params.is_tiled == surface->is_tiled);
                 bool res_scale_match = (params.res_scale_width == surface->res_scale_width && params.res_scale_height == surface->res_scale_height);
@@ -370,8 +369,8 @@ CachedSurface* RasterizerCacheOpenGL::GetSurface(const CachedSurface& params, bo
 
             AllocateSurfaceTexture(scaled_texture.handle, new_surface->pixel_format, new_surface->GetScaledWidth(), new_surface->GetScaledHeight());
             BlitTextures(new_surface->texture.handle, scaled_texture.handle, CachedSurface::GetFormatType(new_surface->pixel_format),
-                         MathUtil::Rectangle<int>(0, 0, new_surface->width, new_surface->height),
-                         MathUtil::Rectangle<int>(0, 0, new_surface->GetScaledWidth(), new_surface->GetScaledHeight()));
+                MathUtil::Rectangle<int>(0, 0, new_surface->width, new_surface->height),
+                MathUtil::Rectangle<int>(0, 0, new_surface->GetScaledWidth(), new_surface->GetScaledHeight()));
 
             new_surface->texture.Release();
             new_surface->texture.handle = scaled_texture.handle;
@@ -414,8 +413,9 @@ CachedSurface* RasterizerCacheOpenGL::GetSurfaceRect(const CachedSurface& params
 
             // Check if the request is contained in the surface
             if (params.addr >= surface->addr &&
-                    params.addr + params_size - 1 <= surface->addr + surface->size - 1 &&
-                    params.pixel_format == surface->pixel_format) {
+                params.addr + params_size - 1 <= surface->addr + surface->size - 1 &&
+                params.pixel_format == surface->pixel_format)
+            {
                 // Make sure optional param-matching criteria are fulfilled
                 bool tiling_match = (params.is_tiled == surface->is_tiled);
                 bool res_scale_match = (params.res_scale_width == surface->res_scale_width && params.res_scale_height == surface->res_scale_height);
@@ -493,16 +493,12 @@ std::tuple<CachedSurface*, CachedSurface*, MathUtil::Rectangle<int>> RasterizerC
     bool framebuffers_overlap = config.GetColorBufferPhysicalAddress() != 0 &&
                                 config.GetDepthBufferPhysicalAddress() != 0 &&
                                 MathUtil::IntervalsIntersect(config.GetColorBufferPhysicalAddress(), fb_area * GPU::Regs::BytesPerPixel(GPU::Regs::PixelFormat(config.color_format.Value())),
-                                        config.GetDepthBufferPhysicalAddress(), fb_area * Pica::Regs::BytesPerDepthPixel(config.depth_format));
+                                                             config.GetDepthBufferPhysicalAddress(), fb_area * Pica::Regs::BytesPerDepthPixel(config.depth_format));
     bool using_color_fb = config.GetColorBufferPhysicalAddress() != 0;
     bool using_depth_fb = config.GetDepthBufferPhysicalAddress() != 0 && (regs.output_merger.depth_test_enable || regs.output_merger.depth_write_enable || !framebuffers_overlap);
 
     if (framebuffers_overlap && using_color_fb && using_depth_fb) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_CRITICAL(Render_OpenGL, "Color and depth framebuffer memory regions overlap; overlapping framebuffers not supported!"));
-#endif
-
+        LOG_CRITICAL(Render_OpenGL, "Color and depth framebuffer memory regions overlap; overlapping framebuffers not supported!");
         using_depth_fb = false;
     }
 
@@ -534,11 +530,7 @@ std::tuple<CachedSurface*, CachedSurface*, MathUtil::Rectangle<int>> RasterizerC
 
     // Sanity check to make sure found surfaces aren't the same
     if (using_depth_fb && using_color_fb && color_surface == depth_surface) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_CRITICAL(Render_OpenGL, "Color and depth framebuffer surfaces overlap; overlapping surfaces not supported!"));
-#endif
-
+        LOG_CRITICAL(Render_OpenGL, "Color and depth framebuffer surfaces overlap; overlapping surfaces not supported!");
         using_depth_fb = false;
         depth_surface = nullptr;
     }
@@ -588,8 +580,9 @@ CachedSurface* RasterizerCacheOpenGL::TryGetFillSurface(const GPU::Regs::MemoryF
             CachedSurface* surface = it2->get();
 
             if (surface->addr == config.GetStartAddress() &&
-                    CachedSurface::GetFormatBpp(surface->pixel_format) == bits_per_value &&
-                    (surface->width * surface->height * CachedSurface::GetFormatBpp(surface->pixel_format) / 8) == (config.GetEndAddress() - config.GetStartAddress())) {
+                CachedSurface::GetFormatBpp(surface->pixel_format) == bits_per_value &&
+                (surface->width * surface->height * CachedSurface::GetFormatBpp(surface->pixel_format) / 8) == (config.GetEndAddress() - config.GetStartAddress()))
+            {
                 return surface;
             }
         }
@@ -626,8 +619,8 @@ void RasterizerCacheOpenGL::FlushSurface(CachedSurface* surface) {
 
         AllocateSurfaceTexture(unscaled_tex.handle, surface->pixel_format, surface->width, surface->height);
         BlitTextures(surface->texture.handle, unscaled_tex.handle, CachedSurface::GetFormatType(surface->pixel_format),
-                     MathUtil::Rectangle<int>(0, 0, surface->GetScaledWidth(), surface->GetScaledHeight()),
-                     MathUtil::Rectangle<int>(0, 0, surface->width, surface->height));
+            MathUtil::Rectangle<int>(0, 0, surface->GetScaledWidth(), surface->GetScaledHeight()),
+            MathUtil::Rectangle<int>(0, 0, surface->width, surface->height));
 
         texture_to_flush = unscaled_tex.handle;
     }
@@ -699,9 +692,7 @@ void RasterizerCacheOpenGL::FlushRegion(PAddr addr, u32 size, const CachedSurfac
     auto cache_upper_bound = surface_cache.upper_bound(surface_interval);
     for (auto it = surface_cache.lower_bound(surface_interval); it != cache_upper_bound; ++it) {
         std::copy_if(it->second.begin(), it->second.end(), std::inserter(touching_surfaces, touching_surfaces.end()),
-        [skip_surface](std::shared_ptr<CachedSurface> surface) {
-            return (surface.get() != skip_surface);
-        });
+            [skip_surface](std::shared_ptr<CachedSurface> surface) { return (surface.get() != skip_surface); });
     }
 
     // Flush and invalidate surfaces

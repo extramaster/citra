@@ -9,7 +9,7 @@
 #include "core/arm/skyeye_common/vfp/asm_vfp.h"
 
 namespace Core {
-struct ThreadContext;
+    struct ThreadContext;
 }
 
 /// Generic ARM11 CPU interface

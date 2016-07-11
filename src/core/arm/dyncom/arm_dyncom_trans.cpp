@@ -26,7 +26,8 @@ shtop_fp_t GetShifterOp(unsigned int inst);
 get_addr_fp_t GetAddressingOp(unsigned int inst);
 get_addr_fp_t GetAddressingOpLoadStoreT(unsigned int inst);
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(adc)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(adc)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(adc_inst));
     adc_inst *inst_cream = (adc_inst *)inst_base->component;
 
@@ -41,13 +42,13 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(adc)(unsigned int inst, int index) {
     inst_cream->shifter_operand = BITS(inst, 0, 11);
     inst_cream->shtop_func = GetShifterOp(inst);
 
-    if (inst_cream->Rd == 15) {
+    if (inst_cream->Rd == 15)
         inst_base->br = TransExtData::INDIRECT_BRANCH;
-    }
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(add)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(add)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(add_inst));
     add_inst *inst_cream = (add_inst *)inst_base->component;
 
@@ -62,13 +63,13 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(add)(unsigned int inst, int index) {
     inst_cream->shifter_operand = BITS(inst, 0, 11);
     inst_cream->shtop_func = GetShifterOp(inst);
 
-    if (inst_cream->Rd == 15) {
+    if (inst_cream->Rd == 15)
         inst_base->br = TransExtData::INDIRECT_BRANCH;
-    }
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(and)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(and)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(and_inst));
     and_inst *inst_cream = (and_inst *)inst_base->component;
 
@@ -83,15 +84,15 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(and)(unsigned int inst, int index) {
     inst_cream->shifter_operand = BITS(inst, 0, 11);
     inst_cream->shtop_func = GetShifterOp(inst);
 
-    if (inst_cream->Rd == 15) {
+    if (inst_cream->Rd == 15)
         inst_base->br = TransExtData::INDIRECT_BRANCH;
-    }
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(bbl)(unsigned int inst, int index) {
-#define POSBRANCH ((inst & 0x7fffff) << 2)
-#define NEGBRANCH ((0xff000000 |(inst & 0xffffff)) << 2)
+static ARM_INST_PTR INTERPRETER_TRANSLATE(bbl)(unsigned int inst, int index)
+{
+    #define POSBRANCH ((inst & 0x7fffff) << 2)
+    #define NEGBRANCH ((0xff000000 |(inst & 0xffffff)) << 2)
 
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(bbl_inst));
     bbl_inst *inst_cream = (bbl_inst *)inst_base->component;
@@ -100,16 +101,16 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(bbl)(unsigned int inst, int index) {
     inst_base->idx  = index;
     inst_base->br   = TransExtData::DIRECT_BRANCH;
 
-    if (BIT(inst, 24)) {
+    if (BIT(inst, 24))
         inst_base->br = TransExtData::CALL;
-    }
 
     inst_cream->L      = BIT(inst, 24);
     inst_cream->signed_immed_24 = BIT(inst, 23) ? NEGBRANCH : POSBRANCH;
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(bic)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(bic)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(bic_inst));
     bic_inst *inst_cream = (bic_inst *)inst_base->component;
 
@@ -124,13 +125,13 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(bic)(unsigned int inst, int index) {
     inst_cream->shifter_operand = BITS(inst, 0, 11);
     inst_cream->shtop_func = GetShifterOp(inst);
 
-    if (inst_cream->Rd == 15) {
+    if (inst_cream->Rd == 15)
         inst_base->br = TransExtData::INDIRECT_BRANCH;
-    }
     return inst_base;
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(bkpt)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(bkpt)(unsigned int inst, int index)
+{
     arm_inst* const inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst) + sizeof(bkpt_inst));
     bkpt_inst* const inst_cream = (bkpt_inst*)inst_base->component;
 
@@ -143,7 +144,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(bkpt)(unsigned int inst, int index) {
     return inst_base;
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(blx)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(blx)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(blx_inst));
     blx_inst *inst_cream = (blx_inst *)inst_base->component;
 
@@ -160,7 +162,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(blx)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(bx)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(bx)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(bx_inst));
     bx_inst *inst_cream = (bx_inst *)inst_base->component;
 
@@ -172,7 +175,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(bx)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(bxj)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(bxj)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(bx)(inst, index);
 }
 
@@ -192,14 +196,11 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(cdp)(unsigned int inst, int index) {
     inst_cream->opcode_1 = BITS(inst, 20, 23);
     inst_cream->inst = inst;
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_TRACE(Core_ARM11, "inst %x index %x", inst, index));
-#endif
-
+    LOG_TRACE(Core_ARM11, "inst %x index %x", inst, index);
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(clrex)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(clrex)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(clrex_inst));
     inst_base->cond = BITS(inst, 28, 31);
     inst_base->idx  = index;
@@ -207,7 +208,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(clrex)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(clz)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(clz)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(clz_inst));
     clz_inst *inst_cream = (clz_inst *)inst_base->component;
 
@@ -220,7 +222,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(clz)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(cmn)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(cmn)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(cmn_inst));
     cmn_inst *inst_cream = (cmn_inst *)inst_base->component;
 
@@ -235,7 +238,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(cmn)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(cmp)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(cmp)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(cmp_inst));
     cmp_inst *inst_cream = (cmp_inst *)inst_base->component;
 
@@ -250,7 +254,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(cmp)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(cps)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(cps)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(cps_inst));
     cps_inst *inst_cream = (cps_inst *)inst_base->component;
 
@@ -268,7 +273,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(cps)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(cpy)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(cpy)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(mov_inst));
     mov_inst *inst_cream = (mov_inst *)inst_base->component;
 
@@ -287,7 +293,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(cpy)(unsigned int inst, int index) {
     }
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(eor)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(eor)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(eor_inst));
     eor_inst *inst_cream = (eor_inst *)inst_base->component;
 
@@ -302,13 +309,13 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(eor)(unsigned int inst, int index) {
     inst_cream->shifter_operand = BITS(inst, 0, 11);
     inst_cream->shtop_func = GetShifterOp(inst);
 
-    if (inst_cream->Rd == 15) {
+    if (inst_cream->Rd == 15)
         inst_base->br = TransExtData::INDIRECT_BRANCH;
-    }
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(ldc)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(ldc)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(ldc_inst));
     inst_base->cond = BITS(inst, 28, 31);
     inst_base->idx  = index;
@@ -316,7 +323,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(ldc)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(ldm)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(ldm)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(ldst_inst));
     ldst_inst *inst_cream = (ldst_inst *)inst_base->component;
 
@@ -332,7 +340,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(ldm)(unsigned int inst, int index) {
     }
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(sxth)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(sxth)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(sxtb_inst));
     sxtb_inst *inst_cream = (sxtb_inst *)inst_base->component;
 
@@ -346,7 +355,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(sxth)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(ldr)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(ldr)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(ldst_inst));
     ldst_inst *inst_cream = (ldst_inst *)inst_base->component;
 
@@ -357,14 +367,14 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(ldr)(unsigned int inst, int index) {
     inst_cream->inst = inst;
     inst_cream->get_addr = GetAddressingOp(inst);
 
-    if (BITS(inst, 12, 15) == 15) {
+    if (BITS(inst, 12, 15) == 15)
         inst_base->br = TransExtData::INDIRECT_BRANCH;
-    }
 
     return inst_base;
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrcond)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrcond)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(ldst_inst));
     ldst_inst *inst_cream = (ldst_inst *)inst_base->component;
 
@@ -375,14 +385,14 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrcond)(unsigned int inst, int index)
     inst_cream->inst = inst;
     inst_cream->get_addr = GetAddressingOp(inst);
 
-    if (BITS(inst, 12, 15) == 15) {
+    if (BITS(inst, 12, 15) == 15)
         inst_base->br = TransExtData::INDIRECT_BRANCH;
-    }
 
     return inst_base;
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(uxth)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(uxth)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(uxth_inst));
     uxth_inst *inst_cream = (uxth_inst *)inst_base->component;
 
@@ -396,7 +406,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(uxth)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(uxtah)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(uxtah)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(uxtah_inst));
     uxtah_inst *inst_cream = (uxtah_inst *)inst_base->component;
 
@@ -411,7 +422,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(uxtah)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrb)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrb)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(ldst_inst));
     ldst_inst *inst_cream = (ldst_inst *)inst_base->component;
 
@@ -424,7 +436,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrb)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrbt)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrbt)(unsigned int inst, int index)
+{
     arm_inst* inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst) + sizeof(ldst_inst));
     ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
 
@@ -437,7 +450,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrbt)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrd)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrd)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(ldst_inst));
     ldst_inst *inst_cream = (ldst_inst *)inst_base->component;
 
@@ -450,7 +464,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrd)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrex)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrex)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(generic_arm_inst));
     generic_arm_inst *inst_cream = (generic_arm_inst *)inst_base->component;
 
@@ -463,16 +478,20 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrex)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrexb)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrexb)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(ldrex)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrexh)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrexh)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(ldrex)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrexd)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrexd)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(ldrex)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrh)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrh)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(ldst_inst));
     ldst_inst *inst_cream = (ldst_inst *)inst_base->component;
 
@@ -485,7 +504,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrh)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrsb)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrsb)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(ldst_inst));
     ldst_inst *inst_cream = (ldst_inst *)inst_base->component;
 
@@ -498,7 +518,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrsb)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrsh)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrsh)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(ldst_inst));
     ldst_inst *inst_cream = (ldst_inst *)inst_base->component;
 
@@ -511,7 +532,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrsh)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrt)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrt)(unsigned int inst, int index)
+{
     arm_inst* inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst) + sizeof(ldst_inst));
     ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
 
@@ -527,7 +549,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(ldrt)(unsigned int inst, int index) {
     }
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(mcr)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(mcr)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(mcr_inst));
     mcr_inst *inst_cream = (mcr_inst *)inst_base->component;
     inst_base->cond = BITS(inst, 28, 31);
@@ -544,7 +567,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(mcr)(unsigned int inst, int index) {
     return inst_base;
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(mcrr)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(mcrr)(unsigned int inst, int index)
+{
     arm_inst* const inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst) + sizeof(mcrr_inst));
     mcrr_inst* const inst_cream = (mcrr_inst*)inst_base->component;
 
@@ -561,7 +585,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(mcrr)(unsigned int inst, int index) {
     return inst_base;
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(mla)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(mla)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(mla_inst));
     mla_inst *inst_cream = (mla_inst *)inst_base->component;
 
@@ -577,7 +602,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(mla)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(mov)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(mov)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(mov_inst));
     mov_inst *inst_cream = (mov_inst *)inst_base->component;
 
@@ -596,7 +622,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(mov)(unsigned int inst, int index) {
     }
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(mrc)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(mrc)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(mrc_inst));
     mrc_inst *inst_cream = (mrc_inst *)inst_base->component;
     inst_base->cond = BITS(inst, 28, 31);
@@ -613,11 +640,13 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(mrc)(unsigned int inst, int index) {
     return inst_base;
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(mrrc)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(mrrc)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(mcrr)(inst, index);
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(mrs)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(mrs)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(mrs_inst));
     mrs_inst *inst_cream = (mrs_inst *)inst_base->component;
 
@@ -630,7 +659,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(mrs)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(msr)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(msr)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(msr_inst));
     msr_inst *inst_cream = (msr_inst *)inst_base->component;
 
@@ -644,7 +674,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(msr)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(mul)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(mul)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(mul_inst));
     mul_inst *inst_cream = (mul_inst *)inst_base->component;
 
@@ -659,7 +690,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(mul)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(mvn)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(mvn)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(mvn_inst));
     mvn_inst *inst_cream = (mvn_inst *)inst_base->component;
 
@@ -679,7 +711,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(mvn)(unsigned int inst, int index) {
     return inst_base;
 
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(orr)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(orr)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(orr_inst));
     orr_inst *inst_cream = (orr_inst *)inst_base->component;
 
@@ -694,15 +727,15 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(orr)(unsigned int inst, int index) {
     inst_cream->shifter_operand = BITS(inst, 0, 11);
     inst_cream->shtop_func = GetShifterOp(inst);
 
-    if (inst_cream->Rd == 15) {
+    if (inst_cream->Rd == 15)
         inst_base->br = TransExtData::INDIRECT_BRANCH;
-    }
 
     return inst_base;
 }
 
 // NOP introduced in ARMv6K.
-static ARM_INST_PTR INTERPRETER_TRANSLATE(nop)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(nop)(unsigned int inst, int index)
+{
     arm_inst* const inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst));
 
     inst_base->cond = BITS(inst, 28, 31);
@@ -712,7 +745,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(nop)(unsigned int inst, int index) {
     return inst_base;
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(pkhbt)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(pkhbt)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(pkh_inst));
     pkh_inst *inst_cream = (pkh_inst *)inst_base->component;
 
@@ -728,11 +762,13 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(pkhbt)(unsigned int inst, int index) {
     return inst_base;
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(pkhtb)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(pkhtb)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(pkhbt)(inst, index);
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(pld)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(pld)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(pld_inst));
 
     inst_base->cond = BITS(inst, 28, 31);
@@ -742,7 +778,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(pld)(unsigned int inst, int index) {
     return inst_base;
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(qadd)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(qadd)(unsigned int inst, int index)
+{
     arm_inst* const inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst) + sizeof(generic_arm_inst));
     generic_arm_inst* const inst_cream = (generic_arm_inst*)inst_base->component;
 
@@ -757,17 +794,21 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(qadd)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(qdadd)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(qdadd)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(qadd)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(qdsub)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(qdsub)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(qadd)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(qsub)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(qsub)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(qadd)(inst, index);
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(qadd8)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(qadd8)(unsigned int inst, int index)
+{
     arm_inst* const inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst) + sizeof(generic_arm_inst));
     generic_arm_inst* const inst_cream = (generic_arm_inst*)inst_base->component;
 
@@ -783,23 +824,29 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(qadd8)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(qadd16)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(qadd16)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(qadd8)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(qaddsubx)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(qaddsubx)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(qadd8)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(qsub8)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(qsub8)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(qadd8)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(qsub16)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(qsub16)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(qadd8)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(qsubaddx)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(qsubaddx)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(qadd8)(inst, index);
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(rev)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(rev)(unsigned int inst, int index)
+{
     arm_inst* const inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst) + sizeof(rev_inst));
     rev_inst* const inst_cream = (rev_inst*)inst_base->component;
 
@@ -814,14 +861,17 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(rev)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(rev16)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(rev16)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(rev)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(revsh)(unsigned int inst, int index) {
-    return INTERPRETER_TRANSLATE(rev)(inst, index);
+static ARM_INST_PTR INTERPRETER_TRANSLATE(revsh)(unsigned int inst, int index)
+{
+     return INTERPRETER_TRANSLATE(rev)(inst, index);
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(rfe)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(rfe)(unsigned int inst, int index)
+{
     arm_inst* const inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst) + sizeof(ldst_inst));
     ldst_inst* const inst_cream = (ldst_inst*)inst_base->component;
 
@@ -835,7 +885,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(rfe)(unsigned int inst, int index) {
     return inst_base;
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(rsb)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(rsb)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(rsb_inst));
     rsb_inst *inst_cream = (rsb_inst *)inst_base->component;
 
@@ -850,13 +901,13 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(rsb)(unsigned int inst, int index) {
     inst_cream->shifter_operand = BITS(inst, 0, 11);
     inst_cream->shtop_func = GetShifterOp(inst);
 
-    if (inst_cream->Rd == 15) {
+    if (inst_cream->Rd == 15)
         inst_base->br = TransExtData::INDIRECT_BRANCH;
-    }
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(rsc)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(rsc)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(rsc_inst));
     rsc_inst *inst_cream = (rsc_inst *)inst_base->component;
 
@@ -871,13 +922,13 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(rsc)(unsigned int inst, int index) {
     inst_cream->shifter_operand = BITS(inst, 0, 11);
     inst_cream->shtop_func = GetShifterOp(inst);
 
-    if (inst_cream->Rd == 15) {
+    if (inst_cream->Rd == 15)
         inst_base->br = TransExtData::INDIRECT_BRANCH;
-    }
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(sadd8)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(sadd8)(unsigned int inst, int index)
+{
     arm_inst* const inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst) + sizeof(generic_arm_inst));
     generic_arm_inst* const inst_cream = (generic_arm_inst*)inst_base->component;
 
@@ -893,23 +944,29 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(sadd8)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(sadd16)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(sadd16)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(sadd8)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(saddsubx)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(saddsubx)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(sadd8)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(ssub8)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(ssub8)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(sadd8)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(ssub16)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(ssub16)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(sadd8)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(ssubaddx)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(ssubaddx)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(sadd8)(inst, index);
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(sbc)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(sbc)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(sbc_inst));
     sbc_inst *inst_cream = (sbc_inst *)inst_base->component;
 
@@ -924,13 +981,13 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(sbc)(unsigned int inst, int index) {
     inst_cream->shifter_operand = BITS(inst, 0, 11);
     inst_cream->shtop_func = GetShifterOp(inst);
 
-    if (inst_cream->Rd == 15) {
+    if (inst_cream->Rd == 15)
         inst_base->br = TransExtData::INDIRECT_BRANCH;
-    }
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(sel)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(sel)(unsigned int inst, int index)
+{
     arm_inst* const inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst) + sizeof(generic_arm_inst));
     generic_arm_inst* const inst_cream = (generic_arm_inst*)inst_base->component;
 
@@ -947,7 +1004,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(sel)(unsigned int inst, int index) {
     return inst_base;
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(setend)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(setend)(unsigned int inst, int index)
+{
     arm_inst* const inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst) + sizeof(setend_inst));
     setend_inst* const inst_cream = (setend_inst*)inst_base->component;
 
@@ -960,7 +1018,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(setend)(unsigned int inst, int index) 
     return inst_base;
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(sev)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(sev)(unsigned int inst, int index)
+{
     arm_inst* const inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst));
 
     inst_base->cond = BITS(inst, 28, 31);
@@ -970,7 +1029,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(sev)(unsigned int inst, int index) {
     return inst_base;
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(shadd8)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(shadd8)(unsigned int inst, int index)
+{
     arm_inst* const inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst) + sizeof(generic_arm_inst));
     generic_arm_inst* const inst_cream = (generic_arm_inst*)inst_base->component;
 
@@ -986,23 +1046,29 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(shadd8)(unsigned int inst, int index) 
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(shadd16)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(shadd16)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(shadd8)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(shaddsubx)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(shaddsubx)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(shadd8)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(shsub8)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(shsub8)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(shadd8)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(shsub16)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(shsub16)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(shadd8)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(shsubaddx)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(shsubaddx)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(shadd8)(inst, index);
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(smla)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(smla)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(smla_inst));
     smla_inst *inst_cream = (smla_inst *)inst_base->component;
 
@@ -1020,7 +1086,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(smla)(unsigned int inst, int index) {
     return inst_base;
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(smlad)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(smlad)(unsigned int inst, int index)
+{
     arm_inst* const inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst) + sizeof(smlad_inst));
     smlad_inst* const inst_cream = (smlad_inst*)inst_base->component;
 
@@ -1038,17 +1105,21 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(smlad)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(smuad)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(smuad)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(smlad)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(smusd)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(smusd)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(smlad)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(smlsd)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(smlsd)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(smlad)(inst, index);
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(smlal)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(smlal)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(umlal_inst));
     umlal_inst *inst_cream = (umlal_inst *)inst_base->component;
 
@@ -1065,7 +1136,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(smlal)(unsigned int inst, int index) {
     return inst_base;
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(smlalxy)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(smlalxy)(unsigned int inst, int index)
+{
     arm_inst* const inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst) + sizeof(smlalxy_inst));
     smlalxy_inst* const inst_cream = (smlalxy_inst*)inst_base->component;
 
@@ -1083,7 +1155,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(smlalxy)(unsigned int inst, int index)
     return inst_base;
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(smlaw)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(smlaw)(unsigned int inst, int index)
+{
     arm_inst* const inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst) + sizeof(smlad_inst));
     smlad_inst* const inst_cream = (smlad_inst*)inst_base->component;
 
@@ -1100,7 +1173,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(smlaw)(unsigned int inst, int index) {
     return inst_base;
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(smlald)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(smlald)(unsigned int inst, int index)
+{
     arm_inst* const inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst) + sizeof(smlald_inst));
     smlald_inst* const inst_cream = (smlald_inst*)inst_base->component;
 
@@ -1118,11 +1192,13 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(smlald)(unsigned int inst, int index) 
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(smlsld)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(smlsld)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(smlald)(inst, index);
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(smmla)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(smmla)(unsigned int inst, int index)
+{
     arm_inst* const inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst) + sizeof(smlad_inst));
     smlad_inst* const inst_cream = (smlad_inst*)inst_base->component;
 
@@ -1140,14 +1216,17 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(smmla)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(smmls)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(smmls)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(smmla)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(smmul)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(smmul)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(smmla)(inst, index);
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(smul)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(smul)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(smul_inst));
     smul_inst *inst_cream = (smul_inst *)inst_base->component;
 
@@ -1165,7 +1244,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(smul)(unsigned int inst, int index) {
     return inst_base;
 
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(smull)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(smull)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(umull_inst));
     umull_inst *inst_cream = (umull_inst *)inst_base->component;
 
@@ -1182,7 +1262,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(smull)(unsigned int inst, int index) {
     return inst_base;
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(smulw)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(smulw)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(smlad_inst));
     smlad_inst *inst_cream = (smlad_inst *)inst_base->component;
 
@@ -1198,7 +1279,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(smulw)(unsigned int inst, int index) {
     return inst_base;
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(srs)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(srs)(unsigned int inst, int index)
+{
     arm_inst* const inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst) + sizeof(ldst_inst));
     ldst_inst* const inst_cream = (ldst_inst*)inst_base->component;
 
@@ -1212,7 +1294,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(srs)(unsigned int inst, int index) {
     return inst_base;
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(ssat)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(ssat)(unsigned int inst, int index)
+{
     arm_inst* const inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst) + sizeof(ssat_inst));
     ssat_inst* const inst_cream = (ssat_inst*)inst_base->component;
 
@@ -1228,7 +1311,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(ssat)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(ssat16)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(ssat16)(unsigned int inst, int index)
+{
     arm_inst* const inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst) + sizeof(ssat_inst));
     ssat_inst* const inst_cream = (ssat_inst*)inst_base->component;
 
@@ -1243,7 +1327,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(ssat16)(unsigned int inst, int index) 
     return inst_base;
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(stc)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(stc)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(stc_inst));
     inst_base->cond = BITS(inst, 28, 31);
     inst_base->idx  = index;
@@ -1251,7 +1336,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(stc)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(stm)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(stm)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(ldst_inst));
     ldst_inst *inst_cream = (ldst_inst *)inst_base->component;
 
@@ -1263,7 +1349,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(stm)(unsigned int inst, int index) {
     inst_cream->get_addr = GetAddressingOp(inst);
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(sxtb)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(sxtb)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(sxtb_inst));
     sxtb_inst *inst_cream = (sxtb_inst *)inst_base->component;
 
@@ -1277,7 +1364,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(sxtb)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(str)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(str)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(ldst_inst));
     ldst_inst *inst_cream = (ldst_inst *)inst_base->component;
 
@@ -1290,7 +1378,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(str)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(uxtb)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(uxtb)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(uxth_inst));
     uxth_inst *inst_cream = (uxth_inst *)inst_base->component;
 
@@ -1304,7 +1393,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(uxtb)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(uxtab)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(uxtab)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(uxtab_inst));
     uxtab_inst *inst_cream = (uxtab_inst *)inst_base->component;
 
@@ -1319,7 +1409,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(uxtab)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(strb)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(strb)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(ldst_inst));
     ldst_inst *inst_cream = (ldst_inst *)inst_base->component;
 
@@ -1332,7 +1423,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(strb)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(strbt)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(strbt)(unsigned int inst, int index)
+{
     arm_inst* inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst) + sizeof(ldst_inst));
     ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
 
@@ -1345,7 +1437,7 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(strbt)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(strd)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(strd)(unsigned int inst, int index){
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(ldst_inst));
     ldst_inst *inst_cream = (ldst_inst *)inst_base->component;
 
@@ -1358,7 +1450,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(strd)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(strex)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(strex)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(generic_arm_inst));
     generic_arm_inst *inst_cream = (generic_arm_inst *)inst_base->component;
 
@@ -1372,16 +1465,20 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(strex)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(strexb)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(strexb)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(strex)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(strexh)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(strexh)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(strex)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(strexd)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(strexd)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(strex)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(strh)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(strh)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(ldst_inst));
     ldst_inst *inst_cream = (ldst_inst *)inst_base->component;
 
@@ -1394,7 +1491,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(strh)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(strt)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(strt)(unsigned int inst, int index)
+{
     arm_inst* inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst) + sizeof(ldst_inst));
     ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
 
@@ -1407,7 +1505,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(strt)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(sub)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(sub)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(sub_inst));
     sub_inst *inst_cream = (sub_inst *)inst_base->component;
 
@@ -1422,13 +1521,13 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(sub)(unsigned int inst, int index) {
     inst_cream->shifter_operand = BITS(inst, 0, 11);
     inst_cream->shtop_func = GetShifterOp(inst);
 
-    if (inst_cream->Rd == 15) {
+    if (inst_cream->Rd == 15)
         inst_base->br = TransExtData::INDIRECT_BRANCH;
-    }
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(swi)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(swi)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(swi_inst));
     swi_inst *inst_cream = (swi_inst *)inst_base->component;
 
@@ -1439,7 +1538,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(swi)(unsigned int inst, int index) {
     inst_cream->num = BITS(inst, 0, 23);
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(swp)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(swp)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(swp_inst));
     swp_inst *inst_cream = (swp_inst *)inst_base->component;
 
@@ -1453,7 +1553,7 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(swp)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(swpb)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(swpb)(unsigned int inst, int index){
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(swp_inst));
     swp_inst *inst_cream = (swp_inst *)inst_base->component;
 
@@ -1467,7 +1567,7 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(swpb)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(sxtab)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(sxtab)(unsigned int inst, int index){
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(sxtab_inst));
     sxtab_inst *inst_cream = (sxtab_inst *)inst_base->component;
 
@@ -1483,7 +1583,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(sxtab)(unsigned int inst, int index) {
     return inst_base;
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(sxtab16)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(sxtab16)(unsigned int inst, int index)
+{
     arm_inst* const inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst) + sizeof(sxtab_inst));
     sxtab_inst* const inst_cream = (sxtab_inst*)inst_base->component;
 
@@ -1498,7 +1599,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(sxtab16)(unsigned int inst, int index)
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(sxtb16)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(sxtb16)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(sxtab16)(inst, index);
 }
 
@@ -1518,7 +1620,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(sxtah)(unsigned int inst, int index) {
     return inst_base;
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(teq)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(teq)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(teq_inst));
     teq_inst *inst_cream = (teq_inst *)inst_base->component;
 
@@ -1533,7 +1636,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(teq)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(tst)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(tst)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(tst_inst));
     tst_inst *inst_cream = (tst_inst *)inst_base->component;
 
@@ -1551,7 +1655,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(tst)(unsigned int inst, int index) {
     return inst_base;
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(uadd8)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(uadd8)(unsigned int inst, int index)
+{
     arm_inst* const inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst) + sizeof(generic_arm_inst));
     generic_arm_inst* const inst_cream = (generic_arm_inst*)inst_base->component;
 
@@ -1567,23 +1672,29 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(uadd8)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(uadd16)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(uadd16)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(uadd8)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(uaddsubx)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(uaddsubx)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(uadd8)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(usub8)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(usub8)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(uadd8)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(usub16)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(usub16)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(uadd8)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(usubaddx)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(usubaddx)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(uadd8)(inst, index);
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(uhadd8)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(uhadd8)(unsigned int inst, int index)
+{
     arm_inst* const inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst) + sizeof(generic_arm_inst));
     generic_arm_inst* const inst_cream = (generic_arm_inst*)inst_base->component;
 
@@ -1599,22 +1710,28 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(uhadd8)(unsigned int inst, int index) 
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(uhadd16)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(uhadd16)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(uhadd8)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(uhaddsubx)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(uhaddsubx)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(uhadd8)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(uhsub8)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(uhsub8)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(uhadd8)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(uhsub16)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(uhsub16)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(uhadd8)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(uhsubaddx)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(uhsubaddx)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(uhadd8)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(umaal)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(umaal)(unsigned int inst, int index)
+{
     arm_inst* const inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst) + sizeof(umaal_inst));
     umaal_inst* const inst_cream = (umaal_inst*)inst_base->component;
 
@@ -1629,7 +1746,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(umaal)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(umlal)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(umlal)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(umlal_inst));
     umlal_inst *inst_cream = (umlal_inst *)inst_base->component;
 
@@ -1645,7 +1763,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(umlal)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(umull)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(umull)(unsigned int inst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(umull_inst));
     umull_inst *inst_cream = (umull_inst *)inst_base->component;
 
@@ -1662,7 +1781,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(umull)(unsigned int inst, int index) {
     return inst_base;
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(b_2_thumb)(unsigned int tinst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(b_2_thumb)(unsigned int tinst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(b_2_thumb));
     b_2_thumb *inst_cream = (b_2_thumb *)inst_base->component;
 
@@ -1674,7 +1794,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(b_2_thumb)(unsigned int tinst, int ind
     return inst_base;
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(b_cond_thumb)(unsigned int tinst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(b_cond_thumb)(unsigned int tinst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(b_cond_thumb));
     b_cond_thumb *inst_cream = (b_cond_thumb *)inst_base->component;
 
@@ -1686,7 +1807,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(b_cond_thumb)(unsigned int tinst, int 
     return inst_base;
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(bl_1_thumb)(unsigned int tinst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(bl_1_thumb)(unsigned int tinst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(bl_1_thumb));
     bl_1_thumb *inst_cream = (bl_1_thumb *)inst_base->component;
 
@@ -1696,7 +1818,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(bl_1_thumb)(unsigned int tinst, int in
     inst_base->br  = TransExtData::NON_BRANCH;
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(bl_2_thumb)(unsigned int tinst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(bl_2_thumb)(unsigned int tinst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(bl_2_thumb));
     bl_2_thumb *inst_cream = (bl_2_thumb *)inst_base->component;
 
@@ -1706,7 +1829,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(bl_2_thumb)(unsigned int tinst, int in
     inst_base->br  = TransExtData::DIRECT_BRANCH;
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(blx_1_thumb)(unsigned int tinst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(blx_1_thumb)(unsigned int tinst, int index)
+{
     arm_inst *inst_base = (arm_inst *)AllocBuffer(sizeof(arm_inst) + sizeof(blx_1_thumb));
     blx_1_thumb *inst_cream = (blx_1_thumb *)inst_base->component;
 
@@ -1718,7 +1842,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(blx_1_thumb)(unsigned int tinst, int i
     return inst_base;
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(uqadd8)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(uqadd8)(unsigned int inst, int index)
+{
     arm_inst* const inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst) + sizeof(generic_arm_inst));
     generic_arm_inst* const inst_cream = (generic_arm_inst*)inst_base->component;
 
@@ -1734,22 +1859,28 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(uqadd8)(unsigned int inst, int index) 
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(uqadd16)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(uqadd16)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(uqadd8)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(uqaddsubx)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(uqaddsubx)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(uqadd8)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(uqsub8)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(uqsub8)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(uqadd8)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(uqsub16)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(uqsub16)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(uqadd8)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(uqsubaddx)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(uqsubaddx)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(uqadd8)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(usada8)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(usada8)(unsigned int inst, int index)
+{
     arm_inst* const inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst) + sizeof(generic_arm_inst));
     generic_arm_inst* const inst_cream = (generic_arm_inst*)inst_base->component;
 
@@ -1766,17 +1897,21 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(usada8)(unsigned int inst, int index) 
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(usad8)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(usad8)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(usada8)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(usat)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(usat)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(ssat)(inst, index);
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(usat16)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(usat16)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(ssat16)(inst, index);
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(uxtab16)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(uxtab16)(unsigned int inst, int index)
+{
     arm_inst* const inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst) + sizeof(uxtab_inst));
     uxtab_inst* const inst_cream = (uxtab_inst*)inst_base->component;
 
@@ -1791,11 +1926,13 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(uxtab16)(unsigned int inst, int index)
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(uxtb16)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(uxtb16)(unsigned int inst, int index)
+{
     return INTERPRETER_TRANSLATE(uxtab16)(inst, index);
 }
 
-static ARM_INST_PTR INTERPRETER_TRANSLATE(wfe)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(wfe)(unsigned int inst, int index)
+{
     arm_inst* const inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst));
 
     inst_base->cond = BITS(inst, 28, 31);
@@ -1804,7 +1941,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(wfe)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(wfi)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(wfi)(unsigned int inst, int index)
+{
     arm_inst* const inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst));
 
     inst_base->cond = BITS(inst, 28, 31);
@@ -1813,7 +1951,8 @@ static ARM_INST_PTR INTERPRETER_TRANSLATE(wfi)(unsigned int inst, int index) {
 
     return inst_base;
 }
-static ARM_INST_PTR INTERPRETER_TRANSLATE(yield)(unsigned int inst, int index) {
+static ARM_INST_PTR INTERPRETER_TRANSLATE(yield)(unsigned int inst, int index)
+{
     arm_inst* const inst_base = (arm_inst*)AllocBuffer(sizeof(arm_inst));
 
     inst_base->cond = BITS(inst, 28, 31);

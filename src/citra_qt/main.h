@@ -23,7 +23,8 @@ class CallstackWidget;
 class GPUCommandStreamWidget;
 class GPUCommandListWidget;
 
-class GMainWindow : public QMainWindow {
+class GMainWindow : public QMainWindow
+{
     Q_OBJECT
 
     static const int max_recent_files_item = 10; ///< Max number of recently loaded items to keep track

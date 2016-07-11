@@ -54,9 +54,7 @@ public:
     T x;
     T y;
 
-    T* AsArray() {
-        return &x;
-    }
+    T* AsArray() { return &x; }
 
     Vec2() = default;
     Vec2(const T a[2]) : x(a[0]), y(a[1]) {}
@@ -67,55 +65,64 @@ public:
         return Vec2<T2>((T2)x, (T2)y);
     }
 
-    static Vec2 AssignToAll(const T& f) {
+    static Vec2 AssignToAll(const T& f)
+    {
         return Vec2<T>(f, f);
     }
 
-    void Write(T a[2]) {
-        a[0] = x;
-        a[1] = y;
+    void Write(T a[2])
+    {
+        a[0] = x; a[1] = y;
     }
 
-    Vec2<decltype(T{}+T{})> operator +(const Vec2& other) const {
+    Vec2<decltype(T{}+T{})> operator +(const Vec2& other) const
+    {
         return MakeVec(x+other.x, y+other.y);
     }
-    void operator += (const Vec2 &other) {
-        x+=other.x;
-        y+=other.y;
+    void operator += (const Vec2 &other)
+    {
+        x+=other.x; y+=other.y;
     }
-    Vec2<decltype(T{}-T{})> operator -(const Vec2& other) const {
+    Vec2<decltype(T{}-T{})> operator -(const Vec2& other) const
+    {
         return MakeVec(x-other.x, y-other.y);
     }
-    void operator -= (const Vec2& other) {
-        x-=other.x;
-        y-=other.y;
+    void operator -= (const Vec2& other)
+    {
+        x-=other.x; y-=other.y;
     }
     template<typename Q = T,class = typename std::enable_if<std::is_signed<Q>::value>::type>
-    Vec2<decltype(-T{})> operator -() const {
+    Vec2<decltype(-T{})> operator -() const
+    {
         return MakeVec(-x,-y);
     }
-    Vec2<decltype(T{}*T{})> operator * (const Vec2& other) const {
+    Vec2<decltype(T{}*T{})> operator * (const Vec2& other) const
+    {
         return MakeVec(x*other.x, y*other.y);
     }
     template<typename V>
-    Vec2<decltype(T{}*V{})> operator * (const V& f) const {
+    Vec2<decltype(T{}*V{})> operator * (const V& f) const
+    {
         return MakeVec(x*f,y*f);
     }
     template<typename V>
-    void operator *= (const V& f) {
-        x*=f;
-        y*=f;
+    void operator *= (const V& f)
+    {
+        x*=f; y*=f;
     }
     template<typename V>
-    Vec2<decltype(T{}/V{})> operator / (const V& f) const {
+    Vec2<decltype(T{}/V{})> operator / (const V& f) const
+    {
         return MakeVec(x/f,y/f);
     }
     template<typename V>
-    void operator /= (const V& f) {
+    void operator /= (const V& f)
+    {
         *this = *this / f;
     }
 
-    T Length2() const {
+    T Length2() const
+    {
         return x*x + y*y;
     }
 
@@ -127,59 +134,40 @@ public:
     Vec2 Normalized() const;
     float Normalize(); // returns the previous length, which is often useful
 
-    T& operator [] (int i) { //allow vector[1] = 3   (vector.y=3)
+    T& operator [] (int i) //allow vector[1] = 3   (vector.y=3)
+    {
         return *((&x) + i);
     }
-    T operator [] (const int i) const {
+    T operator [] (const int i) const
+    {
         return *((&x) + i);
     }
 
-    void SetZero() {
-        x=0;
-        y=0;
+    void SetZero()
+    {
+        x=0; y=0;
     }
 
     // Common aliases: UV (texel coordinates), ST (texture coordinates)
-    T& u() {
-        return x;
-    }
-    T& v() {
-        return y;
-    }
-    T& s() {
-        return x;
-    }
-    T& t() {
-        return y;
-    }
+    T& u() { return x; }
+    T& v() { return y; }
+    T& s() { return x; }
+    T& t() { return y; }
 
-    const T& u() const {
-        return x;
-    }
-    const T& v() const {
-        return y;
-    }
-    const T& s() const {
-        return x;
-    }
-    const T& t() const {
-        return y;
-    }
+    const T& u() const { return x; }
+    const T& v() const { return y; }
+    const T& s() const { return x; }
+    const T& t() const { return y; }
 
     // swizzlers - create a subvector of specific components
-    const Vec2 yx() const {
-        return Vec2(y, x);
-    }
-    const Vec2 vu() const {
-        return Vec2(y, x);
-    }
-    const Vec2 ts() const {
-        return Vec2(y, x);
-    }
+    const Vec2 yx() const { return Vec2(y, x); }
+    const Vec2 vu() const { return Vec2(y, x); }
+    const Vec2 ts() const { return Vec2(y, x); }
 };
 
 template<typename T, typename V>
-Vec2<T> operator * (const V& f, const Vec2<T>& vec) {
+Vec2<T> operator * (const V& f, const Vec2<T>& vec)
+{
     return Vec2<T>(f*vec.x,f*vec.y);
 }
 
@@ -198,15 +186,14 @@ inline float Vec2<float>::Normalize() {
 }
 
 template<typename T>
-class Vec3 {
+class Vec3
+{
 public:
     T x;
     T y;
     T z;
 
-    T* AsArray() {
-        return &x;
-    }
+    T* AsArray() { return &x; }
 
     Vec3() = default;
     Vec3(const T a[3]) : x(a[0]), y(a[1]), z(a[2]) {}
@@ -221,59 +208,64 @@ public:
     static Vec3 FromRGB(unsigned int rgb);
     unsigned int ToRGB() const; // alpha bits set to zero
 
-    static Vec3 AssignToAll(const T& f) {
+    static Vec3 AssignToAll(const T& f)
+    {
         return MakeVec(f, f, f);
     }
 
-    void Write(T a[3]) {
-        a[0] = x;
-        a[1] = y;
-        a[2] = z;
+    void Write(T a[3])
+    {
+        a[0] = x; a[1] = y; a[2] = z;
     }
 
-    Vec3<decltype(T{}+T{})> operator +(const Vec3 &other) const {
+    Vec3<decltype(T{}+T{})> operator +(const Vec3 &other) const
+    {
         return MakeVec(x+other.x, y+other.y, z+other.z);
     }
-    void operator += (const Vec3 &other) {
-        x+=other.x;
-        y+=other.y;
-        z+=other.z;
+    void operator += (const Vec3 &other)
+    {
+        x+=other.x; y+=other.y; z+=other.z;
     }
-    Vec3<decltype(T{}-T{})> operator -(const Vec3 &other) const {
+    Vec3<decltype(T{}-T{})> operator -(const Vec3 &other) const
+    {
         return MakeVec(x-other.x, y-other.y, z-other.z);
     }
-    void operator -= (const Vec3 &other) {
-        x-=other.x;
-        y-=other.y;
-        z-=other.z;
+    void operator -= (const Vec3 &other)
+    {
+        x-=other.x; y-=other.y; z-=other.z;
     }
     template<typename Q = T,class = typename std::enable_if<std::is_signed<Q>::value>::type>
-    Vec3<decltype(-T{})> operator -() const {
+    Vec3<decltype(-T{})> operator -() const
+    {
         return MakeVec(-x,-y,-z);
     }
-    Vec3<decltype(T{}*T{})> operator * (const Vec3 &other) const {
+    Vec3<decltype(T{}*T{})> operator * (const Vec3 &other) const
+    {
         return MakeVec(x*other.x, y*other.y, z*other.z);
     }
     template<typename V>
-    Vec3<decltype(T{}*V{})> operator * (const V& f) const {
+    Vec3<decltype(T{}*V{})> operator * (const V& f) const
+    {
         return MakeVec(x*f,y*f,z*f);
     }
     template<typename V>
-    void operator *= (const V& f) {
-        x*=f;
-        y*=f;
-        z*=f;
+    void operator *= (const V& f)
+    {
+        x*=f; y*=f; z*=f;
     }
     template<typename V>
-    Vec3<decltype(T{}/V{})> operator / (const V& f) const {
+    Vec3<decltype(T{}/V{})> operator / (const V& f) const
+    {
         return MakeVec(x/f,y/f,z/f);
     }
     template<typename V>
-    void operator /= (const V& f) {
+    void operator /= (const V& f)
+    {
         *this = *this / f;
     }
 
-    T Length2() const {
+    T Length2() const
+    {
         return x*x + y*y + z*z;
     }
 
@@ -285,79 +277,44 @@ public:
     Vec3 Normalized() const;
     float Normalize(); // returns the previous length, which is often useful
 
-    T& operator [] (int i) { //allow vector[2] = 3   (vector.z=3)
+    T& operator [] (int i) //allow vector[2] = 3   (vector.z=3)
+    {
         return *((&x) + i);
     }
-    T operator [] (const int i) const {
+    T operator [] (const int i) const
+    {
         return *((&x) + i);
     }
 
-    void SetZero() {
-        x=0;
-        y=0;
-        z=0;
+    void SetZero()
+    {
+        x=0; y=0; z=0;
     }
 
     // Common aliases: UVW (texel coordinates), RGB (colors), STQ (texture coordinates)
-    T& u() {
-        return x;
-    }
-    T& v() {
-        return y;
-    }
-    T& w() {
-        return z;
-    }
+    T& u() { return x; }
+    T& v() { return y; }
+    T& w() { return z; }
 
-    T& r() {
-        return x;
-    }
-    T& g() {
-        return y;
-    }
-    T& b() {
-        return z;
-    }
+    T& r() { return x; }
+    T& g() { return y; }
+    T& b() { return z; }
 
-    T& s() {
-        return x;
-    }
-    T& t() {
-        return y;
-    }
-    T& q() {
-        return z;
-    }
+    T& s() { return x; }
+    T& t() { return y; }
+    T& q() { return z; }
 
-    const T& u() const {
-        return x;
-    }
-    const T& v() const {
-        return y;
-    }
-    const T& w() const {
-        return z;
-    }
+    const T& u() const { return x; }
+    const T& v() const { return y; }
+    const T& w() const { return z; }
 
-    const T& r() const {
-        return x;
-    }
-    const T& g() const {
-        return y;
-    }
-    const T& b() const {
-        return z;
-    }
+    const T& r() const { return x; }
+    const T& g() const { return y; }
+    const T& b() const { return z; }
 
-    const T& s() const {
-        return x;
-    }
-    const T& t() const {
-        return y;
-    }
-    const T& q() const {
-        return z;
-    }
+    const T& s() const { return x; }
+    const T& t() const { return y; }
+    const T& q() const { return z; }
 
     // swizzlers - create a subvector of specific components
     // e.g. Vec2 uv() { return Vec2(x,y); }
@@ -381,7 +338,8 @@ public:
 };
 
 template<typename T, typename V>
-Vec3<T> operator * (const V& f, const Vec3<T>& vec) {
+Vec3<T> operator * (const V& f, const Vec3<T>& vec)
+{
     return Vec3<T>(f*vec.x,f*vec.y,f*vec.z);
 }
 
@@ -405,16 +363,15 @@ inline float Vec3<float>::Normalize() {
 typedef Vec3<float> Vec3f;
 
 template<typename T>
-class Vec4 {
+class Vec4
+{
 public:
     T x;
     T y;
     T z;
     T w;
 
-    T* AsArray() {
-        return &x;
-    }
+    T* AsArray() { return &x; }
 
     Vec4() = default;
     Vec4(const T a[4]) : x(a[0]), y(a[1]), z(a[2]), w(a[3]) {}
@@ -433,59 +390,59 @@ public:
         return Vec4<T>(f, f, f, f);
     }
 
-    void Write(T a[4]) {
-        a[0] = x;
-        a[1] = y;
-        a[2] = z;
-        a[3] = w;
+    void Write(T a[4])
+    {
+        a[0] = x; a[1] = y; a[2] = z; a[3] = w;
     }
 
-    Vec4<decltype(T{}+T{})> operator +(const Vec4& other) const {
+    Vec4<decltype(T{}+T{})> operator +(const Vec4& other) const
+    {
         return MakeVec(x+other.x, y+other.y, z+other.z, w+other.w);
     }
-    void operator += (const Vec4& other) {
-        x+=other.x;
-        y+=other.y;
-        z+=other.z;
-        w+=other.w;
+    void operator += (const Vec4& other)
+    {
+        x+=other.x; y+=other.y; z+=other.z; w+=other.w;
     }
-    Vec4<decltype(T{}-T{})> operator -(const Vec4 &other) const {
+    Vec4<decltype(T{}-T{})> operator -(const Vec4 &other) const
+    {
         return MakeVec(x-other.x, y-other.y, z-other.z, w-other.w);
     }
-    void operator -= (const Vec4 &other) {
-        x-=other.x;
-        y-=other.y;
-        z-=other.z;
-        w-=other.w;
+    void operator -= (const Vec4 &other)
+    {
+        x-=other.x; y-=other.y; z-=other.z; w-=other.w;
     }
     template<typename Q = T,class = typename std::enable_if<std::is_signed<Q>::value>::type>
-    Vec4<decltype(-T{})> operator -() const {
+    Vec4<decltype(-T{})> operator -() const
+    {
         return MakeVec(-x,-y,-z,-w);
     }
-    Vec4<decltype(T{}*T{})> operator * (const Vec4 &other) const {
+    Vec4<decltype(T{}*T{})> operator * (const Vec4 &other) const
+    {
         return MakeVec(x*other.x, y*other.y, z*other.z, w*other.w);
     }
     template<typename V>
-    Vec4<decltype(T{}*V{})> operator * (const V& f) const {
+    Vec4<decltype(T{}*V{})> operator * (const V& f) const
+    {
         return MakeVec(x*f,y*f,z*f,w*f);
     }
     template<typename V>
-    void operator *= (const V& f) {
-        x*=f;
-        y*=f;
-        z*=f;
-        w*=f;
+    void operator *= (const V& f)
+    {
+        x*=f; y*=f; z*=f; w*=f;
     }
     template<typename V>
-    Vec4<decltype(T{}/V{})> operator / (const V& f) const {
+    Vec4<decltype(T{}/V{})> operator / (const V& f) const
+    {
         return MakeVec(x/f,y/f,z/f,w/f);
     }
     template<typename V>
-    void operator /= (const V& f) {
+    void operator /= (const V& f)
+    {
         *this = *this / f;
     }
 
-    T Length2() const {
+    T Length2() const
+    {
         return x*x + y*y + z*z + w*w;
     }
 
@@ -497,14 +454,17 @@ public:
     Vec4 Normalized() const;
     float Normalize(); // returns the previous length, which is often useful
 
-    T& operator [] (int i) { //allow vector[2] = 3   (vector.z=3)
+    T& operator [] (int i) //allow vector[2] = 3   (vector.z=3)
+    {
         return *((&x) + i);
     }
-    T operator [] (const int i) const {
+    T operator [] (const int i) const
+    {
         return *((&x) + i);
     }
 
-    void SetZero() {
+    void SetZero()
+    {
         x = 0;
         y = 0;
         z = 0;
@@ -512,31 +472,15 @@ public:
     }
 
     // Common alias: RGBA (colors)
-    T& r() {
-        return x;
-    }
-    T& g() {
-        return y;
-    }
-    T& b() {
-        return z;
-    }
-    T& a() {
-        return w;
-    }
+    T& r() { return x; }
+    T& g() { return y; }
+    T& b() { return z; }
+    T& a() { return w; }
 
-    const T& r() const {
-        return x;
-    }
-    const T& g() const {
-        return y;
-    }
-    const T& b() const {
-        return z;
-    }
-    const T& a() const {
-        return w;
-    }
+    const T& r() const { return x; }
+    const T& g() const { return y; }
+    const T& b() const { return z; }
+    const T& a() const { return w; }
 
     // Swizzlers - Create a subvector of specific components
     // e.g. Vec2 uv() { return Vec2(x,y); }
@@ -601,7 +545,8 @@ public:
 
 
 template<typename T, typename V>
-Vec4<decltype(V{}*T{})> operator * (const V& f, const Vec4<T>& vec) {
+Vec4<decltype(V{}*T{})> operator * (const V& f, const Vec4<T>& vec)
+{
     return MakeVec(f*vec.x,f*vec.y,f*vec.z,f*vec.w);
 }
 
@@ -609,75 +554,89 @@ typedef Vec4<float> Vec4f;
 
 
 template<typename T>
-static inline decltype(T{}*T{}+T{}*T{}) Dot(const Vec2<T>& a, const Vec2<T>& b) {
+static inline decltype(T{}*T{}+T{}*T{}) Dot(const Vec2<T>& a, const Vec2<T>& b)
+{
     return a.x*b.x + a.y*b.y;
 }
 
 template<typename T>
-static inline decltype(T{}*T{}+T{}*T{}) Dot(const Vec3<T>& a, const Vec3<T>& b) {
+static inline decltype(T{}*T{}+T{}*T{}) Dot(const Vec3<T>& a, const Vec3<T>& b)
+{
     return a.x*b.x + a.y*b.y + a.z*b.z;
 }
 
 template<typename T>
-static inline decltype(T{}*T{}+T{}*T{}) Dot(const Vec4<T>& a, const Vec4<T>& b) {
+static inline decltype(T{}*T{}+T{}*T{}) Dot(const Vec4<T>& a, const Vec4<T>& b)
+{
     return a.x*b.x + a.y*b.y + a.z*b.z + a.w*b.w;
 }
 
 template<typename T>
-static inline Vec3<decltype(T{}*T{}-T{}*T{})> Cross(const Vec3<T>& a, const Vec3<T>& b) {
+static inline Vec3<decltype(T{}*T{}-T{}*T{})> Cross(const Vec3<T>& a, const Vec3<T>& b)
+{
     return MakeVec(a.y*b.z-a.z*b.y, a.z*b.x-a.x*b.z, a.x*b.y-a.y*b.x);
 }
 
 // linear interpolation via float: 0.0=begin, 1.0=end
 template<typename X>
-static inline decltype(X{}*float{}+X{}*float{}) Lerp(const X& begin, const X& end, const float t) {
+static inline decltype(X{}*float{}+X{}*float{}) Lerp(const X& begin, const X& end, const float t)
+{
     return begin*(1.f-t) + end*t;
 }
 
 // linear interpolation via int: 0=begin, base=end
 template<typename X, int base>
-static inline decltype((X{}*int{}+X{}*int{}) / base) LerpInt(const X& begin, const X& end, const int t) {
+static inline decltype((X{}*int{}+X{}*int{}) / base) LerpInt(const X& begin, const X& end, const int t)
+{
     return (begin*(base-t) + end*t) / base;
 }
 
 // Utility vector factories
 template<typename T>
-static inline Vec2<T> MakeVec(const T& x, const T& y) {
-    return Vec2<T> {x, y};
+static inline Vec2<T> MakeVec(const T& x, const T& y)
+{
+    return Vec2<T>{x, y};
 }
 
 template<typename T>
-static inline Vec3<T> MakeVec(const T& x, const T& y, const T& z) {
-    return Vec3<T> {x, y, z};
+static inline Vec3<T> MakeVec(const T& x, const T& y, const T& z)
+{
+    return Vec3<T>{x, y, z};
 }
 
 template<typename T>
-static inline Vec4<T> MakeVec(const T& x, const T& y, const Vec2<T>& zw) {
+static inline Vec4<T> MakeVec(const T& x, const T& y, const Vec2<T>& zw)
+{
     return MakeVec(x, y, zw[0], zw[1]);
 }
 
 template<typename T>
-static inline Vec3<T> MakeVec(const Vec2<T>& xy, const T& z) {
+static inline Vec3<T> MakeVec(const Vec2<T>& xy, const T& z)
+{
     return MakeVec(xy[0], xy[1], z);
 }
 
 template<typename T>
-static inline Vec3<T> MakeVec(const T& x, const Vec2<T>& yz) {
+static inline Vec3<T> MakeVec(const T& x, const Vec2<T>& yz)
+{
     return MakeVec(x, yz[0], yz[1]);
 }
 
 template<typename T>
-static inline Vec4<T> MakeVec(const T& x, const T& y, const T& z, const T& w) {
-    return Vec4<T> {x, y, z, w};
+static inline Vec4<T> MakeVec(const T& x, const T& y, const T& z, const T& w)
+{
+    return Vec4<T>{x, y, z, w};
 }
 
 template<typename T>
-static inline Vec4<T> MakeVec(const Vec2<T>& xy, const T& z, const T& w) {
+static inline Vec4<T> MakeVec(const Vec2<T>& xy, const T& z, const T& w)
+{
     return MakeVec(xy[0], xy[1], z, w);
 }
 
 template<typename T>
-static inline Vec4<T> MakeVec(const T& x, const Vec2<T>& yz, const T& w) {
+static inline Vec4<T> MakeVec(const T& x, const Vec2<T>& yz, const T& w)
+{
     return MakeVec(x, yz[0], yz[1], w);
 }
 
@@ -685,17 +644,20 @@ static inline Vec4<T> MakeVec(const T& x, const Vec2<T>& yz, const T& w) {
 //       Even if someone wanted to use an odd object like Vec2<Vec2<T>>, the compiler would error
 //       out soon enough due to misuse of the returned structure.
 template<typename T>
-static inline Vec4<T> MakeVec(const Vec2<T>& xy, const Vec2<T>& zw) {
+static inline Vec4<T> MakeVec(const Vec2<T>& xy, const Vec2<T>& zw)
+{
     return MakeVec(xy[0], xy[1], zw[0], zw[1]);
 }
 
 template<typename T>
-static inline Vec4<T> MakeVec(const Vec3<T>& xyz, const T& w) {
+static inline Vec4<T> MakeVec(const Vec3<T>& xyz, const T& w)
+{
     return MakeVec(xyz[0], xyz[1], xyz[2], w);
 }
 
 template<typename T>
-static inline Vec4<T> MakeVec(const T& x, const Vec3<T>& yzw) {
+static inline Vec4<T> MakeVec(const T& x, const Vec3<T>& yzw)
+{
     return MakeVec(x, yzw[0], yzw[1], yzw[2]);
 }
 

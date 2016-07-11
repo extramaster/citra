@@ -11,7 +11,8 @@ bool CheckBufferMappingTranslation(BufferMappingType mapping_type, u32 size, u32
     if (0x8 == translation) {
         return false;
     }
-    switch (mapping_type) {
+    switch (mapping_type)
+    {
     case IPC::InputBuffer:
         if (((size << 4) | 0xA) == translation) {
             return true;

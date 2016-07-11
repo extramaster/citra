@@ -28,9 +28,7 @@ class Interface : public Kernel::Session {
     // just something that encapsulates a session and acts as a helper to implement service
     // processes.
 public:
-    std::string GetName() const override {
-        return GetPortName();
-    }
+    std::string GetName() const override { return GetPortName(); }
 
     typedef void (*Function)(Interface*);
 

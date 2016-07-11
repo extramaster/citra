@@ -16,9 +16,11 @@
 #include "common/string_util.h"
 #include "common/timer.h"
 
-namespace Common {
+namespace Common
+{
 
-u32 Timer::GetTimeMs() {
+u32 Timer::GetTimeMs()
+{
 #ifdef _WIN32
     return timeGetTime();
 #else
@@ -34,25 +36,29 @@ u32 Timer::GetTimeMs() {
 
 // Set initial values for the class
 Timer::Timer()
-    : m_LastTime(0), m_StartTime(0), m_Running(false) {
+    : m_LastTime(0), m_StartTime(0), m_Running(false)
+{
     Update();
 }
 
 // Write the starting time
-void Timer::Start() {
+void Timer::Start()
+{
     m_StartTime = GetTimeMs();
     m_Running = true;
 }
 
 // Stop the timer
-void Timer::Stop() {
+void Timer::Stop()
+{
     // Write the final time
     m_LastTime = GetTimeMs();
     m_Running = false;
 }
 
 // Update the last time variable
-void Timer::Update() {
+void Timer::Update()
+{
     m_LastTime = GetTimeMs();
     //TODO(ector) - QPF
 }
@@ -62,47 +68,45 @@ void Timer::Update() {
 // -------------------------------------
 
 // Get the number of milliseconds since the last Update()
-u64 Timer::GetTimeDifference() {
+u64 Timer::GetTimeDifference()
+{
     return GetTimeMs() - m_LastTime;
 }
 
 // Add the time difference since the last Update() to the starting time.
 // This is used to compensate for a paused game.
-void Timer::AddTimeDifference() {
+void Timer::AddTimeDifference()
+{
     m_StartTime += GetTimeDifference();
 }
 
 // Get the time elapsed since the Start()
-u64 Timer::GetTimeElapsed() {
+u64 Timer::GetTimeElapsed()
+{
     // If we have not started yet, return 1 (because then I don't
     // have to change the FPS calculation in CoreRerecording.cpp .
-    if (m_StartTime == 0) {
-        return 1;
-    }
+    if (m_StartTime == 0) return 1;
 
     // Return the final timer time if the timer is stopped
-    if (!m_Running) {
-        return (m_LastTime - m_StartTime);
-    }
+    if (!m_Running) return (m_LastTime - m_StartTime);
 
     return (GetTimeMs() - m_StartTime);
 }
 
 // Get the formatted time elapsed since the Start()
-std::string Timer::GetTimeElapsedFormatted() const {
+std::string Timer::GetTimeElapsedFormatted() const
+{
     // If we have not started yet, return zero
-    if (m_StartTime == 0) {
+    if (m_StartTime == 0)
         return "00:00:00:000";
-    }
 
     // The number of milliseconds since the start.
     // Use a different value if the timer is stopped.
     u64 Milliseconds;
-    if (m_Running) {
+    if (m_Running)
         Milliseconds = GetTimeMs() - m_StartTime;
-    } else {
+    else
         Milliseconds = m_LastTime - m_StartTime;
-    }
     // Seconds
     u32 Seconds = (u32)(Milliseconds / 1000);
     // Minutes
@@ -111,31 +115,35 @@ std::string Timer::GetTimeElapsedFormatted() const {
     u32 Hours = Minutes / 60;
 
     std::string TmpStr = StringFromFormat("%02i:%02i:%02i:%03i",
-                                          Hours, Minutes % 60, Seconds % 60, Milliseconds % 1000);
+        Hours, Minutes % 60, Seconds % 60, Milliseconds % 1000);
     return TmpStr;
 }
 
 // Get current time
-void Timer::IncreaseResolution() {
+void Timer::IncreaseResolution()
+{
 #ifdef _WIN32
     timeBeginPeriod(1);
 #endif
 }
 
-void Timer::RestoreResolution() {
+void Timer::RestoreResolution()
+{
 #ifdef _WIN32
     timeEndPeriod(1);
 #endif
 }
 
 // Get the number of seconds since January 1 1970
-u64 Timer::GetTimeSinceJan1970() {
+u64 Timer::GetTimeSinceJan1970()
+{
     time_t ltime;
     time(&ltime);
     return((u64)ltime);
 }
 
-u64 Timer::GetLocalTimeSinceJan1970() {
+u64 Timer::GetLocalTimeSinceJan1970()
+{
     time_t sysTime, tzDiff, tzDST;
     struct tm * gmTime;
 
@@ -143,11 +151,10 @@ u64 Timer::GetLocalTimeSinceJan1970() {
 
     // Account for DST where needed
     gmTime = localtime(&sysTime);
-    if(gmTime->tm_isdst == 1) {
+    if(gmTime->tm_isdst == 1)
         tzDST = 3600;
-    } else {
+    else
         tzDST = 0;
-    }
 
     // Lazy way to get local time in sec
     gmTime    = gmtime(&sysTime);
@@ -158,7 +165,8 @@ u64 Timer::GetLocalTimeSinceJan1970() {
 
 // Return the current time formatted as Minutes:Seconds:Milliseconds
 // in the form 00:00:000.
-std::string Timer::GetTimeFormatted() {
+std::string Timer::GetTimeFormatted()
+{
     time_t sysTime;
     struct tm * gmTime;
     char tmp[13];
@@ -182,7 +190,8 @@ std::string Timer::GetTimeFormatted() {
 
 // Returns a timestamp with decimals for precise time comparisons
 // ----------------
-double Timer::GetDoubleTime() {
+double Timer::GetDoubleTime()
+{
 #ifdef _WIN32
     struct timeb tp;
     (void)::ftime(&tp);

@@ -29,7 +29,7 @@
 #include "video_core/pica_state.h"
 
 GraphicsTracingWidget::GraphicsTracingWidget(std::shared_ptr<Pica::DebugContext> debug_context,
-        QWidget* parent)
+                                             QWidget* parent)
     : BreakPointObserverDock(debug_context, tr("CiTrace Recorder"), parent) {
 
     setObjectName("CiTracing");
@@ -63,9 +63,8 @@ GraphicsTracingWidget::GraphicsTracingWidget(std::shared_ptr<Pica::DebugContext>
 
 void GraphicsTracingWidget::StartRecording() {
     auto context = context_weak.lock();
-    if (!context) {
+    if (!context)
         return;
-    }
 
     auto shader_binary = Pica::g_state.vs.program_code;
     auto swizzle_data = Pica::g_state.vs.swizzle_data;
@@ -81,9 +80,8 @@ void GraphicsTracingWidget::StartRecording() {
 
     std::array<u32, 4 * 96> vs_float_uniforms;
     for (unsigned i = 0; i < 96; ++i)
-        for (unsigned comp = 0; comp < 3; ++comp) {
+        for (unsigned comp = 0; comp < 3; ++comp)
             vs_float_uniforms[4 * i + comp] = nihstro::to_float24(Pica::g_state.vs.uniforms.f[i][comp].ToFloat32());
-        }
 
     CiTrace::Recorder::InitialState state;
     std::copy_n((u32*)&GPU::g_regs, sizeof(GPU::g_regs) / sizeof(u32), std::back_inserter(state.gpu_registers));
@@ -107,12 +105,11 @@ void GraphicsTracingWidget::StartRecording() {
 
 void GraphicsTracingWidget::StopRecording() {
     auto context = context_weak.lock();
-    if (!context) {
+    if (!context)
         return;
-    }
 
     QString filename = QFileDialog::getSaveFileName(this, tr("Save CiTrace"), "citrace.ctf",
-                       tr("CiTrace File (*.ctf)"));
+                                                    tr("CiTrace File (*.ctf)"));
 
     if (filename.isEmpty()) {
         // If the user canceled the dialog, keep recording
@@ -129,9 +126,8 @@ void GraphicsTracingWidget::StopRecording() {
 
 void GraphicsTracingWidget::AbortRecording() {
     auto context = context_weak.lock();
-    if (!context) {
+    if (!context)
         return;
-    }
 
     context->recorder = nullptr;
 
@@ -157,15 +153,14 @@ void GraphicsTracingWidget::OnEmulationStopping() {
     // TODO: Is it safe to access the context here?
 
     auto context = context_weak.lock();
-    if (!context) {
+    if (!context)
         return;
-    }
 
 
     if (context->recorder) {
         auto reply = QMessageBox::question(this, tr("CiTracing still active"),
-                                           tr("A CiTrace is still being recorded. Do you want to save it? If not, all recorded data will be discarded."),
-                                           QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+                tr("A CiTrace is still being recorded. Do you want to save it? If not, all recorded data will be discarded."),
+                QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
 
         if (reply == QMessageBox::Yes) {
             StopRecording();

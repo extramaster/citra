@@ -112,7 +112,8 @@
  */
 #pragma pack(1)
 template<std::size_t position, std::size_t bits, typename T>
-struct BitField {
+struct BitField
+{
 private:
     // We hide the copy assigment operator here, because the default copy
     // assignment would copy the full storage value, rather than just the bits
@@ -140,10 +141,13 @@ public:
     }
 
     FORCE_INLINE T Value() const {
-        if (std::numeric_limits<T>::is_signed) {
+        if (std::numeric_limits<T>::is_signed)
+        {
             std::size_t shift = 8 * sizeof(T)-bits;
             return (T)((storage << (shift - position)) >> shift);
-        } else {
+        }
+        else
+        {
             return (T)((storage & GetMask()) >> position);
         }
     }
@@ -159,8 +163,8 @@ private:
     // former case to workaround compile errors which arise when using
     // std::underlying_type<T>::type directly.
     typedef typename std::conditional < std::is_enum<T>::value,
-            std::underlying_type<T>,
-            std::enable_if < true, T >> ::type::type StorageType;
+        std::underlying_type<T>,
+        std::enable_if < true, T >> ::type::type StorageType;
 
     // Unsigned version of StorageType
     typedef typename std::make_unsigned<StorageType>::type StorageTypeU;

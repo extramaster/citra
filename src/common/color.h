@@ -85,7 +85,7 @@ inline const Math::Vec4<u8> DecodeRG8(const u8* bytes) {
 inline const Math::Vec4<u8> DecodeRGB565(const u8* bytes) {
     const u16_le pixel = *reinterpret_cast<const u16_le*>(bytes);
     return { Convert5To8((pixel >> 11) & 0x1F), Convert6To8((pixel >> 5) & 0x3F),
-             Convert5To8(pixel & 0x1F), 255 };
+        Convert5To8(pixel & 0x1F), 255 };
 }
 
 /**
@@ -96,7 +96,7 @@ inline const Math::Vec4<u8> DecodeRGB565(const u8* bytes) {
 inline const Math::Vec4<u8> DecodeRGB5A1(const u8* bytes) {
     const u16_le pixel = *reinterpret_cast<const u16_le*>(bytes);
     return { Convert5To8((pixel >> 11) & 0x1F), Convert5To8((pixel >> 6) & 0x1F),
-             Convert5To8((pixel >> 1) & 0x1F), Convert1To8(pixel & 0x1) };
+        Convert5To8((pixel >> 1) & 0x1F), Convert1To8(pixel & 0x1) };
 }
 
 /**
@@ -107,7 +107,7 @@ inline const Math::Vec4<u8> DecodeRGB5A1(const u8* bytes) {
 inline const Math::Vec4<u8> DecodeRGBA4(const u8* bytes) {
     const u16_le pixel = *reinterpret_cast<const u16_le*>(bytes);
     return { Convert4To8((pixel >> 12) & 0xF), Convert4To8((pixel >> 8) & 0xF),
-             Convert4To8((pixel >> 4) & 0xF), Convert4To8(pixel & 0xF) };
+        Convert4To8((pixel >> 4) & 0xF), Convert4To8(pixel & 0xF) };
 }
 
 /**
@@ -176,7 +176,7 @@ inline void EncodeRG8(const Math::Vec4<u8>& color, u8* bytes) {
  */
 inline void EncodeRGB565(const Math::Vec4<u8>& color, u8* bytes) {
     *reinterpret_cast<u16_le*>(bytes) = (Convert8To5(color.r()) << 11) |
-                                        (Convert8To6(color.g()) << 5) | Convert8To5(color.b());
+        (Convert8To6(color.g()) << 5) | Convert8To5(color.b());
 }
 
 /**
@@ -186,7 +186,7 @@ inline void EncodeRGB565(const Math::Vec4<u8>& color, u8* bytes) {
  */
 inline void EncodeRGB5A1(const Math::Vec4<u8>& color, u8* bytes) {
     *reinterpret_cast<u16_le*>(bytes) = (Convert8To5(color.r()) << 11) |
-                                        (Convert8To5(color.g()) << 6) | (Convert8To5(color.b()) << 1) | Convert8To1(color.a());
+        (Convert8To5(color.g()) << 6) | (Convert8To5(color.b()) << 1) | Convert8To1(color.a());
 }
 
 /**
@@ -196,7 +196,7 @@ inline void EncodeRGB5A1(const Math::Vec4<u8>& color, u8* bytes) {
  */
 inline void EncodeRGBA4(const Math::Vec4<u8>& color, u8* bytes) {
     *reinterpret_cast<u16_le*>(bytes) = (Convert8To4(color.r()) << 12) |
-                                        (Convert8To4(color.g()) << 8) | (Convert8To4(color.b()) << 4) | Convert8To4(color.a());
+        (Convert8To4(color.g()) << 8) | (Convert8To4(color.b()) << 4) | Convert8To4(color.a());
 }
 
 /**

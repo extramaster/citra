@@ -8,26 +8,27 @@
 #include <sstream>
 #include <algorithm>
 
-bool BreakPoints::IsAddressBreakPoint(u32 iAddress) const {
-    auto cond = [&iAddress](const TBreakPoint& bp) {
-        return bp.iAddress == iAddress;
-    };
+bool BreakPoints::IsAddressBreakPoint(u32 iAddress) const
+{
+    auto cond = [&iAddress](const TBreakPoint& bp) { return bp.iAddress == iAddress; };
     auto it   = std::find_if(m_BreakPoints.begin(), m_BreakPoints.end(), cond);
     return it != m_BreakPoints.end();
 }
 
-bool BreakPoints::IsTempBreakPoint(u32 iAddress) const {
-    auto cond = [&iAddress](const TBreakPoint& bp) {
-        return bp.iAddress == iAddress && bp.bTemporary;
-    };
+bool BreakPoints::IsTempBreakPoint(u32 iAddress) const
+{
+    auto cond = [&iAddress](const TBreakPoint& bp) { return bp.iAddress == iAddress && bp.bTemporary; };
     auto it   = std::find_if(m_BreakPoints.begin(), m_BreakPoints.end(), cond);
     return it != m_BreakPoints.end();
 }
 
-BreakPoints::TBreakPointsStr BreakPoints::GetStrings() const {
+BreakPoints::TBreakPointsStr BreakPoints::GetStrings() const
+{
     TBreakPointsStr bps;
-    for (auto breakpoint : m_BreakPoints) {
-        if (!breakpoint.bTemporary) {
+    for (auto breakpoint : m_BreakPoints)
+    {
+        if (!breakpoint.bTemporary)
+        {
             std::stringstream bp;
             bp << std::hex << breakpoint.iAddress << " " << (breakpoint.bOn ? "n" : "");
             bps.push_back(bp.str());
@@ -37,8 +38,10 @@ BreakPoints::TBreakPointsStr BreakPoints::GetStrings() const {
     return bps;
 }
 
-void BreakPoints::AddFromStrings(const TBreakPointsStr& bps) {
-    for (auto bps_item : bps) {
+void BreakPoints::AddFromStrings(const TBreakPointsStr& bps)
+{
+    for (auto bps_item : bps)
+    {
         TBreakPoint bp;
         std::stringstream bpstr;
         bpstr << std::hex << bps_item;
@@ -49,16 +52,20 @@ void BreakPoints::AddFromStrings(const TBreakPointsStr& bps) {
     }
 }
 
-void BreakPoints::Add(const TBreakPoint& bp) {
-    if (!IsAddressBreakPoint(bp.iAddress)) {
+void BreakPoints::Add(const TBreakPoint& bp)
+{
+    if (!IsAddressBreakPoint(bp.iAddress))
+    {
         m_BreakPoints.push_back(bp);
         //if (jit)
         //    jit->GetBlockCache()->InvalidateICache(bp.iAddress, 4);
     }
 }
 
-void BreakPoints::Add(u32 em_address, bool temp) {
-    if (!IsAddressBreakPoint(em_address)) { // only add new addresses
+void BreakPoints::Add(u32 em_address, bool temp)
+{
+    if (!IsAddressBreakPoint(em_address)) // only add new addresses
+    {
         TBreakPoint pt; // breakpoint settings
         pt.bOn = true;
         pt.bTemporary = temp;
@@ -71,17 +78,16 @@ void BreakPoints::Add(u32 em_address, bool temp) {
     }
 }
 
-void BreakPoints::Remove(u32 em_address) {
-    auto cond = [&em_address](const TBreakPoint& bp) {
-        return bp.iAddress == em_address;
-    };
+void BreakPoints::Remove(u32 em_address)
+{
+    auto cond = [&em_address](const TBreakPoint& bp) { return bp.iAddress == em_address; };
     auto it   = std::find_if(m_BreakPoints.begin(), m_BreakPoints.end(), cond);
-    if (it != m_BreakPoints.end()) {
+    if (it != m_BreakPoints.end())
         m_BreakPoints.erase(it);
-    }
 }
 
-void BreakPoints::Clear() {
+void BreakPoints::Clear()
+{
     //if (jit)
     //{
     //    std::for_each(m_BreakPoints.begin(), m_BreakPoints.end(),

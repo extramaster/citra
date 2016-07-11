@@ -17,8 +17,8 @@ namespace Pica {
 template<typename VertexType>
 struct PrimitiveAssembler {
     using TriangleHandler = std::function<void(VertexType& v0,
-                            VertexType& v1,
-                            VertexType& v2)>;
+                                               VertexType& v1,
+                                               VertexType& v2)>;
 
     PrimitiveAssembler(Regs::TriangleTopology topology = Regs::TriangleTopology::List);
 

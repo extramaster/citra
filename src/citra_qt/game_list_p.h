@@ -77,7 +77,8 @@ public:
     static const int TitleRole = Qt::UserRole + 2;
 
     GameListItemPath(): GameListItem() {}
-    GameListItemPath(const QString& game_path, const std::vector<u8>& smdh_data): GameListItem() {
+    GameListItemPath(const QString& game_path, const std::vector<u8>& smdh_data): GameListItem()
+    {
         setData(game_path, FullPathRole);
 
         if (!Loader::IsValidSMDH(smdh_data)) {
@@ -120,11 +121,13 @@ public:
     static const int SizeRole = Qt::UserRole + 1;
 
     GameListItemSize(): GameListItem() {}
-    GameListItemSize(const qulonglong size_bytes): GameListItem() {
+    GameListItemSize(const qulonglong size_bytes): GameListItem()
+    {
         setData(size_bytes, SizeRole);
     }
 
-    void setData(const QVariant& value, int role) override {
+    void setData(const QVariant& value, int role) override
+    {
         // By specializing setData for SizeRole, we can ensure that the numerical and string
         // representations of the data are always accurate and in the correct format.
         if (role == SizeRole) {
@@ -140,7 +143,8 @@ public:
      * This operator is, in practice, only used by the TreeView sorting systems.
      * Override it so that it will correctly sort by numerical value instead of by string representation.
      */
-    bool operator<(const QStandardItem& other) const override {
+    bool operator<(const QStandardItem& other) const override
+    {
         return data(SizeRole).toULongLong() < other.data(SizeRole).toULongLong();
     }
 };
@@ -155,7 +159,7 @@ class GameListWorker : public QObject, public QRunnable {
 
 public:
     GameListWorker(QString dir_path, bool deep_scan):
-        QObject(), QRunnable(), dir_path(dir_path), deep_scan(deep_scan) {}
+            QObject(), QRunnable(), dir_path(dir_path), deep_scan(deep_scan) {}
 
 public slots:
     /// Starts the processing of directory tree information.

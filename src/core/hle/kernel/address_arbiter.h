@@ -36,17 +36,11 @@ public:
      */
     static SharedPtr<AddressArbiter> Create(std::string name = "Unknown");
 
-    std::string GetTypeName() const override {
-        return "Arbiter";
-    }
-    std::string GetName() const override {
-        return name;
-    }
+    std::string GetTypeName() const override { return "Arbiter"; }
+    std::string GetName() const override { return name; }
 
     static const HandleType HANDLE_TYPE = HandleType::AddressArbiter;
-    HandleType GetHandleType() const override {
-        return HANDLE_TYPE;
-    }
+    HandleType GetHandleType() const override { return HANDLE_TYPE; }
 
     std::string name;   ///< Name of address arbiter object (optional)
 

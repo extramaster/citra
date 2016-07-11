@@ -35,9 +35,8 @@ void Event::Acquire() {
     ASSERT_MSG(!ShouldWait(), "object unavailable!");
 
     // Release the event if it's not sticky...
-    if (reset_type != ResetType::Sticky) {
+    if (reset_type != ResetType::Sticky)
         signaled = false;
-    }
 }
 
 void Event::Signal() {

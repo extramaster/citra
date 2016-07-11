@@ -23,22 +23,19 @@ HandleTable g_handle_table;
 
 void WaitObject::AddWaitingThread(SharedPtr<Thread> thread) {
     auto itr = std::find(waiting_threads.begin(), waiting_threads.end(), thread);
-    if (itr == waiting_threads.end()) {
+    if (itr == waiting_threads.end())
         waiting_threads.push_back(std::move(thread));
-    }
 }
 
 void WaitObject::RemoveWaitingThread(Thread* thread) {
     auto itr = std::find(waiting_threads.begin(), waiting_threads.end(), thread);
-    if (itr != waiting_threads.end()) {
+    if (itr != waiting_threads.end())
         waiting_threads.erase(itr);
-    }
 }
 
 void WaitObject::WakeupAllWaitingThreads() {
-    for (auto thread : waiting_threads) {
+    for (auto thread : waiting_threads)
         thread->ResumeFromWait();
-    }
 
     waiting_threads.clear();
 
@@ -55,11 +52,7 @@ ResultVal<Handle> HandleTable::Create(SharedPtr<Object> obj) {
 
     u16 slot = next_free_slot;
     if (slot >= generations.size()) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(Kernel, "Unable to allocate Handle, too many slots in use."));
-#endif
-
+        LOG_ERROR(Kernel, "Unable to allocate Handle, too many slots in use.");
         return ERR_OUT_OF_HANDLES;
     }
     next_free_slot = generations[slot];
@@ -68,9 +61,7 @@ ResultVal<Handle> HandleTable::Create(SharedPtr<Object> obj) {
 
     // Overflow count so it fits in the 15 bits dedicated to the generation in the handle.
     // CTR-OS doesn't use generation 0, so skip straight to 1.
-    if (next_generation >= (1 << 15)) {
-        next_generation = 1;
-    }
+    if (next_generation >= (1 << 15)) next_generation = 1;
 
     generations[slot] = generation;
     objects[slot] = std::move(obj);
@@ -82,20 +73,15 @@ ResultVal<Handle> HandleTable::Create(SharedPtr<Object> obj) {
 ResultVal<Handle> HandleTable::Duplicate(Handle handle) {
     SharedPtr<Object> object = GetGeneric(handle);
     if (object == nullptr) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(Kernel, "Tried to duplicate invalid handle: %08X", handle));
-#endif
-
+        LOG_ERROR(Kernel, "Tried to duplicate invalid handle: %08X", handle);
         return ERR_INVALID_HANDLE;
     }
     return Create(std::move(object));
 }
 
 ResultCode HandleTable::Close(Handle handle) {
-    if (!IsValid(handle)) {
+    if (!IsValid(handle))
         return ERR_INVALID_HANDLE;
-    }
 
     u16 slot = GetSlot(handle);
 

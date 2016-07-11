@@ -20,9 +20,7 @@ class ArchiveFactory_SaveData final : public ArchiveFactory {
 public:
     ArchiveFactory_SaveData(const std::string& mount_point);
 
-    std::string GetName() const override {
-        return "SaveData";
-    }
+    std::string GetName() const override { return "SaveData"; }
 
     ResultVal<std::unique_ptr<ArchiveBackend>> Open(const Path& path) override;
     ResultCode Format(const Path& path, const FileSys::ArchiveFormatInfo& format_info) override;

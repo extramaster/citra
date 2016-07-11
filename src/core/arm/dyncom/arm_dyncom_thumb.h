@@ -42,9 +42,8 @@ inline u32 GetThumbInstruction(u32 instr, u32 address) {
     // Normally you would need to handle instruction endianness,
     // however, it is fixed to little-endian on the MPCore, so
     // there's no need to check for this beforehand.
-    if ((address & 0x3) != 0) {
+    if ((address & 0x3) != 0)
         return instr >> 16;
-    }
 
     return instr & 0xFFFF;
 }

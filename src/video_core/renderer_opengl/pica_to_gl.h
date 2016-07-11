@@ -31,11 +31,7 @@ inline GLenum TextureFilterMode(Pica::Regs::TextureConfig::TextureFilter mode) {
 
     // Range check table for input
     if (static_cast<size_t>(mode) >= ARRAY_SIZE(filter_mode_table)) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_CRITICAL(Render_OpenGL, "Unknown texture filtering mode %d", mode));
-#endif
-
+        LOG_CRITICAL(Render_OpenGL, "Unknown texture filtering mode %d", mode);
         UNREACHABLE();
 
         return GL_LINEAR;
@@ -45,11 +41,7 @@ inline GLenum TextureFilterMode(Pica::Regs::TextureConfig::TextureFilter mode) {
 
     // Check for dummy values indicating an unknown mode
     if (gl_mode == 0) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_CRITICAL(Render_OpenGL, "Unknown texture filtering mode %d", mode));
-#endif
-
+        LOG_CRITICAL(Render_OpenGL, "Unknown texture filtering mode %d", mode);
         UNIMPLEMENTED();
 
         return GL_LINEAR;
@@ -68,11 +60,7 @@ inline GLenum WrapMode(Pica::Regs::TextureConfig::WrapMode mode) {
 
     // Range check table for input
     if (static_cast<size_t>(mode) >= ARRAY_SIZE(wrap_mode_table)) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_CRITICAL(Render_OpenGL, "Unknown texture wrap mode %d", mode));
-#endif
-
+        LOG_CRITICAL(Render_OpenGL, "Unknown texture wrap mode %d", mode);
         UNREACHABLE();
 
         return GL_CLAMP_TO_EDGE;
@@ -82,11 +70,7 @@ inline GLenum WrapMode(Pica::Regs::TextureConfig::WrapMode mode) {
 
     // Check for dummy values indicating an unknown mode
     if (gl_mode == 0) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_CRITICAL(Render_OpenGL, "Unknown texture wrap mode %d", mode));
-#endif
-
+        LOG_CRITICAL(Render_OpenGL, "Unknown texture wrap mode %d", mode);
         UNIMPLEMENTED();
 
         return GL_CLAMP_TO_EDGE;
@@ -106,11 +90,7 @@ inline GLenum BlendEquation(Pica::Regs::BlendEquation equation) {
 
     // Range check table for input
     if (static_cast<size_t>(equation) >= ARRAY_SIZE(blend_equation_table)) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_CRITICAL(Render_OpenGL, "Unknown blend equation %d", equation));
-#endif
-
+        LOG_CRITICAL(Render_OpenGL, "Unknown blend equation %d", equation);
         UNREACHABLE();
 
         return GL_FUNC_ADD;
@@ -140,11 +120,7 @@ inline GLenum BlendFunc(Pica::Regs::BlendFactor factor) {
 
     // Range check table for input
     if (static_cast<size_t>(factor) >= ARRAY_SIZE(blend_func_table)) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_CRITICAL(Render_OpenGL, "Unknown blend factor %d", factor));
-#endif
-
+        LOG_CRITICAL(Render_OpenGL, "Unknown blend factor %d", factor);
         UNREACHABLE();
 
         return GL_ONE;
@@ -175,11 +151,7 @@ inline GLenum LogicOp(Pica::Regs::LogicOp op) {
 
     // Range check table for input
     if (static_cast<size_t>(op) >= ARRAY_SIZE(logic_op_table)) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_CRITICAL(Render_OpenGL, "Unknown logic op %d", op));
-#endif
-
+        LOG_CRITICAL(Render_OpenGL, "Unknown logic op %d", op);
         UNREACHABLE();
 
         return GL_COPY;
@@ -202,11 +174,7 @@ inline GLenum CompareFunc(Pica::Regs::CompareFunc func) {
 
     // Range check table for input
     if (static_cast<size_t>(func) >= ARRAY_SIZE(compare_func_table)) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_CRITICAL(Render_OpenGL, "Unknown compare function %d", func));
-#endif
-
+        LOG_CRITICAL(Render_OpenGL, "Unknown compare function %d", func);
         UNREACHABLE();
 
         return GL_ALWAYS;
@@ -229,11 +197,7 @@ inline GLenum StencilOp(Pica::Regs::StencilAction action) {
 
     // Range check table for input
     if (static_cast<size_t>(action) >= ARRAY_SIZE(stencil_op_table)) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_CRITICAL(Render_OpenGL, "Unknown stencil op %d", action));
-#endif
-
+        LOG_CRITICAL(Render_OpenGL, "Unknown stencil op %d", action);
         UNREACHABLE();
 
         return GL_KEEP;
@@ -243,20 +207,18 @@ inline GLenum StencilOp(Pica::Regs::StencilAction action) {
 }
 
 inline GLvec4 ColorRGBA8(const u32 color) {
-    return { {
-            (color >>  0 & 0xFF) / 255.0f,
-            (color >>  8 & 0xFF) / 255.0f,
-            (color >> 16 & 0xFF) / 255.0f,
-            (color >> 24 & 0xFF) / 255.0f
-        } };
+    return { { (color >>  0 & 0xFF) / 255.0f,
+               (color >>  8 & 0xFF) / 255.0f,
+               (color >> 16 & 0xFF) / 255.0f,
+               (color >> 24 & 0xFF) / 255.0f
+           } };
 }
 
 inline std::array<GLfloat, 3> LightColor(const Pica::Regs::LightColor& color) {
-    return { {
-            color.r / 255.0f,
-            color.g / 255.0f,
-            color.b / 255.0f
-        } };
+    return { { color.r / 255.0f,
+               color.g / 255.0f,
+               color.b / 255.0f
+           } };
 }
 
 } // namespace

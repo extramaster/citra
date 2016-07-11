@@ -423,9 +423,8 @@ ARMDecodeStatus DecodeARMInstruction(u32 instr, s32* idx) {
         base = 0;
 
         // 3DS has no VFP3 support
-        if (arm_instruction[i].version == ARMVFP3) {
+        if (arm_instruction[i].version == ARMVFP3)
             continue;
-        }
 
         while (n) {
             if (arm_instruction[i].content[base + 1] == 31 && arm_instruction[i].content[base] == 0) {
@@ -441,9 +440,8 @@ ARMDecodeStatus DecodeARMInstruction(u32 instr, s32* idx) {
         }
 
         // All conditions are satisfied.
-        if (n == 0) {
+        if (n == 0)
             ret = ARMDecodeStatus::SUCCESS;
-        }
 
         if (ret == ARMDecodeStatus::SUCCESS) {
             n = arm_exclusion_code[i].attribute_value;
@@ -458,9 +456,8 @@ ARMDecodeStatus DecodeARMInstruction(u32 instr, s32* idx) {
                 }
 
                 // All conditions are satisfied.
-                if (n == 0) {
+                if (n == 0)
                     ret = ARMDecodeStatus::FAILURE;
-                }
             }
         }
 

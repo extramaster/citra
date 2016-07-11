@@ -16,43 +16,38 @@ PrimitiveAssembler<VertexType>::PrimitiveAssembler(Regs::TriangleTopology topolo
 }
 
 template<typename VertexType>
-void PrimitiveAssembler<VertexType>::SubmitVertex(VertexType& vtx, TriangleHandler triangle_handler) {
+void PrimitiveAssembler<VertexType>::SubmitVertex(VertexType& vtx, TriangleHandler triangle_handler)
+{
     switch (topology) {
-    case Regs::TriangleTopology::List:
-    case Regs::TriangleTopology::Shader:
-        if (buffer_index < 2) {
-            buffer[buffer_index++] = vtx;
-        } else {
-            buffer_index = 0;
+        case Regs::TriangleTopology::List:
+        case Regs::TriangleTopology::Shader:
+            if (buffer_index < 2) {
+                buffer[buffer_index++] = vtx;
+            } else {
+                buffer_index = 0;
 
-            triangle_handler(buffer[0], buffer[1], vtx);
-        }
-        break;
+                triangle_handler(buffer[0], buffer[1], vtx);
+            }
+            break;
 
-    case Regs::TriangleTopology::Strip:
-    case Regs::TriangleTopology::Fan:
-        if (strip_ready) {
-            triangle_handler(buffer[0], buffer[1], vtx);
-        }
+        case Regs::TriangleTopology::Strip:
+        case Regs::TriangleTopology::Fan:
+            if (strip_ready)
+                triangle_handler(buffer[0], buffer[1], vtx);
 
-        buffer[buffer_index] = vtx;
+            buffer[buffer_index] = vtx;
 
-        strip_ready |= (buffer_index == 1);
+            strip_ready |= (buffer_index == 1);
 
-        if (topology == Regs::TriangleTopology::Strip) {
-            buffer_index = !buffer_index;
-        } else if (topology == Regs::TriangleTopology::Fan) {
-            buffer_index = 1;
-        }
-        break;
+            if (topology == Regs::TriangleTopology::Strip)
+                buffer_index = !buffer_index;
+            else if (topology == Regs::TriangleTopology::Fan)
+                buffer_index = 1;
+            break;
 
-    default:
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(HW_GPU, "Unknown triangle topology %x:", (int)topology));
-#endif
-
-        break;
+        default:
+            LOG_ERROR(HW_GPU, "Unknown triangle topology %x:", (int)topology);
+            break;
     }
 }
 

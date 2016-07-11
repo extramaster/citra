@@ -64,7 +64,7 @@ const u32 FPSCR_REGISTER = 58;
 // GDB also wants the l character at the start
 // This XML defines what the registers are for this specific ARM device
 static const char* target_xml =
-    R"(l<?xml version="1.0"?>
+R"(l<?xml version="1.0"?>
 <!DOCTYPE target SYSTEM "gdb-target.dtd">
 <target version="1.0">
   <feature name="org.gnu.gdb.arm.core">
@@ -160,11 +160,7 @@ static u8 HexCharToValue(u8 hex) {
         return hex - 'A' + 0xA;
     }
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_ERROR(Debug_GDBStub, "Invalid nibble: %c (%02x)\n", hex, hex));
-#endif
-
+    LOG_ERROR(Debug_GDBStub, "Invalid nibble: %c (%02x)\n", hex, hex);
     return 0;
 }
 
@@ -260,11 +256,7 @@ static u8 ReadByte() {
     u8 c;
     size_t received_size = recv(gdbserver_socket, reinterpret_cast<char*>(&c), 1, MSG_WAITALL);
     if (received_size != 1) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(Debug_GDBStub, "recv failed : %ld", received_size));
-#endif
-
+        LOG_ERROR(Debug_GDBStub, "recv failed : %ld", received_size);
         Shutdown();
     }
 
@@ -305,11 +297,7 @@ static void RemoveBreakpoint(BreakpointType type, PAddr addr) {
 
     auto bp = p.find(addr);
     if (bp != p.end()) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_DEBUG(Debug_GDBStub, "gdb: removed a breakpoint: %08x bytes at %08x of type %d\n", bp->second.len, bp->second.addr, type));
-#endif
-
+        LOG_DEBUG(Debug_GDBStub, "gdb: removed a breakpoint: %08x bytes at %08x of type %d\n", bp->second.len, bp->second.addr, type);
         p.erase(addr);
     }
 }
@@ -354,11 +342,7 @@ bool CheckBreakpoint(PAddr addr, BreakpointType type) {
         }
 
         if (bp->second.active && (addr >= bp->second.addr && addr < bp->second.addr + len)) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-            LOG_DEBUG(Debug_GDBStub, "Found breakpoint type %d @ %08x, range: %08x - %08x (%d bytes)\n", type, addr, bp->second.addr, bp->second.addr + len, len));
-#endif
-
+            LOG_DEBUG(Debug_GDBStub, "Found breakpoint type %d @ %08x, range: %08x - %08x (%d bytes)\n", type, addr, bp->second.addr, bp->second.addr + len, len);
             return true;
         }
     }
@@ -374,11 +358,7 @@ bool CheckBreakpoint(PAddr addr, BreakpointType type) {
 static void SendPacket(const char packet) {
     size_t sent_size = send(gdbserver_socket, &packet, 1, 0);
     if (sent_size != 1) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(Debug_GDBStub, "send failed"));
-#endif
-
+        LOG_ERROR(Debug_GDBStub, "send failed");
     }
 }
 
@@ -396,11 +376,7 @@ static void SendReply(const char* reply) {
 
     command_length = static_cast<u32>(strlen(reply));
     if (command_length + 4 > sizeof(command_buffer)) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(Debug_GDBStub, "command_buffer overflow in SendReply"));
-#endif
-
+        LOG_ERROR(Debug_GDBStub, "command_buffer overflow in SendReply");
         return;
     }
 
@@ -417,11 +393,7 @@ static void SendReply(const char* reply) {
     while (left > 0) {
         int sent_size = send(gdbserver_socket, reinterpret_cast<char*>(ptr), left, 0);
         if (sent_size < 0) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-            LOG_ERROR(Debug_GDBStub, "gdb: send failed"));
-#endif
-
+            LOG_ERROR(Debug_GDBStub, "gdb: send failed");
             return Shutdown();
         }
 
@@ -432,11 +404,7 @@ static void SendReply(const char* reply) {
 
 /// Handle query command from gdb client.
 static void HandleQuery() {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_DEBUG(Debug_GDBStub, "gdb: query '%s'\n", command_buffer + 1));
-#endif
-
+    LOG_DEBUG(Debug_GDBStub, "gdb: query '%s'\n", command_buffer + 1);
 
     const char* query = reinterpret_cast<const char*>(command_buffer + 1);
 
@@ -477,11 +445,7 @@ static void SendSignal(u32 signal) {
     latest_signal = signal;
 
     std::string buffer = Common::StringFromFormat("T%02x%02x:%08x;%02x:%08x;", latest_signal, 15, htonl(Core::g_app_core->GetPC()), 13, htonl(Core::g_app_core->GetReg(13)));
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_DEBUG(Debug_GDBStub, "Response: %s", buffer.c_str()));
-#endif
-
+    LOG_DEBUG(Debug_GDBStub, "Response: %s", buffer.c_str());
     SendReply(buffer.c_str());
 }
 
@@ -495,30 +459,18 @@ static void ReadCommand() {
         //ignore ack
         return;
     } else if (c == 0x03) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_INFO(Debug_GDBStub, "gdb: found break command\n"));
-#endif
-
+        LOG_INFO(Debug_GDBStub, "gdb: found break command\n");
         halt_loop = true;
         SendSignal(SIGTRAP);
         return;
     } else if (c != GDB_STUB_START) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_DEBUG(Debug_GDBStub, "gdb: read invalid byte %02x\n", c));
-#endif
-
+        LOG_DEBUG(Debug_GDBStub, "gdb: read invalid byte %02x\n", c);
         return;
     }
 
     while ((c = ReadByte()) != GDB_STUB_END) {
         if (command_length >= sizeof(command_buffer)) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-            LOG_ERROR(Debug_GDBStub, "gdb: command_buffer overflow\n"));
-#endif
-
+            LOG_ERROR(Debug_GDBStub, "gdb: command_buffer overflow\n");
             SendPacket(GDB_STUB_NACK);
             return;
         }
@@ -531,12 +483,8 @@ static void ReadCommand() {
     u8 checksum_calculated = CalculateChecksum(command_buffer, command_length);
 
     if (checksum_received != checksum_calculated) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
         LOG_ERROR(Debug_GDBStub, "gdb: invalid checksum: calculated %02x and read %02x for $%s# (length: %d)\n",
-            checksum_calculated, checksum_received, command_buffer, command_length));
-#endif
-
+            checksum_calculated, checksum_received, command_buffer, command_length);
 
         command_length = 0;
 
@@ -563,11 +511,7 @@ static bool IsDataAvailable() {
     t.tv_usec = 0;
 
     if (select(gdbserver_socket + 1, &fd_socket, nullptr, nullptr, &t) < 0) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(Debug_GDBStub, "select failed"));
-#endif
-
+        LOG_ERROR(Debug_GDBStub, "select failed");
         return false;
     }
 
@@ -694,11 +638,7 @@ static void ReadMemory() {
     start_offset = addr_pos+1;
     u32 len = HexToInt(start_offset, static_cast<u32>((command_buffer + command_length) - start_offset));
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_DEBUG(Debug_GDBStub, "gdb: addr: %08x len: %08x\n", addr, len));
-#endif
-
+    LOG_DEBUG(Debug_GDBStub, "gdb: addr: %08x len: %08x\n", addr, len);
 
     if (len * 2 > sizeof(reply)) {
         SendReply("E01");
@@ -782,11 +722,7 @@ static bool CommitBreakpoint(BreakpointType type, PAddr addr, u32 len) {
     breakpoint.len = len;
     p.insert({ addr, breakpoint });
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_DEBUG(Debug_GDBStub, "gdb: added %d breakpoint: %08x bytes at %08x\n", type, breakpoint.len, breakpoint.addr));
-#endif
-
+    LOG_DEBUG(Debug_GDBStub, "gdb: added %d breakpoint: %08x bytes at %08x\n", type, breakpoint.len, breakpoint.addr);
 
     return true;
 }
@@ -895,11 +831,7 @@ void HandlePacket() {
         return;
     }
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_DEBUG(Debug_GDBStub, "Packet: %s", command_buffer));
-#endif
-
+    LOG_DEBUG(Debug_GDBStub, "Packet: %s", command_buffer);
 
     switch (command_buffer[0]) {
     case 'q':
@@ -913,11 +845,7 @@ void HandlePacket() {
         break;
     case 'k':
         Shutdown();
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_INFO(Debug_GDBStub, "killed by gdb"));
-#endif
-
+        LOG_INFO(Debug_GDBStub, "killed by gdb");
         return;
     case 'g':
         ReadRegisters();
@@ -997,11 +925,7 @@ static void Init(u16 port) {
     breakpoints_write.clear();
 
     // Start gdb server
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_INFO(Debug_GDBStub, "Starting GDB server on port %d...", port));
-#endif
-
+    LOG_INFO(Debug_GDBStub, "Starting GDB server on port %d...", port);
 
     sockaddr_in saddr_server = {};
     saddr_server.sin_family = AF_INET;
@@ -1014,47 +938,27 @@ static void Init(u16 port) {
 
     int tmpsock = socket(PF_INET, SOCK_STREAM, 0);
     if (tmpsock == -1) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(Debug_GDBStub, "Failed to create gdb socket"));
-#endif
-
+        LOG_ERROR(Debug_GDBStub, "Failed to create gdb socket");
     }
 
     // Set socket to SO_REUSEADDR so it can always bind on the same port
     int reuse_enabled = 1;
     if (setsockopt(tmpsock, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse_enabled, sizeof(reuse_enabled)) < 0) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(Debug_GDBStub, "Failed to set gdb socket option"));
-#endif
-
+        LOG_ERROR(Debug_GDBStub, "Failed to set gdb socket option");
     }
 
     const sockaddr* server_addr = reinterpret_cast<const sockaddr*>(&saddr_server);
     socklen_t server_addrlen = sizeof(saddr_server);
     if (bind(tmpsock, server_addr, server_addrlen) < 0) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(Debug_GDBStub, "Failed to bind gdb socket"));
-#endif
-
+        LOG_ERROR(Debug_GDBStub, "Failed to bind gdb socket");
     }
 
     if (listen(tmpsock, 1) < 0) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(Debug_GDBStub, "Failed to listen to gdb socket"));
-#endif
-
+        LOG_ERROR(Debug_GDBStub, "Failed to listen to gdb socket");
     }
 
     // Wait for gdb to connect
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_INFO(Debug_GDBStub, "Waiting for gdb to connect...\n"));
-#endif
-
+    LOG_INFO(Debug_GDBStub, "Waiting for gdb to connect...\n");
     sockaddr_in saddr_client;
     sockaddr* client_addr = reinterpret_cast<sockaddr*>(&saddr_client);
     socklen_t client_addrlen = sizeof(saddr_client);
@@ -1064,18 +968,10 @@ static void Init(u16 port) {
         halt_loop = false;
         step_loop = false;
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(Debug_GDBStub, "Failed to accept gdb client"));
-#endif
-
+        LOG_ERROR(Debug_GDBStub, "Failed to accept gdb client");
     }
     else {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_INFO(Debug_GDBStub, "Client connected.\n"));
-#endif
-
+        LOG_INFO(Debug_GDBStub, "Client connected.\n");
         saddr_client.sin_addr.s_addr = ntohl(saddr_client.sin_addr.s_addr);
     }
 
@@ -1094,11 +990,7 @@ void Shutdown() {
         return;
     }
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_INFO(Debug_GDBStub, "Stopping GDB ..."));
-#endif
-
+    LOG_INFO(Debug_GDBStub, "Stopping GDB ...");
     if (gdbserver_socket != -1) {
         shutdown(gdbserver_socket, SHUT_RDWR);
         gdbserver_socket = -1;
@@ -1108,11 +1000,7 @@ void Shutdown() {
     WSACleanup();
 #endif
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_INFO(Debug_GDBStub, "GDB stopped."));
-#endif
-
+    LOG_INFO(Debug_GDBStub, "GDB stopped.");
 }
 
 bool IsConnected() {

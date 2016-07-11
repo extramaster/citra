@@ -19,28 +19,28 @@
 #include "core/memory.h"
 
 #ifdef _WIN32
-#include <winsock2.h>
-#include <ws2tcpip.h>
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
 
-// MinGW does not define several errno constants
-#ifndef _MSC_VER
-#define EBADMSG 104
-#define ENODATA 120
-#define ENOMSG  122
-#define ENOSR   124
-#define ENOSTR  125
-#define ETIME   137
-#define EIDRM   2001
-#define ENOLINK 2002
-#endif // _MSC_VER
+    // MinGW does not define several errno constants
+    #ifndef _MSC_VER
+        #define EBADMSG 104
+        #define ENODATA 120
+        #define ENOMSG  122
+        #define ENOSR   124
+        #define ENOSTR  125
+        #define ETIME   137
+        #define EIDRM   2001
+        #define ENOLINK 2002
+    #endif // _MSC_VER
 #else
-#include <cerrno>
-#include <fcntl.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <poll.h>
-#include <sys/socket.h>
-#include <unistd.h>
+    #include <cerrno>
+    #include <fcntl.h>
+    #include <netinet/in.h>
+    #include <netdb.h>
+    #include <poll.h>
+    #include <sys/socket.h>
+    #include <unistd.h>
 #endif
 
 #ifdef _WIN32
@@ -64,91 +64,89 @@ namespace SOC_U {
 
 /// Holds the translation from system network errors to 3DS network errors
 static const std::unordered_map<int, int> error_map = { {
-        { E2BIG, 1 },
-        { ERRNO(EACCES), 2 },
-        { ERRNO(EADDRINUSE), 3 },
-        { ERRNO(EADDRNOTAVAIL), 4 },
-        { ERRNO(EAFNOSUPPORT), 5 },
-        { ERRNO(EAGAIN), 6 },
-        { ERRNO(EALREADY), 7 },
-        { ERRNO(EBADF), 8 },
-        { EBADMSG, 9 },
-        { EBUSY, 10 },
-        { ECANCELED, 11 },
-        { ECHILD, 12 },
-        { ERRNO(ECONNABORTED), 13 },
-        { ERRNO(ECONNREFUSED), 14 },
-        { ERRNO(ECONNRESET), 15 },
-        { EDEADLK, 16 },
-        { ERRNO(EDESTADDRREQ), 17 },
-        { EDOM, 18 },
-        { ERRNO(EDQUOT), 19 },
-        { EEXIST, 20 },
-        { ERRNO(EFAULT), 21 },
-        { EFBIG, 22 },
-        { ERRNO(EHOSTUNREACH), 23 },
-        { EIDRM, 24 },
-        { EILSEQ, 25 },
-        { ERRNO(EINPROGRESS), 26 },
-        { ERRNO(EINTR), 27 },
-        { ERRNO(EINVAL), 28 },
-        { EIO, 29 },
-        { ERRNO(EISCONN), 30 },
-        { EISDIR, 31 },
-        { ERRNO(ELOOP), 32 },
-        { ERRNO(EMFILE), 33 },
-        { EMLINK, 34 },
-        { ERRNO(EMSGSIZE), 35 },
-        { ERRNO(EMULTIHOP), 36 },
-        { ERRNO(ENAMETOOLONG), 37 },
-        { ERRNO(ENETDOWN), 38 },
-        { ERRNO(ENETRESET), 39 },
-        { ERRNO(ENETUNREACH), 40 },
-        { ENFILE, 41 },
-        { ERRNO(ENOBUFS), 42 },
-        { ENODATA, 43 },
-        { ENODEV, 44 },
-        { ENOENT, 45 },
-        { ENOEXEC, 46 },
-        { ENOLCK, 47 },
-        { ENOLINK, 48 },
-        { ENOMEM, 49 },
-        { ENOMSG, 50 },
-        { ERRNO(ENOPROTOOPT), 51 },
-        { ENOSPC, 52 },
-        { ENOSR, 53 },
-        { ENOSTR, 54 },
-        { ENOSYS, 55 },
-        { ERRNO(ENOTCONN), 56 },
-        { ENOTDIR, 57 },
-        { ERRNO(ENOTEMPTY), 58 },
-        { ERRNO(ENOTSOCK), 59 },
-        { ENOTSUP, 60 },
-        { ENOTTY, 61 },
-        { ENXIO, 62 },
-        { ERRNO(EOPNOTSUPP), 63 },
-        { EOVERFLOW, 64 },
-        { EPERM, 65 },
-        { EPIPE, 66 },
-        { EPROTO, 67 },
-        { ERRNO(EPROTONOSUPPORT), 68 },
-        { ERRNO(EPROTOTYPE), 69 },
-        { ERANGE, 70 },
-        { EROFS, 71 },
-        { ESPIPE, 72 },
-        { ESRCH, 73 },
-        { ERRNO(ESTALE), 74 },
-        { ETIME, 75 },
-        { ERRNO(ETIMEDOUT), 76 }
-    }
-};
+    { E2BIG, 1 },
+    { ERRNO(EACCES), 2 },
+    { ERRNO(EADDRINUSE), 3 },
+    { ERRNO(EADDRNOTAVAIL), 4 },
+    { ERRNO(EAFNOSUPPORT), 5 },
+    { ERRNO(EAGAIN), 6 },
+    { ERRNO(EALREADY), 7 },
+    { ERRNO(EBADF), 8 },
+    { EBADMSG, 9 },
+    { EBUSY, 10 },
+    { ECANCELED, 11 },
+    { ECHILD, 12 },
+    { ERRNO(ECONNABORTED), 13 },
+    { ERRNO(ECONNREFUSED), 14 },
+    { ERRNO(ECONNRESET), 15 },
+    { EDEADLK, 16 },
+    { ERRNO(EDESTADDRREQ), 17 },
+    { EDOM, 18 },
+    { ERRNO(EDQUOT), 19 },
+    { EEXIST, 20 },
+    { ERRNO(EFAULT), 21 },
+    { EFBIG, 22 },
+    { ERRNO(EHOSTUNREACH), 23 },
+    { EIDRM, 24 },
+    { EILSEQ, 25 },
+    { ERRNO(EINPROGRESS), 26 },
+    { ERRNO(EINTR), 27 },
+    { ERRNO(EINVAL), 28 },
+    { EIO, 29 },
+    { ERRNO(EISCONN), 30 },
+    { EISDIR, 31 },
+    { ERRNO(ELOOP), 32 },
+    { ERRNO(EMFILE), 33 },
+    { EMLINK, 34 },
+    { ERRNO(EMSGSIZE), 35 },
+    { ERRNO(EMULTIHOP), 36 },
+    { ERRNO(ENAMETOOLONG), 37 },
+    { ERRNO(ENETDOWN), 38 },
+    { ERRNO(ENETRESET), 39 },
+    { ERRNO(ENETUNREACH), 40 },
+    { ENFILE, 41 },
+    { ERRNO(ENOBUFS), 42 },
+    { ENODATA, 43 },
+    { ENODEV, 44 },
+    { ENOENT, 45 },
+    { ENOEXEC, 46 },
+    { ENOLCK, 47 },
+    { ENOLINK, 48 },
+    { ENOMEM, 49 },
+    { ENOMSG, 50 },
+    { ERRNO(ENOPROTOOPT), 51 },
+    { ENOSPC, 52 },
+    { ENOSR, 53 },
+    { ENOSTR, 54 },
+    { ENOSYS, 55 },
+    { ERRNO(ENOTCONN), 56 },
+    { ENOTDIR, 57 },
+    { ERRNO(ENOTEMPTY), 58 },
+    { ERRNO(ENOTSOCK), 59 },
+    { ENOTSUP, 60 },
+    { ENOTTY, 61 },
+    { ENXIO, 62 },
+    { ERRNO(EOPNOTSUPP), 63 },
+    { EOVERFLOW, 64 },
+    { EPERM, 65 },
+    { EPIPE, 66 },
+    { EPROTO, 67 },
+    { ERRNO(EPROTONOSUPPORT), 68 },
+    { ERRNO(EPROTOTYPE), 69 },
+    { ERANGE, 70 },
+    { EROFS, 71 },
+    { ESPIPE, 72 },
+    { ESRCH, 73 },
+    { ERRNO(ESTALE), 74 },
+    { ETIME, 75 },
+    { ERRNO(ETIMEDOUT), 76 }
+}};
 
 /// Converts a network error from platform-specific to 3ds-specific
 static int TranslateError(int error) {
     auto found = error_map.find(error);
-    if (found != error_map.end()) {
+    if (found != error_map.end())
         return -found->second;
-    }
 
     return error;
 }
@@ -156,22 +154,21 @@ static int TranslateError(int error) {
 /// Holds the translation from system network socket options to 3DS network socket options
 /// Note: -1 = No effect/unavailable
 static const std::unordered_map<int, int> sockopt_map = { {
-        { 0x0004,   SO_REUSEADDR },
-        { 0x0080,   -1 },
-        { 0x0100,   -1 },
-        { 0x1001,   SO_SNDBUF },
-        { 0x1002,   SO_RCVBUF },
-        { 0x1003,   -1 },
+    { 0x0004,   SO_REUSEADDR },
+    { 0x0080,   -1 },
+    { 0x0100,   -1 },
+    { 0x1001,   SO_SNDBUF },
+    { 0x1002,   SO_RCVBUF },
+    { 0x1003,   -1 },
 #ifdef _WIN32
-        /// Unsupported in WinSock2
-        { 0x1004,   -1 },
+    /// Unsupported in WinSock2
+    { 0x1004,   -1 },
 #else
-        { 0x1004,   SO_RCVLOWAT },
+    { 0x1004,   SO_RCVLOWAT },
 #endif
-        { 0x1008,   SO_TYPE },
-        { 0x1009,   SO_ERROR },
-    }
-};
+    { 0x1008,   SO_TYPE },
+    { 0x1009,   SO_ERROR },
+}};
 
 /// Converts a socket option from 3ds-specific to platform-specific
 static int TranslateSockOpt(int console_opt_name) {
@@ -209,48 +206,36 @@ struct CTRPollFD {
         /// Translates the resulting events of a Poll operation from platform-specific to 3ds specific
         static Events TranslateTo3DS(u32 input_event) {
             Events ev = {};
-            if (input_event & POLLIN) {
+            if (input_event & POLLIN)
                 ev.pollin.Assign(1);
-            }
-            if (input_event & POLLPRI) {
+            if (input_event & POLLPRI)
                 ev.pollpri.Assign(1);
-            }
-            if (input_event & POLLHUP) {
+            if (input_event & POLLHUP)
                 ev.pollhup.Assign(1);
-            }
-            if (input_event & POLLERR) {
+            if (input_event & POLLERR)
                 ev.pollerr.Assign(1);
-            }
-            if (input_event & POLLOUT) {
+            if (input_event & POLLOUT)
                 ev.pollout.Assign(1);
-            }
-            if (input_event & POLLNVAL) {
+            if (input_event & POLLNVAL)
                 ev.pollnval.Assign(1);
-            }
             return ev;
         }
 
         /// Translates the resulting events of a Poll operation from 3ds specific to platform specific
         static u32 TranslateToPlatform(Events input_event) {
             u32 ret = 0;
-            if (input_event.pollin) {
+            if (input_event.pollin)
                 ret |= POLLIN;
-            }
-            if (input_event.pollpri) {
+            if (input_event.pollpri)
                 ret |= POLLPRI;
-            }
-            if (input_event.pollhup) {
+            if (input_event.pollhup)
                 ret |= POLLHUP;
-            }
-            if (input_event.pollerr) {
+            if (input_event.pollerr)
                 ret |= POLLERR;
-            }
-            if (input_event.pollout) {
+            if (input_event.pollout)
                 ret |= POLLOUT;
-            }
-            if (input_event.pollnval) {
+            if (input_event.pollnval)
                 ret |= POLLNVAL;
-            }
             return ret;
         }
     };
@@ -301,7 +286,8 @@ union CTRSockAddr {
 
         // We can not guarantee ABI compatibility between platforms so we copy the fields manually
         switch (result.sa_family) {
-        case AF_INET: {
+        case AF_INET:
+        {
             sockaddr_in* result_in = reinterpret_cast<sockaddr_in*>(&result);
             result_in->sin_port = ctr_addr.in.sin_port;
             result_in->sin_addr.s_addr = ctr_addr.in.sin_addr;
@@ -321,7 +307,8 @@ union CTRSockAddr {
         result.raw.sa_family = static_cast<u8>(addr.sa_family);
         // We can not guarantee ABI compatibility between platforms so we copy the fields manually
         switch (result.raw.sa_family) {
-        case AF_INET: {
+        case AF_INET:
+        {
             sockaddr_in const* addr_in = reinterpret_cast<sockaddr_in const*>(&addr);
             result.raw.len = sizeof(CTRSockAddrIn);
             result.in.sin_port = addr_in->sin_port;
@@ -341,9 +328,8 @@ static std::unordered_map<u32, SocketHolder> open_sockets;
 
 /// Close all open sockets
 static void CleanupSockets() {
-    for (auto sock : open_sockets) {
+    for (auto sock : open_sockets)
         closesocket(sock.second.socket_fd);
-    }
     open_sockets.clear();
 }
 
@@ -375,9 +361,8 @@ static void Socket(Service::Interface* self) {
         open_sockets[socket_handle] = { socket_handle, true };
 
     int result = 0;
-    if ((s32)socket_handle == SOCKET_ERROR_VALUE) {
+    if ((s32)socket_handle == SOCKET_ERROR_VALUE)
         result = TranslateError(GET_ERRNO);
-    }
 
     cmd_buffer[0] = IPC::MakeHeader(2, 2, 0);
     cmd_buffer[1] = result;
@@ -404,9 +389,8 @@ static void Bind(Service::Interface* self) {
     int res = ::bind(socket_handle, &sock_addr, std::max<u32>(sizeof(sock_addr), len));
 
     int result = 0;
-    if (res != 0) {
+    if (res != 0)
         result = TranslateError(GET_ERRNO);
-    }
 
     cmd_buffer[0] = IPC::MakeHeader(5, 2, 0);
     cmd_buffer[1] = result;
@@ -422,17 +406,16 @@ static void Fcntl(Service::Interface* self) {
     int result = 0;
     u32 posix_ret = 0; // TODO: Check what hardware returns for F_SETFL (unspecified by POSIX)
     SCOPE_EXIT({
-        cmd_buffer[1] = result;
-        cmd_buffer[2] = posix_ret;
+            cmd_buffer[1] = result;
+            cmd_buffer[2] = posix_ret;
     });
 
     if (ctr_cmd == 3) { // F_GETFL
 #ifdef _WIN32
         posix_ret = 0;
         auto iter = open_sockets.find(socket_handle);
-        if (iter != open_sockets.end() && iter->second.blocking == false) {
-            posix_ret |= 4;    // O_NONBLOCK
-        }
+        if (iter != open_sockets.end() && iter->second.blocking == false)
+            posix_ret |= 4; // O_NONBLOCK
 #else
         int ret = ::fcntl(socket_handle, F_GETFL, 0);
         if (ret == SOCKET_ERROR_VALUE) {
@@ -441,9 +424,8 @@ static void Fcntl(Service::Interface* self) {
             return;
         }
         posix_ret = 0;
-        if (ret & O_NONBLOCK) {
-            posix_ret |= 4;    // O_NONBLOCK
-        }
+        if (ret & O_NONBLOCK)
+            posix_ret |= 4; // O_NONBLOCK
 #endif
     } else if (ctr_cmd == 4) { // F_SETFL
 #ifdef _WIN32
@@ -455,9 +437,8 @@ static void Fcntl(Service::Interface* self) {
             return;
         }
         auto iter = open_sockets.find(socket_handle);
-        if (iter != open_sockets.end()) {
+        if (iter != open_sockets.end())
             iter->second.blocking = (tmp == 0);
-        }
 #else
         int flags = ::fcntl(socket_handle, F_GETFL, 0);
         if (flags == SOCKET_ERROR_VALUE) {
@@ -467,9 +448,8 @@ static void Fcntl(Service::Interface* self) {
         }
 
         flags &= ~O_NONBLOCK;
-        if (ctr_arg & 4) { // O_NONBLOCK
+        if (ctr_arg & 4) // O_NONBLOCK
             flags |= O_NONBLOCK;
-        }
 
         int ret = ::fcntl(socket_handle, F_SETFL, flags);
         if (ret == SOCKET_ERROR_VALUE) {
@@ -479,11 +459,7 @@ static void Fcntl(Service::Interface* self) {
         }
 #endif
     } else {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(Service_SOC, "Unsupported command (%d) in fcntl call", ctr_cmd));
-#endif
-
+        LOG_ERROR(Service_SOC, "Unsupported command (%d) in fcntl call", ctr_cmd);
         result = TranslateError(EINVAL); // TODO: Find the correct error
         posix_ret = -1;
         return;
@@ -497,9 +473,8 @@ static void Listen(Service::Interface* self) {
 
     int ret = ::listen(socket_handle, backlog);
     int result = 0;
-    if (ret != 0) {
+    if (ret != 0)
         result = TranslateError(GET_ERRNO);
-    }
 
     cmd_buffer[0] = IPC::MakeHeader(3, 2, 0);
     cmd_buffer[1] = result;
@@ -562,9 +537,8 @@ static void Close(Service::Interface* self) {
     ret = closesocket(socket_handle);
 
     int result = 0;
-    if (ret != 0) {
+    if (ret != 0)
         result = TranslateError(GET_ERRNO);
-    }
 
     cmd_buffer[2] = ret;
     cmd_buffer[1] = result;
@@ -605,9 +579,8 @@ static void SendTo(Service::Interface* self) {
     }
 
     int result = 0;
-    if (ret == SOCKET_ERROR_VALUE) {
+    if (ret == SOCKET_ERROR_VALUE)
         result = TranslateError(GET_ERRNO);
-    }
 
     cmd_buffer[2] = ret;
     cmd_buffer[1] = result;
@@ -623,7 +596,8 @@ static void RecvFrom(Service::Interface* self) {
     u32 flags = cmd_buffer[3];
     socklen_t addr_len = static_cast<socklen_t>(cmd_buffer[4]);
 
-    struct {
+    struct
+    {
         u32 output_buffer_descriptor;
         u32 output_buffer_addr;
         u32 address_buffer_descriptor;
@@ -695,9 +669,8 @@ static void Poll(Service::Interface* self) {
     Memory::WriteBlock(output_fds_addr, ctr_fds.data(), nfds * sizeof(CTRPollFD));
 
     int result = 0;
-    if (ret == SOCKET_ERROR_VALUE) {
+    if (ret == SOCKET_ERROR_VALUE)
         result = TranslateError(GET_ERRNO);
-    }
 
     cmd_buffer[1] = result;
     cmd_buffer[2] = ret;
@@ -724,9 +697,8 @@ static void GetSockName(Service::Interface* self) {
     }
 
     int result = 0;
-    if (ret != 0) {
+    if (ret != 0)
         result = TranslateError(GET_ERRNO);
-    }
 
     cmd_buffer[2] = ret;
     cmd_buffer[1] = result;
@@ -739,9 +711,8 @@ static void Shutdown(Service::Interface* self) {
 
     int ret = ::shutdown(socket_handle, how);
     int result = 0;
-    if (ret != 0) {
+    if (ret != 0)
         result = TranslateError(GET_ERRNO);
-    }
     cmd_buffer[2] = ret;
     cmd_buffer[1] = result;
 }
@@ -767,9 +738,8 @@ static void GetPeerName(Service::Interface* self) {
     }
 
     int result = 0;
-    if (ret != 0) {
+    if (ret != 0)
         result = TranslateError(GET_ERRNO);
-    }
 
     cmd_buffer[2] = ret;
     cmd_buffer[1] = result;
@@ -796,9 +766,8 @@ static void Connect(Service::Interface* self) {
     sockaddr input_addr = CTRSockAddr::ToPlatform(ctr_input_addr);
     int ret = ::connect(socket_handle, &input_addr, sizeof(input_addr));
     int result = 0;
-    if (ret != 0) {
+    if (ret != 0)
         result = TranslateError(GET_ERRNO);
-    }
 
     cmd_buffer[0] = IPC::MakeHeader(6, 2, 0);
     cmd_buffer[1] = result;

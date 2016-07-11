@@ -47,21 +47,13 @@ void Init() {
 
     reschedule = false;
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_DEBUG(Kernel, "initialized OK"));
-#endif
-
+    LOG_DEBUG(Kernel, "initialized OK");
 }
 
 void Shutdown() {
     Service::Shutdown();
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_DEBUG(Kernel, "shutdown OK"));
-#endif
-
+    LOG_DEBUG(Kernel, "shutdown OK");
 }
 
 } // namespace

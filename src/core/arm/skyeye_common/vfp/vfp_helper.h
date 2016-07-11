@@ -85,59 +85,60 @@ enum : u32 {
 
 #define vfp_single(inst)  (((inst) & 0x0000f00) == 0xa00)
 
-inline u32 vfp_shiftright32jamming(u32 val, unsigned int shift) {
+inline u32 vfp_shiftright32jamming(u32 val, unsigned int shift)
+{
     if (shift) {
-        if (shift < 32) {
+        if (shift < 32)
             val = val >> shift | ((val << (32 - shift)) != 0);
-        } else {
+        else
             val = val != 0;
-        }
     }
     return val;
 }
 
-inline u64 vfp_shiftright64jamming(u64 val, unsigned int shift) {
+inline u64 vfp_shiftright64jamming(u64 val, unsigned int shift)
+{
     if (shift) {
-        if (shift < 64) {
+        if (shift < 64)
             val = val >> shift | ((val << (64 - shift)) != 0);
-        } else {
+        else
             val = val != 0;
-        }
     }
     return val;
 }
 
-inline u32 vfp_hi64to32jamming(u64 val) {
+inline u32 vfp_hi64to32jamming(u64 val)
+{
     u32 v;
     u32 highval = val >> 32;
     u32 lowval = val & 0xffffffff;
 
-    if (lowval >= 1) {
+    if (lowval >= 1)
         v = highval | 1;
-    } else {
+    else
         v = highval;
-    }
 
     return v;
 }
 
-inline void add128(u64* resh, u64* resl, u64 nh, u64 nl, u64 mh, u64 ml) {
+inline void add128(u64* resh, u64* resl, u64 nh, u64 nl, u64 mh, u64 ml)
+{
     *resl = nl + ml;
     *resh = nh + mh;
-    if (*resl < nl) {
+    if (*resl < nl)
         *resh += 1;
-    }
 }
 
-inline void sub128(u64* resh, u64* resl, u64 nh, u64 nl, u64 mh, u64 ml) {
+inline void sub128(u64* resh, u64* resl, u64 nh, u64 nl, u64 mh, u64 ml)
+{
     *resl = nl - ml;
     *resh = nh - mh;
-    if (*resl > nl) {
+    if (*resl > nl)
         *resh -= 1;
-    }
 }
 
-inline void mul64to128(u64* resh, u64* resl, u64 n, u64 m) {
+inline void mul64to128(u64* resh, u64* resl, u64 n, u64 m)
+{
     u32 nh, nl, mh, ml;
     u64 rh, rma, rmb, rl;
 
@@ -163,23 +164,25 @@ inline void mul64to128(u64* resh, u64* resl, u64 n, u64 m) {
     *resh = rh;
 }
 
-inline void shift64left(u64* resh, u64* resl, u64 n) {
+inline void shift64left(u64* resh, u64* resl, u64 n)
+{
     *resh = n >> 63;
     *resl = n << 1;
 }
 
-inline u64 vfp_hi64multiply64(u64 n, u64 m) {
+inline u64 vfp_hi64multiply64(u64 n, u64 m)
+{
     u64 rh, rl;
     mul64to128(&rh, &rl, n, m);
     return rh | (rl != 0);
 }
 
-inline u64 vfp_estimate_div128to64(u64 nh, u64 nl, u64 m) {
+inline u64 vfp_estimate_div128to64(u64 nh, u64 nl, u64 m)
+{
     u64 mh, ml, remh, reml, termh, terml, z;
 
-    if (nh >= m) {
+    if (nh >= m)
         return ~0ULL;
-    }
     mh = m >> 32;
     if (mh << 32 <= nh) {
         z = 0xffffffff00000000ULL;
@@ -246,22 +249,21 @@ enum : u32 {
     VFP_SNAN       = (VFP_NAN|VFP_NAN_SIGNAL)
 };
 
-inline int vfp_single_type(const vfp_single* s) {
+inline int vfp_single_type(const vfp_single* s)
+{
     int type = VFP_NUMBER;
     if (s->exponent == 255) {
-        if (s->significand == 0) {
+        if (s->significand == 0)
             type = VFP_INFINITY;
-        } else if (s->significand & VFP_SINGLE_SIGNIFICAND_QNAN) {
+        else if (s->significand & VFP_SINGLE_SIGNIFICAND_QNAN)
             type = VFP_QNAN;
-        } else {
+        else
             type = VFP_SNAN;
-        }
     } else if (s->exponent == 0) {
-        if (s->significand == 0) {
+        if (s->significand == 0)
             type |= VFP_ZERO;
-        } else {
+        else
             type |= VFP_DENORMAL;
-        }
     }
     return type;
 }
@@ -269,15 +271,15 @@ inline int vfp_single_type(const vfp_single* s) {
 // Unpack a single-precision float.  Note that this returns the magnitude
 // of the single-precision float mantissa with the 1. if necessary,
 // aligned to bit 30.
-inline u32 vfp_single_unpack(vfp_single* s, s32 val, u32 fpscr) {
+inline u32 vfp_single_unpack(vfp_single* s, s32 val, u32 fpscr)
+{
     u32 exceptions = 0;
     s->sign = vfp_single_packed_sign(val) >> 16,
-       s->exponent = vfp_single_packed_exponent(val);
+    s->exponent = vfp_single_packed_exponent(val);
 
     u32 significand = ((u32)val << (32 - VFP_SINGLE_MANTISSA_BITS)) >> 2;
-    if (s->exponent && s->exponent != 255) {
+    if (s->exponent && s->exponent != 255)
         significand |= 0x40000000;
-    }
     s->significand = significand;
 
     // If flush-to-zero mode is enabled, turn the denormal into zero.
@@ -293,7 +295,8 @@ inline u32 vfp_single_unpack(vfp_single* s, s32 val, u32 fpscr) {
 
 // Re-pack a single-precision float. This assumes that the float is
 // already normalised such that the MSB is bit 30, _not_ bit 31.
-inline s32 vfp_single_pack(const vfp_single* s) {
+inline s32 vfp_single_pack(const vfp_single* s)
+{
     u32 val = (s->sign << 16) +
               (s->exponent << VFP_SINGLE_MANTISSA_BITS) +
               (s->significand >> VFP_SINGLE_LOW_BITS);
@@ -334,22 +337,21 @@ struct vfp_double {
 #define vfp_double_packed_exponent(v) (((v) >> VFP_DOUBLE_MANTISSA_BITS) & ((1 << VFP_DOUBLE_EXPONENT_BITS) - 1))
 #define vfp_double_packed_mantissa(v) ((v) & ((1ULL << VFP_DOUBLE_MANTISSA_BITS) - 1))
 
-inline int vfp_double_type(const vfp_double* s) {
+inline int vfp_double_type(const vfp_double* s)
+{
     int type = VFP_NUMBER;
     if (s->exponent == 2047) {
-        if (s->significand == 0) {
+        if (s->significand == 0)
             type = VFP_INFINITY;
-        } else if (s->significand & VFP_DOUBLE_SIGNIFICAND_QNAN) {
+        else if (s->significand & VFP_DOUBLE_SIGNIFICAND_QNAN)
             type = VFP_QNAN;
-        } else {
+        else
             type = VFP_SNAN;
-        }
     } else if (s->exponent == 0) {
-        if (s->significand == 0) {
+        if (s->significand == 0)
             type |= VFP_ZERO;
-        } else {
+        else
             type |= VFP_DENORMAL;
-        }
     }
     return type;
 }
@@ -357,15 +359,15 @@ inline int vfp_double_type(const vfp_double* s) {
 // Unpack a double-precision float.  Note that this returns the magnitude
 // of the double-precision float mantissa with the 1. if necessary,
 // aligned to bit 62.
-inline u32 vfp_double_unpack(vfp_double* s, s64 val, u32 fpscr) {
+inline u32 vfp_double_unpack(vfp_double* s, s64 val, u32 fpscr)
+{
     u32 exceptions = 0;
     s->sign = vfp_double_packed_sign(val) >> 48;
     s->exponent = vfp_double_packed_exponent(val);
 
     u64 significand = ((u64)val << (64 - VFP_DOUBLE_MANTISSA_BITS)) >> 2;
-    if (s->exponent && s->exponent != 2047) {
+    if (s->exponent && s->exponent != 2047)
         significand |= (1ULL << 62);
-    }
     s->significand = significand;
 
     // If flush-to-zero mode is enabled, turn the denormal into zero.
@@ -381,7 +383,8 @@ inline u32 vfp_double_unpack(vfp_double* s, s64 val, u32 fpscr) {
 
 // Re-pack a double-precision float. This assumes that the float is
 // already normalised such that the MSB is bit 30, _not_ bit 31.
-inline s64 vfp_double_pack(const vfp_double* s) {
+inline s64 vfp_double_pack(const vfp_double* s)
+{
     u64 val = ((u64)s->sign << 48) +
               ((u64)s->exponent << VFP_DOUBLE_MANTISSA_BITS) +
               (s->significand >> VFP_DOUBLE_LOW_BITS);
@@ -416,12 +419,12 @@ struct op {
     u32 flags;
 };
 
-inline u32 fls(u32 x) {
+inline u32 fls(u32 x)
+{
     int r = 32;
 
-    if (!x) {
+    if (!x)
         return 0;
-    }
     if (!(x & 0xffff0000u)) {
         x <<= 16;
         r -= 16;

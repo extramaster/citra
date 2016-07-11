@@ -51,10 +51,12 @@ enum {
     NUM_PATH_INDICES
 };
 
-namespace FileUtil {
+namespace FileUtil
+{
 
 // FileSystem tree node/
-struct FSTEntry {
+struct FSTEntry
+{
     bool isDirectory;
     u64 size;                       // file length or number of entries from children
     std::string physicalName;       // name on disk
@@ -114,8 +116,8 @@ bool CreateEmptyFile(const std::string &filename);
  * @return whether handling the entry succeeded
  */
 using DirectoryEntryCallable = std::function<bool(unsigned* num_entries_out,
-                               const std::string& directory,
-                               const std::string& virtual_name)>;
+                                                 const std::string& directory,
+                                                 const std::string& virtual_name)>;
 
 /**
  * Scans a directory, calling the callback for each file/directory contained within.
@@ -179,7 +181,8 @@ void SplitFilename83(const std::string& filename, std::array<char, 9>& short_nam
 // simple wrapper for cstdlib file functions to
 // hopefully will make error checking easier
 // and make forgetting an fclose() harder
-class IOFile : public NonCopyable {
+class IOFile : public NonCopyable
+{
 public:
     IOFile();
     IOFile(const std::string& filename, const char openmode[]);
@@ -195,7 +198,8 @@ public:
     bool Close();
 
     template <typename T>
-    size_t ReadArray(T* data, size_t length) {
+    size_t ReadArray(T* data, size_t length)
+    {
         static_assert(std::is_standard_layout<T>(), "Given array does not consist of standard layout objects");
 #if (__GNUC__ >= 5) || defined(__clang__) || defined(_MSC_VER)
         static_assert(std::is_trivially_copyable<T>(), "Given array does not consist of trivially copyable objects");
@@ -207,15 +211,15 @@ public:
         }
 
         size_t items_read = std::fread(data, sizeof(T), length, m_file);
-        if (items_read != length) {
+        if (items_read != length)
             m_good = false;
-        }
 
         return items_read;
     }
 
     template <typename T>
-    size_t WriteArray(const T* data, size_t length) {
+    size_t WriteArray(const T* data, size_t length)
+    {
         static_assert(std::is_standard_layout<T>(), "Given array does not consist of standard layout objects");
 #if (__GNUC__ >= 5) || defined(__clang__) || defined(_MSC_VER)
         static_assert(std::is_trivially_copyable<T>(), "Given array does not consist of trivially copyable objects");
@@ -227,18 +231,19 @@ public:
         }
 
         size_t items_written = std::fwrite(data, sizeof(T), length, m_file);
-        if (items_written != length) {
+        if (items_written != length)
             m_good = false;
-        }
 
         return items_written;
     }
 
-    size_t ReadBytes(void* data, size_t length) {
+    size_t ReadBytes(void* data, size_t length)
+    {
         return ReadArray(reinterpret_cast<char*>(data), length);
     }
 
-    size_t WriteBytes(const void* data, size_t length) {
+    size_t WriteBytes(const void* data, size_t length)
+    {
         return WriteArray(reinterpret_cast<const char*>(data), length);
     }
 
@@ -248,17 +253,11 @@ public:
         return WriteArray(&object, 1);
     }
 
-    bool IsOpen() const {
-        return nullptr != m_file;
-    }
+    bool IsOpen() const { return nullptr != m_file; }
 
     // m_good is set to false when a read, write or other function fails
-    bool IsGood() const {
-        return m_good;
-    }
-    explicit operator bool() const {
-        return IsGood();
-    }
+    bool IsGood() const { return m_good; }
+    explicit operator bool() const { return IsGood(); }
 
     bool Seek(s64 off, int origin);
     u64 Tell() const;
@@ -267,10 +266,7 @@ public:
     bool Flush();
 
     // clear error state
-    void Clear() {
-        m_good = true;
-        std::clearerr(m_file);
-    }
+    void Clear() { m_good = true; std::clearerr(m_file); }
 
 private:
     std::FILE* m_file = nullptr;
@@ -281,7 +277,8 @@ private:
 
 // To deal with Windows being dumb at unicode:
 template <typename T>
-void OpenFStream(T& fstream, const std::string& filename, std::ios_base::openmode openmode) {
+void OpenFStream(T& fstream, const std::string& filename, std::ios_base::openmode openmode)
+{
 #ifdef _MSC_VER
     fstream.open(Common::UTF8ToTStr(filename).c_str(), openmode);
 #else

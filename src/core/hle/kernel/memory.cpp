@@ -117,11 +117,7 @@ static MemoryArea memory_areas[] = {
 
 void Init() {
     InitMemoryMap();
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_DEBUG(HW_Memory, "initialized OK"));
-#endif
-
+    LOG_DEBUG(HW_Memory, "initialized OK");
 }
 
 void InitLegacyAddressSpace(Kernel::VMManager& address_space) {
@@ -133,11 +129,11 @@ void InitLegacyAddressSpace(Kernel::VMManager& address_space) {
     }
 
     auto cfg_mem_vma = address_space.MapBackingMemory(CONFIG_MEMORY_VADDR,
-                       (u8*)&ConfigMem::config_mem, CONFIG_MEMORY_SIZE, MemoryState::Shared).MoveFrom();
+            (u8*)&ConfigMem::config_mem, CONFIG_MEMORY_SIZE, MemoryState::Shared).MoveFrom();
     address_space.Reprotect(cfg_mem_vma, VMAPermission::Read);
 
     auto shared_page_vma = address_space.MapBackingMemory(SHARED_PAGE_VADDR,
-                           (u8*)&SharedPage::shared_page, SHARED_PAGE_SIZE, MemoryState::Shared).MoveFrom();
+            (u8*)&SharedPage::shared_page, SHARED_PAGE_SIZE, MemoryState::Shared).MoveFrom();
     address_space.Reprotect(shared_page_vma, VMAPermission::Read);
 
     AudioCore::AddAddressSpace(address_space);

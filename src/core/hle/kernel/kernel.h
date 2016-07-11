@@ -23,10 +23,10 @@ class Thread;
 
 // TODO: Verify code
 const ResultCode ERR_OUT_OF_HANDLES(ErrorDescription::OutOfMemory, ErrorModule::Kernel,
-                                    ErrorSummary::OutOfResource, ErrorLevel::Temporary);
+        ErrorSummary::OutOfResource, ErrorLevel::Temporary);
 // TOOD: Verify code
 const ResultCode ERR_INVALID_HANDLE(ErrorDescription::InvalidHandle, ErrorModule::Kernel,
-                                    ErrorSummary::InvalidArgument, ErrorLevel::Permanent);
+        ErrorSummary::InvalidArgument, ErrorLevel::Permanent);
 
 enum KernelHandle : Handle {
     CurrentThread   = 0xFFFF8000,
@@ -61,16 +61,10 @@ public:
     virtual ~Object() {}
 
     /// Returns a unique identifier for the object. For debugging purposes only.
-    unsigned int GetObjectId() const {
-        return object_id;
-    }
+    unsigned int GetObjectId() const { return object_id; }
 
-    virtual std::string GetTypeName() const {
-        return "[BAD KERNEL OBJECT TYPE]";
-    }
-    virtual std::string GetName() const {
-        return "[UNKNOWN KERNEL OBJECT]";
-    }
+    virtual std::string GetTypeName() const { return "[BAD KERNEL OBJECT TYPE]"; }
+    virtual std::string GetName() const { return "[UNKNOWN KERNEL OBJECT]"; }
     virtual Kernel::HandleType GetHandleType() const = 0;
 
     /**
@@ -253,12 +247,8 @@ private:
      */
     static const size_t MAX_COUNT = 4096;
 
-    static u16 GetSlot(Handle handle)    {
-        return handle >> 15;
-    }
-    static u16 GetGeneration(Handle handle) {
-        return handle & 0x7FFF;
-    }
+    static u16 GetSlot(Handle handle)    { return handle >> 15; }
+    static u16 GetGeneration(Handle handle) { return handle & 0x7FFF; }
 
     /// Stores the Object referenced by the handle or null if the slot is empty.
     std::array<SharedPtr<Object>, MAX_COUNT> objects;

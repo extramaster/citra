@@ -38,13 +38,11 @@ OutputVertex OutputRegisters::ToVertex(const Regs::ShaderConfig& config) {
     unsigned index = 0;
     for (unsigned i = 0; i < 7; ++i) {
 
-        if (index >= g_state.regs.vs_output_total) {
+        if (index >= g_state.regs.vs_output_total)
             break;
-        }
 
-        if ((config.output_mask & (1 << i)) == 0) {
+        if ((config.output_mask & (1 << i)) == 0)
             continue;
-        }
 
         const auto& output_register_map = g_state.regs.vs_output_attributes[index];
 
@@ -70,20 +68,16 @@ OutputVertex OutputRegisters::ToVertex(const Regs::ShaderConfig& config) {
     // The hardware takes the absolute and saturates vertex colors like this, *before* doing interpolation
     for (unsigned i = 0; i < 4; ++i) {
         ret.color[i] = float24::FromFloat32(
-                           std::fmin(std::fabs(ret.color[i].ToFloat32()), 1.0f));
+            std::fmin(std::fabs(ret.color[i].ToFloat32()), 1.0f));
     }
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
     LOG_TRACE(HW_GPU, "Output vertex: pos(%.2f, %.2f, %.2f, %.2f), quat(%.2f, %.2f, %.2f, %.2f), "
-              "col(%.2f, %.2f, %.2f, %.2f), tc0(%.2f, %.2f), view(%.2f, %.2f, %.2f)",
-              ret.pos.x.ToFloat32(), ret.pos.y.ToFloat32(), ret.pos.z.ToFloat32(), ret.pos.w.ToFloat32(),
-              ret.quat.x.ToFloat32(), ret.quat.y.ToFloat32(), ret.quat.z.ToFloat32(), ret.quat.w.ToFloat32(),
-              ret.color.x.ToFloat32(), ret.color.y.ToFloat32(), ret.color.z.ToFloat32(), ret.color.w.ToFloat32(),
-              ret.tc0.u().ToFloat32(), ret.tc0.v().ToFloat32(),
-              ret.view.x.ToFloat32(), ret.view.y.ToFloat32(), ret.view.z.ToFloat32()));
-#endif
-
+        "col(%.2f, %.2f, %.2f, %.2f), tc0(%.2f, %.2f), view(%.2f, %.2f, %.2f)",
+        ret.pos.x.ToFloat32(), ret.pos.y.ToFloat32(), ret.pos.z.ToFloat32(), ret.pos.w.ToFloat32(),
+        ret.quat.x.ToFloat32(), ret.quat.y.ToFloat32(), ret.quat.z.ToFloat32(), ret.quat.w.ToFloat32(),
+        ret.color.x.ToFloat32(), ret.color.y.ToFloat32(), ret.color.z.ToFloat32(), ret.color.w.ToFloat32(),
+        ret.tc0.u().ToFloat32(), ret.tc0.v().ToFloat32(),
+        ret.view.x.ToFloat32(), ret.view.y.ToFloat32(), ret.view.z.ToFloat32());
 
     return ret;
 }
@@ -102,7 +96,7 @@ void ShaderSetup::Setup() {
 #ifdef ARCHITECTURE_x86_64
     if (VideoCore::g_shader_jit_enabled) {
         u64 cache_key = (Common::ComputeHash64(&program_code, sizeof(program_code)) ^
-                         Common::ComputeHash64(&swizzle_data, sizeof(swizzle_data)));
+            Common::ComputeHash64(&swizzle_data, sizeof(swizzle_data)));
 
         auto iter = shader_map.find(cache_key);
         if (iter != shader_map.end()) {
@@ -131,19 +125,17 @@ void ShaderSetup::Run(UnitState<false>& state, const InputVertex& input, int num
     // Setup input register table
     const auto& attribute_register_map = config.input_register_map;
 
-    for (unsigned i = 0; i < num_attributes; i++) {
-        state.registers.input[attribute_register_map.GetRegisterForAttribute(i)] = input.attr[i];
-    }
+    for (unsigned i = 0; i < num_attributes; i++)
+         state.registers.input[attribute_register_map.GetRegisterForAttribute(i)] = input.attr[i];
 
     state.conditional_code[0] = false;
     state.conditional_code[1] = false;
 
 #ifdef ARCHITECTURE_x86_64
-    if (auto shader = jit_shader.lock()) {
+    if (auto shader = jit_shader.lock())
         shader.get()->Run(*this, state, config.main_offset);
-    } else {
+    else
         RunInterpreter(*this, state, config.main_offset);
-    }
 #else
     RunInterpreter(*this, state, config.main_offset);
 #endif // ARCHITECTURE_x86_64
@@ -161,9 +153,8 @@ DebugData<true> ShaderSetup::ProduceDebugInfo(const InputVertex& input, int num_
     float24 dummy_register;
     boost::fill(state.registers.input, &dummy_register);
 
-    for (unsigned i = 0; i < num_attributes; i++) {
-        state.registers.input[attribute_register_map.GetRegisterForAttribute(i)] = input.attr[i];
-    }
+    for (unsigned i = 0; i < num_attributes; i++)
+         state.registers.input[attribute_register_map.GetRegisterForAttribute(i)] = input.attr[i];
 
     state.conditional_code[0] = false;
     state.conditional_code[1] = false;
@@ -202,9 +193,8 @@ void WriteUniformBoolReg(bool gs, u32 value) {
     auto& setup = gs ? g_state.gs : g_state.vs;
 
     ASSERT(setup.uniforms.b.size() == 16);
-    for (unsigned i = 0; i < 16; ++i) {
+    for (unsigned i = 0; i < 16; ++i)
         setup.uniforms.b[i] = (value & (1 << i)) != 0;
-    }
 
     // Copy for GS in shared mode
     if (!gs && SharedGS()) {
@@ -218,12 +208,8 @@ void WriteUniformIntReg(bool gs, unsigned index, const Math::Vec4<u8>& values) {
 
     ASSERT(index < setup.uniforms.i.size());
     setup.uniforms.i[index] = values;
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
     LOG_TRACE(HW_GPU, "Set %s integer uniform %d to %02x %02x %02x %02x",
-              shader_type, index, values.x.Value(), values.y.Value(), values.z.Value(), values.w.Value()));
-#endif
-
+              shader_type, index, values.x.Value(), values.y.Value(), values.z.Value(), values.w.Value());
 
     // Copy for GS in shared mode
     if (!gs && SharedGS()) {
@@ -259,24 +245,18 @@ void WriteUniformFloatReg(bool gs, u32 value) {
     // three 32-bit numbers. We write to internal memory once a full such vector is
     // written.
     if ((float_regs_counter >= 4 && uniform_setup.IsFloat32()) ||
-            (float_regs_counter >= 3 && !uniform_setup.IsFloat32())) {
+        (float_regs_counter >= 3 && !uniform_setup.IsFloat32())) {
         float_regs_counter = 0;
 
         auto& uniform = setup.uniforms.f[uniform_setup.index];
 
         if (uniform_setup.index >= 96) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-            LOG_ERROR(HW_GPU, "Invalid %s float uniform index %d", shader_type, (int)uniform_setup.index));
-#endif
-
+            LOG_ERROR(HW_GPU, "Invalid %s float uniform index %d", shader_type, (int)uniform_setup.index);
         } else {
 
             // NOTE: The destination component order indeed is "backwards"
             if (uniform_setup.IsFloat32()) {
-                for (auto i : {
-                            0,1,2,3
-                        })
+                for (auto i : {0,1,2,3})
                     uniform[3 - i] = float24::FromFloat32(*(float*)(&uniform_write_buffer[i]));
             } else {
                 // TODO: Untested
@@ -286,13 +266,9 @@ void WriteUniformFloatReg(bool gs, u32 value) {
                 uniform.x = float24::FromRaw(uniform_write_buffer[2] & 0xFFFFFF);
             }
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
             LOG_TRACE(HW_GPU, "Set %s float uniform %x to (%f %f %f %f)", shader_type, (int)uniform_setup.index,
                       uniform.x.ToFloat32(), uniform.y.ToFloat32(), uniform.z.ToFloat32(),
-                      uniform.w.ToFloat32()));
-#endif
-
+                      uniform.w.ToFloat32());
 
             // TODO: Verify that this actually modifies the register!
             uniform_setup.index.Assign(uniform_setup.index + 1);
@@ -322,11 +298,7 @@ void WriteProgramCode(bool gs, u32 value) {
     auto& setup = gs ? g_state.gs : g_state.vs;
 
     if (config.program.offset >= setup.program_code.size()) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(HW_GPU, "Invalid %s program offset %d", shader_type, (int)config.program.offset));
-#endif
-
+        LOG_ERROR(HW_GPU, "Invalid %s program offset %d", shader_type, (int)config.program.offset);
     } else {
         setup.program_code[config.program.offset] = value;
         config.program.offset++;
@@ -354,11 +326,7 @@ void WriteSwizzlePatterns(bool gs, u32 value) {
     auto& setup = gs ? g_state.gs : g_state.vs;
 
     if (config.swizzle_patterns.offset >= setup.swizzle_data.size()) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(HW_GPU, "Invalid %s swizzle pattern offset %d", shader_type, (int)config.swizzle_patterns.offset));
-#endif
-
+        LOG_ERROR(HW_GPU, "Invalid %s swizzle pattern offset %d", shader_type, (int)config.swizzle_patterns.offset);
     } else {
         setup.swizzle_data[config.swizzle_patterns.offset] = value;
         config.swizzle_patterns.offset++;

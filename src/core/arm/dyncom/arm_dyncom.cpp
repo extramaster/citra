@@ -79,9 +79,8 @@ void ARM_DynCom::SetCP15Register(CP15Register reg, u32 value) {
 
 void ARM_DynCom::AddTicks(u64 ticks) {
     down_count -= ticks;
-    if (down_count < 0) {
+    if (down_count < 0)
         CoreTiming::Advance();
-    }
 }
 
 void ARM_DynCom::ExecuteInstructions(int num_instructions) {

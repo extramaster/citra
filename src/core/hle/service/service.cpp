@@ -67,21 +67,13 @@ ResultVal<bool> Interface::SyncRequest() {
 
     if (itr == m_functions.end() || itr->second.func == nullptr) {
         std::string function_name = (itr == m_functions.end()) ? Common::StringFromFormat("0x%08X", cmd_buff[0]) : itr->second.name;
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(Service, "unknown / unimplemented %s", MakeFunctionString(function_name.c_str(), GetPortName().c_str(), cmd_buff).c_str()));
-#endif
-
+        LOG_ERROR(Service, "unknown / unimplemented %s", MakeFunctionString(function_name.c_str(), GetPortName().c_str(), cmd_buff).c_str());
 
         // TODO(bunnei): Hack - ignore error
         cmd_buff[1] = 0;
         return MakeResult<bool>(false);
     }
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_TRACE(Service, "%s", MakeFunctionString(itr->second.name, GetPortName().c_str(), cmd_buff).c_str()));
-#endif
-
+    LOG_TRACE(Service, "%s", MakeFunctionString(itr->second.name, GetPortName().c_str(), cmd_buff).c_str());
 
     itr->second.func(this);
 
@@ -145,11 +137,7 @@ void Init() {
     AddService(new SSL_C::Interface);
     AddService(new Y2R_U::Interface);
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_DEBUG(Service, "initialized OK"));
-#endif
-
+    LOG_DEBUG(Service, "initialized OK");
 }
 
 /// Shutdown ServiceManager
@@ -173,11 +161,7 @@ void Shutdown() {
 
     g_srv_services.clear();
     g_kernel_named_ports.clear();
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_DEBUG(Service, "shutdown OK"));
-#endif
-
+    LOG_DEBUG(Service, "shutdown OK");
 }
 
 

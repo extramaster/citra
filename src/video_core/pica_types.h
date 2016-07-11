@@ -39,11 +39,10 @@ public:
         const int exponent = (hex >> M) & ((1 << E) - 1);
         const unsigned mantissa = hex & ((1 << M) - 1);
 
-        if (hex & ((1 << (width - 1)) - 1)) {
+        if (hex & ((1 << (width - 1)) - 1))
             hex = ((hex >> (E + M)) << 31) | (mantissa << (23 - M)) | ((exponent + bias) << 23);
-        } else {
+        else
             hex = ((hex >> (E + M)) << 31);
-        }
 
         std::memcpy(&res.value, &hex, sizeof(float));
 
@@ -61,11 +60,9 @@ public:
 
     Float<M, E> operator * (const Float<M, E>& flt) const {
         if ((this->value == 0.f && !std::isnan(flt.value)) ||
-                (flt.value == 0.f && !std::isnan(this->value)))
+            (flt.value == 0.f && !std::isnan(this->value)))
             // PICA gives 0 instead of NaN when multiplying by inf
-        {
             return Zero();
-        }
         return Float<M, E>::FromFloat32(ToFloat32() * flt.ToFloat32());
     }
 
@@ -83,13 +80,10 @@ public:
 
     Float<M, E>& operator *= (const Float<M, E>& flt) {
         if ((this->value == 0.f && !std::isnan(flt.value)) ||
-                (flt.value == 0.f && !std::isnan(this->value)))
+            (flt.value == 0.f && !std::isnan(this->value)))
             // PICA gives 0 instead of NaN when multiplying by inf
-        {
             *this = Zero();
-        } else {
-            value *= flt.ToFloat32();
-        }
+        else value *= flt.ToFloat32();
         return *this;
     }
 

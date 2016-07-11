@@ -13,19 +13,18 @@ namespace KeyMap {
 //     and map it directly to EmuWindow::ButtonPressed.
 //     It should go the analog input way like circle pad does.
 const std::array<KeyTarget, Settings::NativeInput::NUM_INPUTS> mapping_targets = {{
-        Service::HID::PAD_A, Service::HID::PAD_B, Service::HID::PAD_X, Service::HID::PAD_Y,
-        Service::HID::PAD_L, Service::HID::PAD_R, Service::HID::PAD_ZL, Service::HID::PAD_ZR,
-        Service::HID::PAD_START, Service::HID::PAD_SELECT, Service::HID::PAD_NONE,
-        Service::HID::PAD_UP, Service::HID::PAD_DOWN, Service::HID::PAD_LEFT, Service::HID::PAD_RIGHT,
-        Service::HID::PAD_C_UP, Service::HID::PAD_C_DOWN, Service::HID::PAD_C_LEFT, Service::HID::PAD_C_RIGHT,
+    Service::HID::PAD_A, Service::HID::PAD_B, Service::HID::PAD_X, Service::HID::PAD_Y,
+    Service::HID::PAD_L, Service::HID::PAD_R, Service::HID::PAD_ZL, Service::HID::PAD_ZR,
+    Service::HID::PAD_START, Service::HID::PAD_SELECT, Service::HID::PAD_NONE,
+    Service::HID::PAD_UP, Service::HID::PAD_DOWN, Service::HID::PAD_LEFT, Service::HID::PAD_RIGHT,
+    Service::HID::PAD_C_UP, Service::HID::PAD_C_DOWN, Service::HID::PAD_C_LEFT, Service::HID::PAD_C_RIGHT,
 
-        IndirectTarget::CirclePadUp,
-        IndirectTarget::CirclePadDown,
-        IndirectTarget::CirclePadLeft,
-        IndirectTarget::CirclePadRight,
-        IndirectTarget::CirclePadModifier,
-    }
-};
+    IndirectTarget::CirclePadUp,
+    IndirectTarget::CirclePadDown,
+    IndirectTarget::CirclePadLeft,
+    IndirectTarget::CirclePadRight,
+    IndirectTarget::CirclePadModifier,
+}};
 
 static std::map<HostDeviceKey, KeyTarget> key_map;
 static int next_device_id = 0;
@@ -40,18 +39,14 @@ static void UpdateCirclePad(EmuWindow& emu_window) {
     constexpr float SQRT_HALF = 0.707106781;
     int x = 0, y = 0;
 
-    if (circle_pad_right) {
+    if (circle_pad_right)
         ++x;
-    }
-    if (circle_pad_left) {
+    if (circle_pad_left)
         --x;
-    }
-    if (circle_pad_up) {
+    if (circle_pad_up)
         ++y;
-    }
-    if (circle_pad_down) {
+    if (circle_pad_down)
         --y;
-    }
 
     float modifier = circle_pad_modifier ? Settings::values.pad_circle_modifier_scale : 1.0;
     emu_window.CirclePadUpdated(x * modifier * (y == 0 ? 1.0 : SQRT_HALF), y * modifier * (x == 0 ? 1.0 : SQRT_HALF));
@@ -68,19 +63,17 @@ void SetKeyMapping(HostDeviceKey key, KeyTarget target) {
 void ClearKeyMapping(int device_id) {
     auto iter = key_map.begin();
     while (iter != key_map.end()) {
-        if (iter->first.device_id == device_id) {
+        if (iter->first.device_id == device_id)
             key_map.erase(iter++);
-        } else {
+        else
             ++iter;
-        }
     }
 }
 
 void PressKey(EmuWindow& emu_window, HostDeviceKey key) {
     auto target = key_map.find(key);
-    if (target == key_map.end()) {
+    if (target == key_map.end())
         return;
-    }
 
     if (target->second.direct) {
         emu_window.ButtonPressed({{target->second.target.direct_target_hex}});
@@ -112,9 +105,8 @@ void PressKey(EmuWindow& emu_window, HostDeviceKey key) {
 
 void ReleaseKey(EmuWindow& emu_window,HostDeviceKey key) {
     auto target = key_map.find(key);
-    if (target == key_map.end()) {
+    if (target == key_map.end())
         return;
-    }
 
     if (target->second.direct) {
         emu_window.ButtonReleased({{target->second.target.direct_target_hex}});

@@ -26,11 +26,11 @@ static std::string GetSaveDataCheckContainerPath(const std::string& nand_directo
 
 static std::string GetSaveDataCheckPath(const std::string& mount_point, u32 high, u32 low) {
     return Common::StringFromFormat("%s%08x/%08x/content/00000000.app.romfs",
-                                    mount_point.c_str(), high, low);
+            mount_point.c_str(), high, low);
 }
 
 ArchiveFactory_SaveDataCheck::ArchiveFactory_SaveDataCheck(const std::string& nand_directory) :
-    mount_point(GetSaveDataCheckContainerPath(nand_directory)) {
+        mount_point(GetSaveDataCheckContainerPath(nand_directory)) {
 }
 
 ResultVal<std::unique_ptr<ArchiveBackend>> ArchiveFactory_SaveDataCheck::Open(const Path& path) {
@@ -49,23 +49,15 @@ ResultVal<std::unique_ptr<ArchiveBackend>> ArchiveFactory_SaveDataCheck::Open(co
 }
 
 ResultCode ArchiveFactory_SaveDataCheck::Format(const Path& path, const FileSys::ArchiveFormatInfo& format_info) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_ERROR(Service_FS, "Attempted to format a SaveDataCheck archive."));
-#endif
-
+    LOG_ERROR(Service_FS, "Attempted to format a SaveDataCheck archive.");
     // TODO: Verify error code
     return ResultCode(ErrorDescription::NotAuthorized, ErrorModule::FS,
-                      ErrorSummary::NotSupported, ErrorLevel::Permanent);
+        ErrorSummary::NotSupported, ErrorLevel::Permanent);
 }
 
 ResultVal<ArchiveFormatInfo> ArchiveFactory_SaveDataCheck::GetFormatInfo(const Path& path) const {
     // TODO(Subv): Implement
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_ERROR(Service_FS, "Unimplemented GetFormatInfo archive %s", GetName().c_str()));
-#endif
-
+    LOG_ERROR(Service_FS, "Unimplemented GetFormatInfo archive %s", GetName().c_str());
     return ResultCode(-1);
 }
 

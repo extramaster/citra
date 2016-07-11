@@ -43,9 +43,8 @@ bool Timer::ShouldWait() {
 void Timer::Acquire() {
     ASSERT_MSG( !ShouldWait(), "object unavailable!");
 
-    if (reset_type == ResetType::OneShot) {
+    if (reset_type == ResetType::OneShot)
         signaled = false;
-    }
 }
 
 void Timer::Set(s64 initial, s64 interval) {
@@ -57,7 +56,7 @@ void Timer::Set(s64 initial, s64 interval) {
 
     u64 initial_microseconds = initial / 1000;
     CoreTiming::ScheduleEvent(usToCycles(initial_microseconds),
-                              timer_callback_event_type, callback_handle);
+            timer_callback_event_type, callback_handle);
 
     HLE::Reschedule(__func__);
 }
@@ -77,19 +76,11 @@ static void TimerCallback(u64 timer_handle, int cycles_late) {
     SharedPtr<Timer> timer = timer_callback_handle_table.Get<Timer>(static_cast<Handle>(timer_handle));
 
     if (timer == nullptr) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_CRITICAL(Kernel, "Callback fired for invalid timer %08" PRIx64, timer_handle));
-#endif
-
+        LOG_CRITICAL(Kernel, "Callback fired for invalid timer %08" PRIx64, timer_handle);
         return;
     }
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_TRACE(Kernel, "Timer %08" PRIx64 " fired", timer_handle));
-#endif
-
+    LOG_TRACE(Kernel, "Timer %08" PRIx64 " fired", timer_handle);
 
     timer->signaled = true;
 
@@ -100,7 +91,7 @@ static void TimerCallback(u64 timer_handle, int cycles_late) {
         // Reschedule the timer with the interval delay
         u64 interval_microseconds = timer->interval_delay / 1000;
         CoreTiming::ScheduleEvent(usToCycles(interval_microseconds) - cycles_late,
-                                  timer_callback_event_type, timer_handle);
+                timer_callback_event_type, timer_handle);
     }
 }
 

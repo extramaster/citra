@@ -18,11 +18,11 @@
 #pragma once
 
 #if defined(_MSC_VER)
-#include <cstdlib>
+    #include <cstdlib>
 #elif defined(__linux__)
-#include <byteswap.h>
+    #include <byteswap.h>
 #elif defined(__FreeBSD__)
-#include <sys/endian.h>
+    #include <sys/endian.h>
 #endif
 
 #include <cstring>
@@ -61,69 +61,33 @@
 namespace Common {
 
 #ifdef _MSC_VER
-inline u16 swap16(u16 _data) {
-    return _byteswap_ushort(_data);
-}
-inline u32 swap32(u32 _data) {
-    return _byteswap_ulong (_data);
-}
-inline u64 swap64(u64 _data) {
-    return _byteswap_uint64(_data);
-}
+inline u16 swap16(u16 _data) {return _byteswap_ushort(_data);}
+inline u32 swap32(u32 _data) {return _byteswap_ulong (_data);}
+inline u64 swap64(u64 _data) {return _byteswap_uint64(_data);}
 #elif _M_ARM
-inline u16 swap16 (u16 _data) {
-    u32 data = _data;
-    __asm__ ("rev16 %0, %1\n" : "=l" (data) : "l" (data));
-    return (u16)data;
-}
-inline u32 swap32 (u32 _data) {
-    __asm__ ("rev %0, %1\n" : "=l" (_data) : "l" (_data));
-    return _data;
-}
-inline u64 swap64(u64 _data) {
-    return ((u64)swap32(_data) << 32) | swap32(_data >> 32);
-}
+inline u16 swap16 (u16 _data) { u32 data = _data; __asm__ ("rev16 %0, %1\n" : "=l" (data) : "l" (data)); return (u16)data;}
+inline u32 swap32 (u32 _data) {__asm__ ("rev %0, %1\n" : "=l" (_data) : "l" (_data)); return _data;}
+inline u64 swap64(u64 _data) {return ((u64)swap32(_data) << 32) | swap32(_data >> 32);}
 #elif __linux__
-inline u16 swap16(u16 _data) {
-    return bswap_16(_data);
-}
-inline u32 swap32(u32 _data) {
-    return bswap_32(_data);
-}
-inline u64 swap64(u64 _data) {
-    return bswap_64(_data);
-}
+inline u16 swap16(u16 _data) {return bswap_16(_data);}
+inline u32 swap32(u32 _data) {return bswap_32(_data);}
+inline u64 swap64(u64 _data) {return bswap_64(_data);}
 #elif __APPLE__
-inline __attribute__((always_inline)) u16 swap16(u16 _data) {
-    return (_data >> 8) | (_data << 8);
-}
-inline __attribute__((always_inline)) u32 swap32(u32 _data) {
-    return __builtin_bswap32(_data);
-}
-inline __attribute__((always_inline)) u64 swap64(u64 _data) {
-    return __builtin_bswap64(_data);
-}
+inline __attribute__((always_inline)) u16 swap16(u16 _data)
+{return (_data >> 8) | (_data << 8);}
+inline __attribute__((always_inline)) u32 swap32(u32 _data)
+{return __builtin_bswap32(_data);}
+inline __attribute__((always_inline)) u64 swap64(u64 _data)
+{return __builtin_bswap64(_data);}
 #elif __FreeBSD__
-inline u16 swap16(u16 _data) {
-    return bswap16(_data);
-}
-inline u32 swap32(u32 _data) {
-    return bswap32(_data);
-}
-inline u64 swap64(u64 _data) {
-    return bswap64(_data);
-}
+inline u16 swap16(u16 _data) {return bswap16(_data);}
+inline u32 swap32(u32 _data) {return bswap32(_data);}
+inline u64 swap64(u64 _data) {return bswap64(_data);}
 #else
 // Slow generic implementation.
-inline u16 swap16(u16 data) {
-    return (data >> 8) | (data << 8);
-}
-inline u32 swap32(u32 data) {
-    return (swap16(data) << 16) | swap16(data >> 16);
-}
-inline u64 swap64(u64 data) {
-    return ((u64)swap32(data) << 32) | swap32(data >> 32);
-}
+inline u16 swap16(u16 data) {return (data >> 8) | (data << 8);}
+inline u32 swap32(u32 data) {return (swap16(data) << 16) | swap16(data >> 16);}
+inline u64 swap64(u64 data) {return ((u64)swap32(data) << 32) | swap32(data >> 32);}
 #endif
 
 inline float swapf(float f) {
@@ -179,36 +143,16 @@ public:
         return *this;
     }
 
-    operator s8() const {
-        return (s8)swap();
-    }
-    operator u8() const {
-        return (u8)swap();
-    }
-    operator s16() const {
-        return (s16)swap();
-    }
-    operator u16() const {
-        return (u16)swap();
-    }
-    operator s32() const {
-        return (s32)swap();
-    }
-    operator u32() const {
-        return (u32)swap();
-    }
-    operator s64() const {
-        return (s64)swap();
-    }
-    operator u64() const {
-        return (u64)swap();
-    }
-    operator float() const {
-        return (float)swap();
-    }
-    operator double() const {
-        return (double)swap();
-    }
+    operator s8() const { return (s8)swap(); }
+    operator u8() const { return (u8)swap(); }
+    operator s16() const { return (s16)swap(); }
+    operator u16() const { return (u16)swap(); }
+    operator s32() const { return (s32)swap(); }
+    operator u32() const { return (u32)swap(); }
+    operator s64() const { return (s64)swap(); }
+    operator u64() const { return (u64)swap(); }
+    operator float() const { return (float)swap(); }
+    operator double() const { return (double)swap(); }
 
     // +v
     swapped_t operator +() const {

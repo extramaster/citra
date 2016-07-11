@@ -25,7 +25,8 @@ extern const char *scm_rev_git_str;
 //}
 
 template <typename K, typename V>
-class LinearDiskCacheReader {
+class LinearDiskCacheReader
+{
 public:
     virtual void Read(const K &key, const V *value, u32 value_size) = 0;
 };
@@ -43,10 +44,12 @@ public:
 // K : the key type
 // V : value array type
 template <typename K, typename V>
-class LinearDiskCache {
+class LinearDiskCache
+{
 public:
     // return number of read entries
-    u32 OpenAndRead(const char *filename, LinearDiskCacheReader<K, V> &reader) {
+    u32 OpenAndRead(const char *filename, LinearDiskCacheReader<K, V> &reader)
+    {
         using std::ios_base;
 
         // close any currently opened file
@@ -62,7 +65,8 @@ public:
         std::fstream::pos_type start_pos = m_file.tellg();
         std::streamoff file_size = end_pos - start_pos;
 
-        if (m_file.is_open() && ValidateHeader()) {
+        if (m_file.is_open() && ValidateHeader())
+        {
             // good header, read some key/value pairs
             K key;
 
@@ -72,22 +76,25 @@ public:
 
             std::fstream::pos_type last_pos = m_file.tellg();
 
-            while (Read(&value_size)) {
+            while (Read(&value_size))
+            {
                 std::streamoff next_extent = (last_pos - start_pos) + sizeof(value_size) + value_size;
-                if (next_extent > file_size) {
+                if (next_extent > file_size)
                     break;
-                }
 
                 delete[] value;
                 value = new V[value_size];
 
                 // read key/value and pass to reader
                 if (Read(&key) &&
-                        Read(value, value_size) &&
-                        Read(&entry_number) &&
-                        entry_number == m_num_entries+1) {
+                    Read(value, value_size) &&
+                    Read(&entry_number) &&
+                    entry_number == m_num_entries+1)
+                 {
                     reader.Read(key, value, value_size);
-                } else {
+                }
+                else
+                {
                     break;
                 }
 
@@ -109,20 +116,22 @@ public:
         return 0;
     }
 
-    void Sync() {
+    void Sync()
+    {
         m_file.flush();
     }
 
-    void Close() {
-        if (m_file.is_open()) {
+    void Close()
+    {
+        if (m_file.is_open())
             m_file.close();
-        }
         // clear any error flags
         m_file.clear();
     }
 
     // Appends a key-value pair to the store.
-    void Append(const K &key, const V *value, u32 value_size) {
+    void Append(const K &key, const V *value, u32 value_size)
+    {
         // TODO: Should do a check that we don't already have "key"? (I think each caller does that already.)
         Write(&value_size);
         Write(&key);
@@ -132,32 +141,38 @@ public:
     }
 
 private:
-    void WriteHeader() {
+    void WriteHeader()
+    {
         Write(&m_header);
     }
 
-    bool ValidateHeader() {
+    bool ValidateHeader()
+    {
         char file_header[sizeof(Header)];
 
         return (Read(file_header, sizeof(Header))
-                && !memcmp((const char*)&m_header, file_header, sizeof(Header)));
+            && !memcmp((const char*)&m_header, file_header, sizeof(Header)));
     }
 
     template <typename D>
-    bool Write(const D *data, u32 count = 1) {
+    bool Write(const D *data, u32 count = 1)
+    {
         return m_file.write((const char*)data, count * sizeof(D)).good();
     }
 
     template <typename D>
-    bool Read(const D *data, u32 count = 1) {
+    bool Read(const D *data, u32 count = 1)
+    {
         return m_file.read((char*)data, count * sizeof(D)).good();
     }
 
-    struct Header {
+    struct Header
+    {
         Header()
             : id(*(u32*)"DCAC")
             , key_t_size(sizeof(K))
-            , value_t_size(sizeof(V)) {
+            , value_t_size(sizeof(V))
+        {
             memcpy(ver, scm_rev_git_str, 40);
         }
 

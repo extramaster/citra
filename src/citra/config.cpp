@@ -29,29 +29,17 @@ bool Config::LoadINI(const std::string& default_contents, bool retry) {
     const char* location = this->sdl2_config_loc.c_str();
     if (sdl2_config->ParseError() < 0) {
         if (retry) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-            LOG_WARNING(Config, "Failed to load %s. Creating file from defaults...", location));
-#endif
-
+            LOG_WARNING(Config, "Failed to load %s. Creating file from defaults...", location);
             FileUtil::CreateFullPath(location);
             FileUtil::WriteStringToFile(true, default_contents, location);
             sdl2_config = std::make_unique<INIReader>(location); // Reopen file
 
             return LoadINI(default_contents, false);
         }
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(Config, "Failed."));
-#endif
-
+        LOG_ERROR(Config, "Failed.");
         return false;
     }
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_INFO(Config, "Successfully loaded %s", location));
-#endif
-
+    LOG_INFO(Config, "Successfully loaded %s", location);
     return true;
 }
 

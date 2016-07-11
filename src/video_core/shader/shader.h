@@ -266,12 +266,11 @@ inline void Record(DebugData<false>& debug_data, u32 offset, ValueType value) {
 
 template<DebugDataRecord::Type type, typename ValueType>
 inline void Record(DebugData<true>& debug_data, u32 offset, ValueType value) {
-    if (offset >= debug_data.records.size()) {
+    if (offset >= debug_data.records.size())
         debug_data.records.resize(offset + 1);
-    }
 
-    SetField<type, ValueType>(debug_data.records[offset], value);
-    debug_data.records[offset].mask |= type;
+   SetField<type, ValueType>(debug_data.records[offset], value);
+   debug_data.records[offset].mask |= type;
 }
 
 

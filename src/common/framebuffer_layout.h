@@ -59,7 +59,7 @@ private:
     static FramebufferLayout InverseLargeLayout(unsigned width, unsigned height);
 
     FramebufferLayout(unsigned width, unsigned height, bool tenabled, bool benabled, InverseLayout,
-                      MathUtil::Rectangle<unsigned> tscreen, MathUtil::Rectangle<unsigned> bscreen);
+        MathUtil::Rectangle<unsigned> tscreen, MathUtil::Rectangle<unsigned> bscreen);
     InverseLayout inverse;
     bool is_reverse_layout;
 };

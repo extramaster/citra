@@ -60,7 +60,8 @@
 #endif
 
 
-GMainWindow::GMainWindow() : config(new Config()), emu_thread(nullptr) {
+GMainWindow::GMainWindow() : config(new Config()), emu_thread(nullptr)
+{
     Pica::g_debug_context = Pica::DebugContext::Construct();
 
     ui.setupUi(this);
@@ -215,42 +216,40 @@ GMainWindow::GMainWindow() : config(new Config()), emu_thread(nullptr) {
     }
 }
 
-GMainWindow::~GMainWindow() {
+GMainWindow::~GMainWindow()
+{
     // will get automatically deleted otherwise
-    if (render_window->parent() == nullptr) {
+    if (render_window->parent() == nullptr)
         delete render_window;
-    }
 
     Pica::g_debug_context.reset();
 }
 
-void GMainWindow::OnDisplayTitleBars(bool show) {
+void GMainWindow::OnDisplayTitleBars(bool show)
+{
     QList<QDockWidget*> widgets = findChildren<QDockWidget*>();
 
     if (show) {
         for (QDockWidget* widget: widgets) {
             QWidget* old = widget->titleBarWidget();
             widget->setTitleBarWidget(nullptr);
-            if (old != nullptr) {
+            if (old != nullptr)
                 delete old;
-            }
         }
     } else {
         for (QDockWidget* widget: widgets) {
             QWidget* old = widget->titleBarWidget();
             widget->setTitleBarWidget(new QWidget());
-            if (old != nullptr) {
+            if (old != nullptr)
                 delete old;
-            }
         }
     }
 }
 
 bool GMainWindow::InitializeSystem() {
     // Shutdown previous session if the emu thread is still active...
-    if (emu_thread != nullptr) {
+    if (emu_thread != nullptr)
         ShutdownGame();
-    }
 
     render_window->MakeCurrent();
     if (!gladLoadGL()) {
@@ -283,11 +282,7 @@ bool GMainWindow::InitializeSystem() {
 bool GMainWindow::LoadROM(const std::string& filename) {
     std::unique_ptr<Loader::AppLoader> app_loader = Loader::GetLoader(filename);
     if (!app_loader) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_CRITICAL(Frontend, "Failed to obtain loader for %s!", filename.c_str()));
-#endif
-
+        LOG_CRITICAL(Frontend, "Failed to obtain loader for %s!", filename.c_str());
         QMessageBox::critical(this, tr("Error while loading ROM!"),
                               tr("The ROM format is not supported."));
         return false;
@@ -295,11 +290,7 @@ bool GMainWindow::LoadROM(const std::string& filename) {
 
     Loader::ResultStatus result = app_loader->Load();
     if (Loader::ResultStatus::Success != result) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_CRITICAL(Frontend, "Failed to load ROM!"));
-#endif
-
+        LOG_CRITICAL(Frontend, "Failed to load ROM!");
         System::Shutdown();
 
         switch (result) {
@@ -309,7 +300,7 @@ bool GMainWindow::LoadROM(const std::string& filename) {
             popup_error.setTextFormat(Qt::RichText);
             popup_error.setWindowTitle(tr("Error while loading ROM!"));
             popup_error.setText(tr("The game that you are trying to load must be decrypted before being used with Citra.<br/><br/>"
-                                   "For more information on dumping and decrypting games, please see: <a href='https://citra-emu.org/wiki/Dumping-Game-Cartridges'>https://citra-emu.org/wiki/Dumping-Game-Cartridges</a>"));
+                                  "For more information on dumping and decrypting games, please see: <a href='https://citra-emu.org/wiki/Dumping-Game-Cartridges'>https://citra-emu.org/wiki/Dumping-Game-Cartridges</a>"));
             popup_error.setIcon(QMessageBox::Critical);
             popup_error.exec();
             break;
@@ -331,20 +322,14 @@ bool GMainWindow::LoadROM(const std::string& filename) {
 }
 
 void GMainWindow::BootGame(const std::string& filename) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_INFO(Frontend, "Citra starting..."));
-#endif
-
+    LOG_INFO(Frontend, "Citra starting...");
     StoreRecentFile(filename); // Put the filename on top of the list
 
-    if (!InitializeSystem()) {
+    if (!InitializeSystem())
         return;
-    }
 
-    if (!LoadROM(filename)) {
+    if (!LoadROM(filename))
         return;
-    }
 
     // Create and start the emulation thread
     emu_thread = std::make_unique<EmuThread>(render_window);
@@ -548,9 +533,8 @@ void GMainWindow::OnCreateGraphicsSurfaceViewer() {
 }
 
 bool GMainWindow::ConfirmClose() {
-    if (emu_thread == nullptr || !UISettings::values.confirm_before_closing) {
+    if (emu_thread == nullptr || !UISettings::values.confirm_before_closing)
         return true;
-    }
 
     auto answer = QMessageBox::question(this, tr("Citra"),
                                         tr("Are you sure you want to close Citra?"),
@@ -579,9 +563,8 @@ void GMainWindow::closeEvent(QCloseEvent* event) {
     SaveHotkeys();
 
     // Shutdown session if the emu thread is active...
-    if (emu_thread != nullptr) {
+    if (emu_thread != nullptr)
         ShutdownGame();
-    }
 
     render_window->close();
 

@@ -62,14 +62,13 @@ std::tuple<unsigned,unsigned> EmuWindow::ClipToTouchScreen(unsigned new_x, unsig
 }
 
 void EmuWindow::TouchPressed(unsigned framebuffer_x, unsigned framebuffer_y) {
-    if (!IsWithinTouchscreen(framebuffer_layout, framebuffer_x, framebuffer_y)) {
+    if (!IsWithinTouchscreen(framebuffer_layout, framebuffer_x, framebuffer_y))
         return;
-    }
 
     touch_x = VideoCore::kScreenBottomWidth * (framebuffer_x - framebuffer_layout.bottom_screen.left) /
-              (framebuffer_layout.bottom_screen.right - framebuffer_layout.bottom_screen.left);
+        (framebuffer_layout.bottom_screen.right - framebuffer_layout.bottom_screen.left);
     touch_y = VideoCore::kScreenBottomHeight * (framebuffer_y - framebuffer_layout.bottom_screen.top) /
-              (framebuffer_layout.bottom_screen.bottom - framebuffer_layout.bottom_screen.top);
+        (framebuffer_layout.bottom_screen.bottom - framebuffer_layout.bottom_screen.top);
 
     touch_pressed = true;
     pad_state.touch.Assign(1);
@@ -83,13 +82,11 @@ void EmuWindow::TouchReleased() {
 }
 
 void EmuWindow::TouchMoved(unsigned framebuffer_x, unsigned framebuffer_y) {
-    if (!touch_pressed) {
+    if (!touch_pressed)
         return;
-    }
 
-    if (!IsWithinTouchscreen(framebuffer_layout, framebuffer_x, framebuffer_y)) {
+    if (!IsWithinTouchscreen(framebuffer_layout, framebuffer_x, framebuffer_y))
         std::tie(framebuffer_x, framebuffer_y) = ClipToTouchScreen(framebuffer_x, framebuffer_y);
-    }
 
     TouchPressed(framebuffer_x, framebuffer_y);
 }

@@ -98,10 +98,9 @@ static const ConsoleCountryInfo COUNTRY_INFO = { { 0, 0, 0 }, UNITED_STATES_COUN
  * Thanks Normmatt for providing this information
  */
 static const std::array<float, 8> STEREO_CAMERA_SETTINGS = {{
-        62.0f, 289.0f, 76.80000305175781f, 46.08000183105469f,
-        10.0f, 5.0f, 55.58000183105469f, 21.56999969482422f
-    }
-};
+    62.0f, 289.0f, 76.80000305175781f, 46.08000183105469f,
+    10.0f, 5.0f, 55.58000183105469f, 21.56999969482422f
+}};
 static_assert(sizeof(STEREO_CAMERA_SETTINGS) == 0x20, "STEREO_CAMERA_SETTINGS must be exactly 0x20 bytes");
 
 static const u32 CONFIG_SAVEFILE_SIZE = 0x8000;
@@ -115,11 +114,7 @@ void GetCountryCodeString(Service::Interface* self) {
     u32 country_code_id = cmd_buff[1];
 
     if (country_code_id >= country_codes.size() || 0 == country_codes[country_code_id]) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(Service_CFG, "requested country code id=%d is invalid", country_code_id));
-#endif
-
+        LOG_ERROR(Service_CFG, "requested country code id=%d is invalid", country_code_id);
         cmd_buff[1] = ResultCode(ErrorDescription::NotFound, ErrorModule::Config, ErrorSummary::WrongArgument, ErrorLevel::Permanent).raw;
         return;
     }
@@ -144,11 +139,7 @@ void GetCountryCodeID(Service::Interface* self) {
     }
 
     if (0 == country_code_id) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(Service_CFG, "requested country code name=%c%c is invalid", country_code & 0xff, country_code >> 8));
-#endif
-
+        LOG_ERROR(Service_CFG, "requested country code name=%c%c is invalid", country_code & 0xff, country_code >> 8);
         cmd_buff[1] = ResultCode(ErrorDescription::NotFound, ErrorModule::Config, ErrorSummary::WrongArgument, ErrorLevel::Permanent).raw;
         cmd_buff[2] = 0xFFFF;
         return;
@@ -173,11 +164,7 @@ void GenHashConsoleUnique(Service::Interface* self) {
     cmd_buff[2] = 0x33646D6F ^ (app_id_salt & 0xFFFFF); // 3dmoo hash
     cmd_buff[3] = 0x6F534841 ^ (app_id_salt & 0xFFFFF);
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_WARNING(Service_CFG, "(STUBBED) called app_id_salt=0x%X", app_id_salt));
-#endif
-
+    LOG_WARNING(Service_CFG, "(STUBBED) called app_id_salt=0x%X", app_id_salt);
 }
 
 void GetRegionCanadaUSA(Service::Interface* self) {
@@ -199,7 +186,7 @@ void GetSystemModel(Service::Interface* self) {
 
     // TODO(Subv): Find out the correct error codes
     cmd_buff[1] = Service::CFG::GetConfigInfoBlock(0x000F0004, 4, 0x8,
-                  reinterpret_cast<u8*>(&data)).raw;
+                                                   reinterpret_cast<u8*>(&data)).raw;
     cmd_buff[2] = data & 0xFF;
 }
 
@@ -209,14 +196,13 @@ void GetModelNintendo2DS(Service::Interface* self) {
 
     // TODO(Subv): Find out the correct error codes
     cmd_buff[1] = Service::CFG::GetConfigInfoBlock(0x000F0004, 4, 0x8,
-                  reinterpret_cast<u8*>(&data)).raw;
+                                                   reinterpret_cast<u8*>(&data)).raw;
 
     u8 model = data & 0xFF;
-    if (model == Service::CFG::NINTENDO_2DS) {
+    if (model == Service::CFG::NINTENDO_2DS)
         cmd_buff[2] = 0;
-    } else {
+    else
         cmd_buff[2] = 1;
-    }
 }
 
 void GetConfigInfoBlk2(Service::Interface* self) {
@@ -282,45 +268,32 @@ static ResultVal<void*> GetConfigInfoBlockPointer(u32 block_id, u32 size, u32 fl
     SaveFileConfig* config = reinterpret_cast<SaveFileConfig*>(cfg_config_file_buffer.data());
 
     auto itr = std::find_if(std::begin(config->block_entries), std::end(config->block_entries),
-    [&](const SaveConfigBlockEntry& entry) {
-        return entry.block_id == block_id;
-    });
+        [&](const SaveConfigBlockEntry& entry) {
+            return entry.block_id == block_id;
+        });
 
     if (itr == std::end(config->block_entries)) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(Service_CFG, "Config block 0x%X with flags %u and size %u was not found", block_id, flag, size));
-#endif
-
+        LOG_ERROR(Service_CFG, "Config block 0x%X with flags %u and size %u was not found", block_id, flag, size);
         return ResultCode(ErrorDescription::NotFound, ErrorModule::Config, ErrorSummary::WrongArgument, ErrorLevel::Permanent);
     }
 
     if ((itr->flags & flag) == 0) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(Service_CFG, "Invalid flag %u for config block 0x%X with size %u", flag, block_id, size));
-#endif
-
+        LOG_ERROR(Service_CFG, "Invalid flag %u for config block 0x%X with size %u", flag, block_id, size);
         return ResultCode(ErrorDescription::NotAuthorized, ErrorModule::Config, ErrorSummary::WrongArgument, ErrorLevel::Permanent);
     }
 
     if (itr->size != size) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(Service_CFG, "Invalid size %u for config block 0x%X with flags %u", size, block_id, flag));
-#endif
-
+        LOG_ERROR(Service_CFG, "Invalid size %u for config block 0x%X with flags %u", size, block_id, flag);
         return ResultCode(ErrorDescription::InvalidSize, ErrorModule::Config, ErrorSummary::WrongArgument, ErrorLevel::Permanent);
     }
 
     void* pointer;
 
     // The data is located in the block header itself if the size is less than 4 bytes
-    if (itr->size <= 4) {
+    if (itr->size <= 4)
         pointer = &itr->offset_or_data;
-    } else {
+    else
         pointer = &cfg_config_file_buffer[itr->offset_or_data];
-    }
 
     return MakeResult<void*>(pointer);
 }
@@ -341,9 +314,8 @@ ResultCode SetConfigInfoBlock(u32 block_id, u32 size, u32 flag, const void* inpu
 
 ResultCode CreateConfigInfoBlk(u32 block_id, u16 size, u16 flags, const void* data) {
     SaveFileConfig* config = reinterpret_cast<SaveFileConfig*>(cfg_config_file_buffer.data());
-    if (config->total_entries >= CONFIG_FILE_MAX_BLOCK_ENTRIES) {
-        return ResultCode(-1);    // TODO(Subv): Find the right error code
-    }
+    if (config->total_entries >= CONFIG_FILE_MAX_BLOCK_ENTRIES)
+        return ResultCode(-1); // TODO(Subv): Find the right error code
 
     // Insert the block header with offset 0 for now
     config->block_entries[config->total_entries] = { block_id, 0, size, flags };
@@ -364,7 +336,8 @@ ResultCode CreateConfigInfoBlk(u32 block_id, u16 size, u16 flags, const void* da
 
         // Write the data at the new offset
         memcpy(&cfg_config_file_buffer[offset], data, size);
-    } else {
+    }
+    else {
         // The offset_or_data field in the header contains the data itself if it's 4 bytes or less
         memcpy(&config->block_entries[config->total_entries].offset_or_data, data, size);
     }
@@ -397,9 +370,8 @@ ResultCode UpdateConfigNANDSavegame() {
 ResultCode FormatConfig() {
     ResultCode res = DeleteConfigNANDSaveFile();
     // The delete command fails if the file doesn't exist, so we have to check that too
-    if (!res.IsSuccess() && res.description != ErrorDescription::FS_NotFound) {
+    if (!res.IsSuccess() && res.description != ErrorDescription::FS_NotFound)
         return res;
-    }
     // Delete the old data
     cfg_config_file_buffer.fill(0);
     // Create the header
@@ -412,44 +384,28 @@ ResultCode FormatConfig() {
 
     // 0x00030001 - Unknown
     res = CreateConfigInfoBlk(0x00030001, 0x8, 0xE, zero_buffer);
-    if (!res.IsSuccess()) {
-        return res;
-    }
+    if (!res.IsSuccess()) return res;
 
     res = CreateConfigInfoBlk(StereoCameraSettingsBlockID, sizeof(STEREO_CAMERA_SETTINGS), 0xE, STEREO_CAMERA_SETTINGS.data());
-    if (!res.IsSuccess()) {
-        return res;
-    }
+    if (!res.IsSuccess()) return res;
 
     res = CreateConfigInfoBlk(SoundOutputModeBlockID, sizeof(SOUND_OUTPUT_MODE), 0xE, &SOUND_OUTPUT_MODE);
-    if (!res.IsSuccess()) {
-        return res;
-    }
+    if (!res.IsSuccess()) return res;
 
     res = CreateConfigInfoBlk(ConsoleUniqueIDBlockID, sizeof(CONSOLE_UNIQUE_ID), 0xE, &CONSOLE_UNIQUE_ID);
-    if (!res.IsSuccess()) {
-        return res;
-    }
+    if (!res.IsSuccess()) return res;
 
     res = CreateConfigInfoBlk(UsernameBlockID, sizeof(CONSOLE_USERNAME_BLOCK), 0xE, &CONSOLE_USERNAME_BLOCK);
-    if (!res.IsSuccess()) {
-        return res;
-    }
+    if (!res.IsSuccess()) return res;
 
     res = CreateConfigInfoBlk(BirthdayBlockID, sizeof(PROFILE_BIRTHDAY), 0xE, &PROFILE_BIRTHDAY);
-    if (!res.IsSuccess()) {
-        return res;
-    }
+    if (!res.IsSuccess()) return res;
 
     res = CreateConfigInfoBlk(LanguageBlockID, sizeof(CONSOLE_LANGUAGE), 0xE, &CONSOLE_LANGUAGE);
-    if (!res.IsSuccess()) {
-        return res;
-    }
+    if (!res.IsSuccess()) return res;
 
     res = CreateConfigInfoBlk(CountryInfoBlockID, sizeof(COUNTRY_INFO), 0xE, &COUNTRY_INFO);
-    if (!res.IsSuccess()) {
-        return res;
-    }
+    if (!res.IsSuccess()) return res;
 
     u16_le country_name_buffer[16][0x40] = {};
     std::u16string region_name = Common::UTF8ToUTF16("Gensokyo");
@@ -458,55 +414,38 @@ ResultCode FormatConfig() {
     }
     // 0x000B0001 - Localized names for the profile Country
     res = CreateConfigInfoBlk(CountryNameBlockID, sizeof(country_name_buffer), 0xE, country_name_buffer);
-    if (!res.IsSuccess()) {
-        return res;
-    }
+    if (!res.IsSuccess()) return res;
     // 0x000B0002 - Localized names for the profile State/Province
     res = CreateConfigInfoBlk(StateNameBlockID, sizeof(country_name_buffer), 0xE, country_name_buffer);
-    if (!res.IsSuccess()) {
-        return res;
-    }
+    if (!res.IsSuccess()) return res;
 
     // 0x000B0003 - Unknown, related to country/address (zip code?)
     res = CreateConfigInfoBlk(0x000B0003, 0x4, 0xE, zero_buffer);
-    if (!res.IsSuccess()) {
-        return res;
-    }
+    if (!res.IsSuccess()) return res;
 
     // 0x000C0000 - Unknown
     res = CreateConfigInfoBlk(0x000C0000, 0xC0, 0xE, zero_buffer);
-    if (!res.IsSuccess()) {
-        return res;
-    }
+    if (!res.IsSuccess()) return res;
 
     // 0x000C0001 - Unknown
     res = CreateConfigInfoBlk(0x000C0001, 0x14, 0xE, zero_buffer);
-    if (!res.IsSuccess()) {
-        return res;
-    }
+    if (!res.IsSuccess()) return res;
 
     // 0x000D0000 - Accepted EULA version
     res = CreateConfigInfoBlk(EULAVersionBlockID, 0x4, 0xE, zero_buffer);
-    if (!res.IsSuccess()) {
-        return res;
-    }
+    if (!res.IsSuccess()) return res;
 
     res = CreateConfigInfoBlk(ConsoleModelBlockID, sizeof(CONSOLE_MODEL), 0xC, &CONSOLE_MODEL);
-    if (!res.IsSuccess()) {
-        return res;
-    }
+    if (!res.IsSuccess()) return res;
 
     // 0x00170000 - Unknown
     res = CreateConfigInfoBlk(0x00170000, 0x4, 0xE, zero_buffer);
-    if (!res.IsSuccess()) {
-        return res;
-    }
+    if (!res.IsSuccess()) return res;
 
     // Save the buffer to the file
     res = UpdateConfigNANDSavegame();
-    if (!res.IsSuccess()) {
+    if (!res.IsSuccess())
         return res;
-    }
     return RESULT_SUCCESS;
 }
 
@@ -570,9 +509,8 @@ std::u16string GetUsername() {
     // so we need to find the end manually.
     std::u16string username(block.username, ARRAY_SIZE(block.username));
     const size_t pos = username.find(u'\0');
-    if (pos != std::u16string::npos) {
+    if (pos != std::u16string::npos)
         username.erase(pos);
-    }
     return username;
 }
 

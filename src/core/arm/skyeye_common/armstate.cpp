@@ -10,15 +10,16 @@
 #include "core/arm/skyeye_common/vfp/vfp.h"
 #include "core/gdbstub/gdbstub.h"
 
-ARMul_State::ARMul_State(PrivilegeMode initial_mode) {
+ARMul_State::ARMul_State(PrivilegeMode initial_mode)
+{
     Reset();
     ChangePrivilegeMode(initial_mode);
 }
 
-void ARMul_State::ChangePrivilegeMode(u32 new_mode) {
-    if (Mode == new_mode) {
+void ARMul_State::ChangePrivilegeMode(u32 new_mode)
+{
+    if (Mode == new_mode)
         return;
-    }
 
     if (new_mode != USERBANK) {
         switch (Mode) {
@@ -102,7 +103,8 @@ void ARMul_State::ChangePrivilegeMode(u32 new_mode) {
 }
 
 // Performs a reset
-void ARMul_State::Reset() {
+void ARMul_State::Reset()
+{
     VFPInit(this);
 
     // Set stack pointer to the top of the stack
@@ -126,7 +128,8 @@ void ARMul_State::Reset() {
 }
 
 // Resets certain MPCore CP15 values to their ARM-defined reset values.
-void ARMul_State::ResetMPCoreCP15Registers() {
+void ARMul_State::ResetMPCoreCP15Registers()
+{
     // c0
     CP15[CP15_MAIN_ID] = 0x410FB024;
     CP15[CP15_TLB_TYPE] = 0x00000800;
@@ -182,91 +185,90 @@ void ARMul_State::ResetMPCoreCP15Registers() {
     CP15[CP15_TLB_DEBUG_CONTROL] = 0x00000000;
 }
 
-static void CheckMemoryBreakpoint(u32 address, GDBStub::BreakpointType type) {
+static void CheckMemoryBreakpoint(u32 address, GDBStub::BreakpointType type)
+{
     if (GDBStub::g_server_enabled && GDBStub::CheckBreakpoint(address, type)) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_DEBUG(Debug, "Found memory breakpoint @ %08x", address));
-#endif
-
+        LOG_DEBUG(Debug, "Found memory breakpoint @ %08x", address);
         GDBStub::Break(true);
     }
 }
 
-u8 ARMul_State::ReadMemory8(u32 address) const {
+u8 ARMul_State::ReadMemory8(u32 address) const
+{
     CheckMemoryBreakpoint(address, GDBStub::BreakpointType::Read);
 
     return Memory::Read8(address);
 }
 
-u16 ARMul_State::ReadMemory16(u32 address) const {
+u16 ARMul_State::ReadMemory16(u32 address) const
+{
     CheckMemoryBreakpoint(address, GDBStub::BreakpointType::Read);
 
     u16 data = Memory::Read16(address);
 
-    if (InBigEndianMode()) {
+    if (InBigEndianMode())
         data = Common::swap16(data);
-    }
 
     return data;
 }
 
-u32 ARMul_State::ReadMemory32(u32 address) const {
+u32 ARMul_State::ReadMemory32(u32 address) const
+{
     CheckMemoryBreakpoint(address, GDBStub::BreakpointType::Read);
 
     u32 data = Memory::Read32(address);
 
-    if (InBigEndianMode()) {
+    if (InBigEndianMode())
         data = Common::swap32(data);
-    }
 
     return data;
 }
 
-u64 ARMul_State::ReadMemory64(u32 address) const {
+u64 ARMul_State::ReadMemory64(u32 address) const
+{
     CheckMemoryBreakpoint(address, GDBStub::BreakpointType::Read);
 
     u64 data = Memory::Read64(address);
 
-    if (InBigEndianMode()) {
+    if (InBigEndianMode())
         data = Common::swap64(data);
-    }
 
     return data;
 }
 
-void ARMul_State::WriteMemory8(u32 address, u8 data) {
+void ARMul_State::WriteMemory8(u32 address, u8 data)
+{
     CheckMemoryBreakpoint(address, GDBStub::BreakpointType::Write);
 
     Memory::Write8(address, data);
 }
 
-void ARMul_State::WriteMemory16(u32 address, u16 data) {
+void ARMul_State::WriteMemory16(u32 address, u16 data)
+{
     CheckMemoryBreakpoint(address, GDBStub::BreakpointType::Write);
 
-    if (InBigEndianMode()) {
+    if (InBigEndianMode())
         data = Common::swap16(data);
-    }
 
     Memory::Write16(address, data);
 }
 
-void ARMul_State::WriteMemory32(u32 address, u32 data) {
+void ARMul_State::WriteMemory32(u32 address, u32 data)
+{
     CheckMemoryBreakpoint(address, GDBStub::BreakpointType::Write);
 
-    if (InBigEndianMode()) {
+    if (InBigEndianMode())
         data = Common::swap32(data);
-    }
 
     Memory::Write32(address, data);
 }
 
-void ARMul_State::WriteMemory64(u32 address, u64 data) {
+void ARMul_State::WriteMemory64(u32 address, u64 data)
+{
     CheckMemoryBreakpoint(address, GDBStub::BreakpointType::Write);
 
-    if (InBigEndianMode()) {
+    if (InBigEndianMode())
         data = Common::swap64(data);
-    }
 
     Memory::Write64(address, data);
 }
@@ -275,399 +277,414 @@ void ARMul_State::WriteMemory64(u32 address, u64 data) {
 // Reads from the CP15 registers. Used with implementation of the MRC instruction.
 // Note that since the 3DS does not have the hypervisor extensions, these registers
 // are not implemented.
-u32 ARMul_State::ReadCP15Register(u32 crn, u32 opcode_1, u32 crm, u32 opcode_2) const {
+u32 ARMul_State::ReadCP15Register(u32 crn, u32 opcode_1, u32 crm, u32 opcode_2) const
+{
     // Unprivileged registers
-    if (crn == 13 && opcode_1 == 0 && crm == 0) {
-        if (opcode_2 == 2) {
+    if (crn == 13 && opcode_1 == 0 && crm == 0)
+    {
+        if (opcode_2 == 2)
             return CP15[CP15_THREAD_UPRW];
-        }
 
-        if (opcode_2 == 3) {
+        if (opcode_2 == 3)
             return CP15[CP15_THREAD_URO];
-        }
     }
 
-    if (InAPrivilegedMode()) {
-        if (crn == 0 && opcode_1 == 0) {
-            if (crm == 0) {
-                if (opcode_2 == 0) {
+    if (InAPrivilegedMode())
+    {
+        if (crn == 0 && opcode_1 == 0)
+        {
+            if (crm == 0)
+            {
+                if (opcode_2 == 0)
                     return CP15[CP15_MAIN_ID];
-                }
 
-                if (opcode_2 == 1) {
+                if (opcode_2 == 1)
                     return CP15[CP15_CACHE_TYPE];
-                }
 
-                if (opcode_2 == 3) {
+                if (opcode_2 == 3)
                     return CP15[CP15_TLB_TYPE];
-                }
 
-                if (opcode_2 == 5) {
+                if (opcode_2 == 5)
                     return CP15[CP15_CPU_ID];
-                }
-            } else if (crm == 1) {
-                if (opcode_2 == 0) {
+            }
+            else if (crm == 1)
+            {
+                if (opcode_2 == 0)
                     return CP15[CP15_PROCESSOR_FEATURE_0];
-                }
 
-                if (opcode_2 == 1) {
+                if (opcode_2 == 1)
                     return CP15[CP15_PROCESSOR_FEATURE_1];
-                }
 
-                if (opcode_2 == 2) {
+                if (opcode_2 == 2)
                     return CP15[CP15_DEBUG_FEATURE_0];
-                }
 
-                if (opcode_2 == 4) {
+                if (opcode_2 == 4)
                     return CP15[CP15_MEMORY_MODEL_FEATURE_0];
-                }
 
-                if (opcode_2 == 5) {
+                if (opcode_2 == 5)
                     return CP15[CP15_MEMORY_MODEL_FEATURE_1];
-                }
 
-                if (opcode_2 == 6) {
+                if (opcode_2 == 6)
                     return CP15[CP15_MEMORY_MODEL_FEATURE_2];
-                }
 
-                if (opcode_2 == 7) {
+                if (opcode_2 == 7)
                     return CP15[CP15_MEMORY_MODEL_FEATURE_3];
-                }
-            } else if (crm == 2) {
-                if (opcode_2 == 0) {
+            }
+            else if (crm == 2)
+            {
+                if (opcode_2 == 0)
                     return CP15[CP15_ISA_FEATURE_0];
-                }
 
-                if (opcode_2 == 1) {
+                if (opcode_2 == 1)
                     return CP15[CP15_ISA_FEATURE_1];
-                }
 
-                if (opcode_2 == 2) {
+                if (opcode_2 == 2)
                     return CP15[CP15_ISA_FEATURE_2];
-                }
 
-                if (opcode_2 == 3) {
+                if (opcode_2 == 3)
                     return CP15[CP15_ISA_FEATURE_3];
-                }
 
-                if (opcode_2 == 4) {
+                if (opcode_2 == 4)
                     return CP15[CP15_ISA_FEATURE_4];
-                }
             }
         }
 
-        if (crn == 1 && opcode_1 == 0 && crm == 0) {
-            if (opcode_2 == 0) {
+        if (crn == 1 && opcode_1 == 0 && crm == 0)
+        {
+            if (opcode_2 == 0)
                 return CP15[CP15_CONTROL];
-            }
 
-            if (opcode_2 == 1) {
+            if (opcode_2 == 1)
                 return CP15[CP15_AUXILIARY_CONTROL];
-            }
 
-            if (opcode_2 == 2) {
+            if (opcode_2 == 2)
                 return CP15[CP15_COPROCESSOR_ACCESS_CONTROL];
-            }
         }
 
-        if (crn == 2 && opcode_1 == 0 && crm == 0) {
-            if (opcode_2 == 0) {
+        if (crn == 2 && opcode_1 == 0 && crm == 0)
+        {
+            if (opcode_2 == 0)
                 return CP15[CP15_TRANSLATION_BASE_TABLE_0];
-            }
 
-            if (opcode_2 == 1) {
+            if (opcode_2 == 1)
                 return CP15[CP15_TRANSLATION_BASE_TABLE_1];
-            }
 
-            if (opcode_2 == 2) {
+            if (opcode_2 == 2)
                 return CP15[CP15_TRANSLATION_BASE_CONTROL];
-            }
         }
 
-        if (crn == 3 && opcode_1 == 0 && crm == 0 && opcode_2 == 0) {
+        if (crn == 3 && opcode_1 == 0 && crm == 0 && opcode_2 == 0)
             return CP15[CP15_DOMAIN_ACCESS_CONTROL];
-        }
 
-        if (crn == 5 && opcode_1 == 0 && crm == 0) {
-            if (opcode_2 == 0) {
+        if (crn == 5 && opcode_1 == 0 && crm == 0)
+        {
+            if (opcode_2 == 0)
                 return CP15[CP15_FAULT_STATUS];
-            }
 
-            if (opcode_2 == 1) {
+            if (opcode_2 == 1)
                 return CP15[CP15_INSTR_FAULT_STATUS];
-            }
         }
 
-        if (crn == 6 && opcode_1 == 0 && crm == 0) {
-            if (opcode_2 == 0) {
+        if (crn == 6 && opcode_1 == 0 && crm == 0)
+        {
+            if (opcode_2 == 0)
                 return CP15[CP15_FAULT_ADDRESS];
-            }
 
-            if (opcode_2 == 1) {
+            if (opcode_2 == 1)
                 return CP15[CP15_WFAR];
-            }
         }
 
-        if (crn == 7 && opcode_1 == 0 && crm == 4 && opcode_2 == 0) {
+        if (crn == 7 && opcode_1 == 0 && crm == 4 && opcode_2 == 0)
             return CP15[CP15_PHYS_ADDRESS];
-        }
 
-        if (crn == 9 && opcode_1 == 0 && crm == 0 && opcode_2 == 0) {
+        if (crn == 9 && opcode_1 == 0 && crm == 0 && opcode_2 == 0)
             return CP15[CP15_DATA_CACHE_LOCKDOWN];
-        }
 
-        if (crn == 10 && opcode_1 == 0) {
-            if (crm == 0 && opcode_2 == 0) {
+        if (crn == 10 && opcode_1 == 0)
+        {
+            if (crm == 0 && opcode_2 == 0)
                 return CP15[CP15_TLB_LOCKDOWN];
-            }
 
-            if (crm == 2) {
-                if (opcode_2 == 0) {
+            if (crm == 2)
+            {
+                if (opcode_2 == 0)
                     return CP15[CP15_PRIMARY_REGION_REMAP];
-                }
 
-                if (opcode_2 == 1) {
+                if (opcode_2 == 1)
                     return CP15[CP15_NORMAL_REGION_REMAP];
-                }
             }
         }
 
-        if (crn == 13 && crm == 0) {
-            if (opcode_2 == 0) {
+        if (crn == 13 && crm == 0)
+        {
+            if (opcode_2 == 0)
                 return CP15[CP15_PID];
-            }
 
-            if (opcode_2 == 1) {
+            if (opcode_2 == 1)
                 return CP15[CP15_CONTEXT_ID];
-            }
 
-            if (opcode_2 == 4) {
+            if (opcode_2 == 4)
                 return CP15[CP15_THREAD_PRW];
-            }
         }
 
-        if (crn == 15) {
-            if (opcode_1 == 0 && crm == 12) {
-                if (opcode_2 == 0) {
+        if (crn == 15)
+        {
+            if (opcode_1 == 0 && crm == 12)
+            {
+                if (opcode_2 == 0)
                     return CP15[CP15_PERFORMANCE_MONITOR_CONTROL];
-                }
 
-                if (opcode_2 == 1) {
+                if (opcode_2 == 1)
                     return CP15[CP15_CYCLE_COUNTER];
-                }
 
-                if (opcode_2 == 2) {
+                if (opcode_2 == 2)
                     return CP15[CP15_COUNT_0];
-                }
 
-                if (opcode_2 == 3) {
+                if (opcode_2 == 3)
                     return CP15[CP15_COUNT_1];
-                }
             }
 
-            if (opcode_1 == 5 && opcode_2 == 2) {
-                if (crm == 5) {
+            if (opcode_1 == 5 && opcode_2 == 2)
+            {
+                if (crm == 5)
                     return CP15[CP15_MAIN_TLB_LOCKDOWN_VIRT_ADDRESS];
-                }
 
-                if (crm == 6) {
+                if (crm == 6)
                     return CP15[CP15_MAIN_TLB_LOCKDOWN_PHYS_ADDRESS];
-                }
 
-                if (crm == 7) {
+                if (crm == 7)
                     return CP15[CP15_MAIN_TLB_LOCKDOWN_ATTRIBUTE];
-                }
             }
 
-            if (opcode_1 == 7 && crm == 1 && opcode_2 == 0) {
+            if (opcode_1 == 7 && crm == 1 && opcode_2 == 0)
                 return CP15[CP15_TLB_DEBUG_CONTROL];
-            }
         }
     }
 
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_ERROR(Core_ARM11, "MRC CRn=%u, CRm=%u, OP1=%u OP2=%u is not implemented. Returning zero.", crn, crm, opcode_1, opcode_2));
-#endif
-
+    LOG_ERROR(Core_ARM11, "MRC CRn=%u, CRm=%u, OP1=%u OP2=%u is not implemented. Returning zero.", crn, crm, opcode_1, opcode_2);
     return 0;
 }
 
 // Write to the CP15 registers. Used with implementation of the MCR instruction.
 // Note that since the 3DS does not have the hypervisor extensions, these registers
 // are not implemented.
-void ARMul_State::WriteCP15Register(u32 value, u32 crn, u32 opcode_1, u32 crm, u32 opcode_2) {
-    if (InAPrivilegedMode()) {
-        if (crn == 1 && opcode_1 == 0 && crm == 0) {
-            if (opcode_2 == 0) {
+void ARMul_State::WriteCP15Register(u32 value, u32 crn, u32 opcode_1, u32 crm, u32 opcode_2)
+{
+    if (InAPrivilegedMode())
+    {
+        if (crn == 1 && opcode_1 == 0 && crm == 0)
+        {
+            if (opcode_2 == 0)
                 CP15[CP15_CONTROL] = value;
-            } else if (opcode_2 == 1) {
+            else if (opcode_2 == 1)
                 CP15[CP15_AUXILIARY_CONTROL] = value;
-            } else if (opcode_2 == 2) {
+            else if (opcode_2 == 2)
                 CP15[CP15_COPROCESSOR_ACCESS_CONTROL] = value;
-            }
-        } else if (crn == 2 && opcode_1 == 0 && crm == 0) {
-            if (opcode_2 == 0) {
+        }
+        else if (crn == 2 && opcode_1 == 0 && crm == 0)
+        {
+            if (opcode_2 == 0)
                 CP15[CP15_TRANSLATION_BASE_TABLE_0] = value;
-            } else if (opcode_2 == 1) {
+            else if (opcode_2 == 1)
                 CP15[CP15_TRANSLATION_BASE_TABLE_1] = value;
-            } else if (opcode_2 == 2) {
+            else if (opcode_2 == 2)
                 CP15[CP15_TRANSLATION_BASE_CONTROL] = value;
-            }
-        } else if (crn == 3 && opcode_1 == 0 && crm == 0 && opcode_2 == 0) {
+        }
+        else if (crn == 3 && opcode_1 == 0 && crm == 0 && opcode_2 == 0)
+        {
             CP15[CP15_DOMAIN_ACCESS_CONTROL] = value;
-        } else if (crn == 5 && opcode_1 == 0 && crm == 0) {
-            if (opcode_2 == 0) {
+        }
+        else if (crn == 5 && opcode_1 == 0 && crm == 0)
+        {
+            if (opcode_2 == 0)
                 CP15[CP15_FAULT_STATUS] = value;
-            } else if (opcode_2 == 1) {
+            else if (opcode_2 == 1)
                 CP15[CP15_INSTR_FAULT_STATUS] = value;
-            }
-        } else if (crn == 6 && opcode_1 == 0 && crm == 0) {
-            if (opcode_2 == 0) {
+        }
+        else if (crn == 6 && opcode_1 == 0 && crm == 0)
+        {
+            if (opcode_2 == 0)
                 CP15[CP15_FAULT_ADDRESS] = value;
-            } else if (opcode_2 == 1) {
+            else if (opcode_2 == 1)
                 CP15[CP15_WFAR] = value;
-            }
-        } else if (crn == 7 && opcode_1 == 0) {
-            if (crm == 0 && opcode_2 == 4) {
+        }
+        else if (crn == 7 && opcode_1 == 0)
+        {
+            if (crm == 0 && opcode_2 == 4)
+            {
                 CP15[CP15_WAIT_FOR_INTERRUPT] = value;
-            } else if (crm == 4 && opcode_2 == 0) {
+            }
+            else if (crm == 4 && opcode_2 == 0)
+            {
                 // NOTE: Not entirely accurate. This should do permission checks.
                 CP15[CP15_PHYS_ADDRESS] = Memory::VirtualToPhysicalAddress(value);
-            } else if (crm == 5) {
-                if (opcode_2 == 0) {
+            }
+            else if (crm == 5)
+            {
+                if (opcode_2 == 0)
                     CP15[CP15_INVALIDATE_INSTR_CACHE] = value;
-                } else if (opcode_2 == 1) {
+                else if (opcode_2 == 1)
                     CP15[CP15_INVALIDATE_INSTR_CACHE_USING_MVA] = value;
-                } else if (opcode_2 == 2) {
+                else if (opcode_2 == 2)
                     CP15[CP15_INVALIDATE_INSTR_CACHE_USING_INDEX] = value;
-                } else if (opcode_2 == 6) {
+                else if (opcode_2 == 6)
                     CP15[CP15_FLUSH_BRANCH_TARGET_CACHE] = value;
-                } else if (opcode_2 == 7) {
+                else if (opcode_2 == 7)
                     CP15[CP15_FLUSH_BRANCH_TARGET_CACHE_ENTRY] = value;
-                }
-            } else if (crm == 6) {
-                if (opcode_2 == 0) {
+            }
+            else if (crm == 6)
+            {
+                if (opcode_2 == 0)
                     CP15[CP15_INVALIDATE_DATA_CACHE] = value;
-                } else if (opcode_2 == 1) {
+                else if (opcode_2 == 1)
                     CP15[CP15_INVALIDATE_DATA_CACHE_LINE_USING_MVA] = value;
-                } else if (opcode_2 == 2) {
+                else if (opcode_2 == 2)
                     CP15[CP15_INVALIDATE_DATA_CACHE_LINE_USING_INDEX] = value;
-                }
-            } else if (crm == 7 && opcode_2 == 0) {
+            }
+            else if (crm == 7 && opcode_2 == 0)
+            {
                 CP15[CP15_INVALIDATE_DATA_AND_INSTR_CACHE] = value;
-            } else if (crm == 10) {
-                if (opcode_2 == 0) {
+            }
+            else if (crm == 10)
+            {
+                if (opcode_2 == 0)
                     CP15[CP15_CLEAN_DATA_CACHE] = value;
-                } else if (opcode_2 == 1) {
+                else if (opcode_2 == 1)
                     CP15[CP15_CLEAN_DATA_CACHE_LINE_USING_MVA] = value;
-                } else if (opcode_2 == 2) {
+                else if (opcode_2 == 2)
                     CP15[CP15_CLEAN_DATA_CACHE_LINE_USING_INDEX] = value;
-                }
-            } else if (crm == 14) {
-                if (opcode_2 == 0) {
+            }
+            else if (crm == 14)
+            {
+                if (opcode_2 == 0)
                     CP15[CP15_CLEAN_AND_INVALIDATE_DATA_CACHE] = value;
-                } else if (opcode_2 == 1) {
+                else if (opcode_2 == 1)
                     CP15[CP15_CLEAN_AND_INVALIDATE_DATA_CACHE_LINE_USING_MVA] = value;
-                } else if (opcode_2 == 2) {
+                else if (opcode_2 == 2)
                     CP15[CP15_CLEAN_AND_INVALIDATE_DATA_CACHE_LINE_USING_INDEX] = value;
-                }
             }
-        } else if (crn == 8 && opcode_1 == 0) {
-            if (crm == 5) {
-                if (opcode_2 == 0) {
+        }
+        else if (crn == 8 && opcode_1 == 0)
+        {
+            if (crm == 5)
+            {
+                if (opcode_2 == 0)
                     CP15[CP15_INVALIDATE_ITLB] = value;
-                } else if (opcode_2 == 1) {
+                else if (opcode_2 == 1)
                     CP15[CP15_INVALIDATE_ITLB_SINGLE_ENTRY] = value;
-                } else if (opcode_2 == 2) {
+                else if (opcode_2 == 2)
                     CP15[CP15_INVALIDATE_ITLB_ENTRY_ON_ASID_MATCH] = value;
-                } else if (opcode_2 == 3) {
+                else if (opcode_2 == 3)
                     CP15[CP15_INVALIDATE_ITLB_ENTRY_ON_MVA] = value;
-                }
-            } else if (crm == 6) {
-                if (opcode_2 == 0) {
+            }
+            else if (crm == 6)
+            {
+                if (opcode_2 == 0)
                     CP15[CP15_INVALIDATE_DTLB] = value;
-                } else if (opcode_2 == 1) {
+                else if (opcode_2 == 1)
                     CP15[CP15_INVALIDATE_DTLB_SINGLE_ENTRY] = value;
-                } else if (opcode_2 == 2) {
+                else if (opcode_2 == 2)
                     CP15[CP15_INVALIDATE_DTLB_ENTRY_ON_ASID_MATCH] = value;
-                } else if (opcode_2 == 3) {
+                else if (opcode_2 == 3)
                     CP15[CP15_INVALIDATE_DTLB_ENTRY_ON_MVA] = value;
-                }
-            } else if (crm == 7) {
-                if (opcode_2 == 0) {
+            }
+            else if (crm == 7)
+            {
+                if (opcode_2 == 0)
                     CP15[CP15_INVALIDATE_UTLB] = value;
-                } else if (opcode_2 == 1) {
+                else if (opcode_2 == 1)
                     CP15[CP15_INVALIDATE_UTLB_SINGLE_ENTRY] = value;
-                } else if (opcode_2 == 2) {
+                else if (opcode_2 == 2)
                     CP15[CP15_INVALIDATE_UTLB_ENTRY_ON_ASID_MATCH] = value;
-                } else if (opcode_2 == 3) {
+                else if (opcode_2 == 3)
                     CP15[CP15_INVALIDATE_UTLB_ENTRY_ON_MVA] = value;
-                }
             }
-        } else if (crn == 9 && opcode_1 == 0 && crm == 0 && opcode_2 == 0) {
+        }
+        else if (crn == 9 && opcode_1 == 0 && crm == 0 && opcode_2 == 0)
+        {
             CP15[CP15_DATA_CACHE_LOCKDOWN] = value;
-        } else if (crn == 10 && opcode_1 == 0) {
-            if (crm == 0 && opcode_2 == 0) {
+        }
+        else if (crn == 10 && opcode_1 == 0)
+        {
+            if (crm == 0 && opcode_2 == 0)
+            {
                 CP15[CP15_TLB_LOCKDOWN] = value;
-            } else if (crm == 2) {
-                if (opcode_2 == 0) {
+            }
+            else if (crm == 2)
+            {
+                if (opcode_2 == 0)
                     CP15[CP15_PRIMARY_REGION_REMAP] = value;
-                } else if (opcode_2 == 1) {
+                else if (opcode_2 == 1)
                     CP15[CP15_NORMAL_REGION_REMAP] = value;
-                }
             }
-        } else if (crn == 13 && opcode_1 == 0 && crm == 0) {
-            if (opcode_2 == 0) {
+        }
+        else if (crn == 13 && opcode_1 == 0 && crm == 0)
+        {
+            if (opcode_2 == 0)
                 CP15[CP15_PID] = value;
-            } else if (opcode_2 == 1) {
+            else if (opcode_2 == 1)
                 CP15[CP15_CONTEXT_ID] = value;
-            } else if (opcode_2 == 3) {
+            else if (opcode_2 == 3)
                 CP15[CP15_THREAD_URO] = value;
-            } else if (opcode_2 == 4) {
+            else if (opcode_2 == 4)
                 CP15[CP15_THREAD_PRW] = value;
-            }
-        } else if (crn == 15) {
-            if (opcode_1 == 0 && crm == 12) {
-                if (opcode_2 == 0) {
+        }
+        else if (crn == 15)
+        {
+            if (opcode_1 == 0 && crm == 12)
+            {
+                if (opcode_2 == 0)
                     CP15[CP15_PERFORMANCE_MONITOR_CONTROL] = value;
-                } else if (opcode_2 == 1) {
+                else if (opcode_2 == 1)
                     CP15[CP15_CYCLE_COUNTER] = value;
-                } else if (opcode_2 == 2) {
+                else if (opcode_2 == 2)
                     CP15[CP15_COUNT_0] = value;
-                } else if (opcode_2 == 3) {
+                else if (opcode_2 == 3)
                     CP15[CP15_COUNT_1] = value;
-                }
-            } else if (opcode_1 == 5) {
-                if (crm == 4) {
-                    if (opcode_2 == 2) {
+            }
+            else if (opcode_1 == 5)
+            {
+                if (crm == 4)
+                {
+                    if (opcode_2 == 2)
                         CP15[CP15_READ_MAIN_TLB_LOCKDOWN_ENTRY] = value;
-                    } else if (opcode_2 == 4) {
+                    else if (opcode_2 == 4)
                         CP15[CP15_WRITE_MAIN_TLB_LOCKDOWN_ENTRY] = value;
-                    }
-                } else if (crm == 5 && opcode_2 == 2) {
+                }
+                else if (crm == 5 && opcode_2 == 2)
+                {
                     CP15[CP15_MAIN_TLB_LOCKDOWN_VIRT_ADDRESS] = value;
-                } else if (crm == 6 && opcode_2 == 2) {
+                }
+                else if (crm == 6 && opcode_2 == 2)
+                {
                     CP15[CP15_MAIN_TLB_LOCKDOWN_PHYS_ADDRESS] = value;
-                } else if (crm == 7 && opcode_2 == 2) {
+                }
+                else if (crm == 7 && opcode_2 == 2)
+                {
                     CP15[CP15_MAIN_TLB_LOCKDOWN_ATTRIBUTE] = value;
                 }
-            } else if (opcode_1 == 7 && crm == 1 && opcode_2 == 0) {
+            }
+            else if (opcode_1 == 7 && crm == 1 && opcode_2 == 0)
+            {
                 CP15[CP15_TLB_DEBUG_CONTROL] = value;
             }
         }
     }
 
     // Unprivileged registers
-    if (crn == 7 && opcode_1 == 0 && crm == 5 && opcode_2 == 4) {
+    if (crn == 7 && opcode_1 == 0 && crm == 5 && opcode_2 == 4)
+    {
         CP15[CP15_FLUSH_PREFETCH_BUFFER] = value;
-    } else if (crn == 7 && opcode_1 == 0 && crm == 10) {
-        if (opcode_2 == 4) {
+    }
+    else if (crn == 7 && opcode_1 == 0 && crm == 10)
+    {
+        if (opcode_2 == 4)
             CP15[CP15_DATA_SYNC_BARRIER] = value;
-        } else if (opcode_2 == 5) {
+        else if (opcode_2 == 5)
             CP15[CP15_DATA_MEMORY_BARRIER] = value;
-        }
-    } else if (crn == 13 && opcode_1 == 0 && crm == 0 && opcode_2 == 2) {
+    }
+    else if (crn == 13 && opcode_1 == 0 && crm == 0 && opcode_2 == 2)
+    {
         CP15[CP15_THREAD_UPRW] = value;
     }
 }

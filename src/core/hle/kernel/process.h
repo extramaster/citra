@@ -54,17 +54,11 @@ struct MemoryRegionInfo;
 struct CodeSet final : public Object {
     static SharedPtr<CodeSet> Create(std::string name, u64 program_id);
 
-    std::string GetTypeName() const override {
-        return "CodeSet";
-    }
-    std::string GetName() const override {
-        return name;
-    }
+    std::string GetTypeName() const override { return "CodeSet"; }
+    std::string GetName() const override { return name; }
 
     static const HandleType HANDLE_TYPE = HandleType::CodeSet;
-    HandleType GetHandleType() const override {
-        return HANDLE_TYPE;
-    }
+    HandleType GetHandleType() const override { return HANDLE_TYPE; }
 
     /// Name of the process
     std::string name;
@@ -91,17 +85,11 @@ class Process final : public Object {
 public:
     static SharedPtr<Process> Create(SharedPtr<CodeSet> code_set);
 
-    std::string GetTypeName() const override {
-        return "Process";
-    }
-    std::string GetName() const override {
-        return codeset->name;
-    }
+    std::string GetTypeName() const override { return "Process"; }
+    std::string GetName() const override { return codeset->name; }
 
     static const HandleType HANDLE_TYPE = HandleType::Process;
-    HandleType GetHandleType() const override {
-        return HANDLE_TYPE;
-    }
+    HandleType GetHandleType() const override { return HANDLE_TYPE; }
 
     static u32 next_process_id;
 

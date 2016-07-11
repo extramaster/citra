@@ -19,11 +19,7 @@ namespace FileSys {
 ArchiveFactory_RomFS::ArchiveFactory_RomFS(Loader::AppLoader& app_loader) {
     // Load the RomFS from the app
     if (Loader::ResultStatus::Success != app_loader.ReadRomFS(romfs_file, data_offset, data_size)) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-        LOG_ERROR(Service_FS, "Unable to read RomFS!"));
-#endif
-
+        LOG_ERROR(Service_FS, "Unable to read RomFS!");
     }
 }
 
@@ -33,23 +29,15 @@ ResultVal<std::unique_ptr<ArchiveBackend>> ArchiveFactory_RomFS::Open(const Path
 }
 
 ResultCode ArchiveFactory_RomFS::Format(const Path& path, const FileSys::ArchiveFormatInfo& format_info) {
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_ERROR(Service_FS, "Attempted to format a RomFS archive."));
-#endif
-
+    LOG_ERROR(Service_FS, "Attempted to format a RomFS archive.");
     // TODO: Verify error code
     return ResultCode(ErrorDescription::NotAuthorized, ErrorModule::FS,
-                      ErrorSummary::NotSupported, ErrorLevel::Permanent);
+            ErrorSummary::NotSupported, ErrorLevel::Permanent);
 }
 
 ResultVal<ArchiveFormatInfo> ArchiveFactory_RomFS::GetFormatInfo(const Path& path) const {
     // TODO(Subv): Implement
-
-#if !defined(ABSOLUTELY_NO_DEBUG) && true
-    LOG_ERROR(Service_FS, "Unimplemented GetFormatInfo archive %s", GetName().c_str()));
-#endif
-
+    LOG_ERROR(Service_FS, "Unimplemented GetFormatInfo archive %s", GetName().c_str());
     return ResultCode(-1);
 }
 

@@ -58,9 +58,7 @@ public:
     ResultCode ReceiveParameter(const Service::APT::MessageParameter& parameter) override;
     ResultCode StartImpl(const Service::APT::AppletStartupParameter& parameter) override;
     void Update() override;
-    bool IsRunning() const override {
-        return started;
-    }
+    bool IsRunning() const override { return started; }
 
     /**
      * Draws a keyboard to the current bottom screen framebuffer.
