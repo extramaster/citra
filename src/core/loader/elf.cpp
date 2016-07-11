@@ -81,8 +81,7 @@ enum ElfMachine {
 #define SHT_HIUSER 0xFFFFFFFF
 
 // Section flags
-enum ElfSectionFlags
-{
+enum ElfSectionFlags {
     SHF_WRITE     = 0x1,
     SHF_ALLOC     = 0x2,
     SHF_EXECINSTR = 0x4,
@@ -195,27 +194,45 @@ private:
 public:
     ElfReader(void *ptr);
 
-    u32 Read32(int off) const { return base32[off >> 2]; }
+    u32 Read32(int off) const {
+        return base32[off >> 2];
+    }
 
     // Quick accessors
-    ElfType GetType() const { return (ElfType)(header->e_type); }
-    ElfMachine GetMachine() const { return (ElfMachine)(header->e_machine); }
-    u32 GetEntryPoint() const { return entryPoint; }
-    u32 GetFlags() const { return (u32)(header->e_flags); }
+    ElfType GetType() const {
+        return (ElfType)(header->e_type);
+    }
+    ElfMachine GetMachine() const {
+        return (ElfMachine)(header->e_machine);
+    }
+    u32 GetEntryPoint() const {
+        return entryPoint;
+    }
+    u32 GetFlags() const {
+        return (u32)(header->e_flags);
+    }
     SharedPtr<CodeSet> LoadInto(u32 vaddr);
     bool LoadSymbols();
 
-    int GetNumSegments() const { return (int)(header->e_phnum); }
-    int GetNumSections() const { return (int)(header->e_shnum); }
-    const u8 *GetPtr(int offset) const { return (u8*)base + offset; }
+    int GetNumSegments() const {
+        return (int)(header->e_phnum);
+    }
+    int GetNumSections() const {
+        return (int)(header->e_shnum);
+    }
+    const u8 *GetPtr(int offset) const {
+        return (u8*)base + offset;
+    }
     const char *GetSectionName(int section) const;
     const u8 *GetSectionDataPtr(int section) const {
-        if (section < 0 || section >= header->e_shnum)
+        if (section < 0 || section >= header->e_shnum) {
             return nullptr;
-        if (sections[section].sh_type != SHT_NOBITS)
+        }
+        if (sections[section].sh_type != SHT_NOBITS) {
             return GetPtr(sections[section].sh_offset);
-        else
+        } else {
             return nullptr;
+        }
     }
     bool IsCodeSection(int section) const {
         return sections[section].sh_type == SHT_PROGBITS;
@@ -223,8 +240,12 @@ public:
     const u8 *GetSegmentPtr(int segment) {
         return GetPtr(segments[segment].p_offset);
     }
-    u32 GetSectionAddr(SectionID section) const { return sectionAddrs[section]; }
-    unsigned int GetSectionSize(SectionID section) const { return sections[section].sh_size; }
+    u32 GetSectionAddr(SectionID section) const {
+        return sectionAddrs[section];
+    }
+    unsigned int GetSectionSize(SectionID section) const {
+        return sections[section].sh_size;
+    }
     SectionID GetSectionByName(const char *name, int firstSection = 0) const; //-1 for not found
 
     bool DidRelocate() const {
@@ -246,31 +267,49 @@ ElfReader::ElfReader(void *ptr) {
 }
 
 const char *ElfReader::GetSectionName(int section) const {
-    if (sections[section].sh_type == SHT_NULL)
+    if (sections[section].sh_type == SHT_NULL) {
         return nullptr;
+    }
 
     int name_offset = sections[section].sh_name;
     const char* ptr = reinterpret_cast<const char*>(GetSectionDataPtr(header->e_shstrndx));
 
-    if (ptr)
+    if (ptr) {
         return ptr + name_offset;
+    }
 
     return nullptr;
 }
 
 SharedPtr<CodeSet> ElfReader::LoadInto(u32 vaddr) {
-    LOG_DEBUG(Loader, "String section: %i", header->e_shstrndx);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_DEBUG(Loader, "String section: %i", header->e_shstrndx));
+#endif
+
 
     // Should we relocate?
     relocate = (header->e_type != ET_EXEC);
 
     if (relocate) {
-        LOG_DEBUG(Loader, "Relocatable module");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_DEBUG(Loader, "Relocatable module"));
+#endif
+
         entryPoint += vaddr;
     } else {
-        LOG_DEBUG(Loader, "Prerelocated executable");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_DEBUG(Loader, "Prerelocated executable"));
+#endif
+
     }
-    LOG_DEBUG(Loader, "%i segments:", header->e_phnum);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_DEBUG(Loader, "%i segments:", header->e_phnum));
+#endif
+
 
     // First pass : Get the bits into RAM
     u32 base_addr = relocate ? vaddr : 0;
@@ -290,8 +329,12 @@ SharedPtr<CodeSet> ElfReader::LoadInto(u32 vaddr) {
 
     for (unsigned int i = 0; i < header->e_phnum; ++i) {
         Elf32_Phdr* p = &segments[i];
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
         LOG_DEBUG(Loader, "Type: %i Vaddr: %08X Filesz: %8X Memsz: %8X ", p->p_type, p->p_vaddr,
-                  p->p_filesz, p->p_memsz);
+                  p->p_filesz, p->p_memsz));
+#endif
+
 
         if (p->p_type == PT_LOAD) {
             CodeSet::Segment* codeset_segment;
@@ -303,12 +346,20 @@ SharedPtr<CodeSet> ElfReader::LoadInto(u32 vaddr) {
             } else if (permission_flags == (PF_R | PF_W)) {
                 codeset_segment = &codeset->data;
             } else {
-                LOG_ERROR(Loader, "Unexpected ELF PT_LOAD segment id %u with flags %X", i, p->p_flags);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+                LOG_ERROR(Loader, "Unexpected ELF PT_LOAD segment id %u with flags %X", i, p->p_flags));
+#endif
+
                 continue;
             }
 
             if (codeset_segment->size != 0) {
-                LOG_ERROR(Loader, "ELF has more than one segment of the same type. Skipping extra segment (id %i)", i);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+                LOG_ERROR(Loader, "ELF has more than one segment of the same type. Skipping extra segment (id %i)", i));
+#endif
+
                 continue;
             }
 
@@ -327,7 +378,11 @@ SharedPtr<CodeSet> ElfReader::LoadInto(u32 vaddr) {
     codeset->entrypoint = base_addr + header->e_entry;
     codeset->memory = std::make_shared<std::vector<u8>>(std::move(program_image));
 
-    LOG_DEBUG(Loader, "Done loading.");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_DEBUG(Loader, "Done loading."));
+#endif
+
 
     return codeset;
 }
@@ -336,8 +391,9 @@ SectionID ElfReader::GetSectionByName(const char *name, int firstSection) const 
     for (int i = firstSection; i < header->e_shnum; i++) {
         const char *secname = GetSectionName(i);
 
-        if (secname != nullptr && strcmp(name, secname) == 0)
+        if (secname != nullptr && strcmp(name, secname) == 0) {
             return i;
+        }
     }
     return -1;
 }
@@ -354,8 +410,9 @@ bool ElfReader::LoadSymbols() {
         unsigned int numSymbols = sections[sec].sh_size / sizeof(Elf32_Sym);
         for (unsigned sym = 0; sym < numSymbols; sym++) {
             int size = symtab[sym].st_size;
-            if (size == 0)
+            if (size == 0) {
                 continue;
+            }
 
             int type = symtab[sym].st_info & 0xF;
 
@@ -378,29 +435,34 @@ namespace Loader {
 FileType AppLoader_ELF::IdentifyType(FileUtil::IOFile& file) {
     u32 magic;
     file.Seek(0, SEEK_SET);
-    if (1 != file.ReadArray<u32>(&magic, 1))
+    if (1 != file.ReadArray<u32>(&magic, 1)) {
         return FileType::Error;
+    }
 
-    if (MakeMagic('\x7f', 'E', 'L', 'F') == magic)
+    if (MakeMagic('\x7f', 'E', 'L', 'F') == magic) {
         return FileType::ELF;
+    }
 
     return FileType::Error;
 }
 
 ResultStatus AppLoader_ELF::Load() {
-    if (is_loaded)
+    if (is_loaded) {
         return ResultStatus::ErrorAlreadyLoaded;
+    }
 
-    if (!file.IsOpen())
+    if (!file.IsOpen()) {
         return ResultStatus::Error;
+    }
 
     // Reset read pointer in case this file has been read before.
     file.Seek(0, SEEK_SET);
 
     size_t size = file.GetSize();
     std::unique_ptr<u8[]> buffer(new u8[size]);
-    if (file.ReadBytes(&buffer[0], size) != size)
+    if (file.ReadBytes(&buffer[0], size) != size) {
         return ResultStatus::Error;
+    }
 
     ElfReader elf_reader(&buffer[0]);
     SharedPtr<CodeSet> codeset = elf_reader.LoadInto(Memory::PROCESS_IMAGE_VADDR);

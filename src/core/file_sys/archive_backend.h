@@ -44,7 +44,9 @@ public:
     Path(std::vector<u8> binary_data) : type(Binary), binary(std::move(binary_data)) {}
     Path(LowPathType type, u32 size, u32 pointer);
 
-    LowPathType GetType() const { return type; }
+    LowPathType GetType() const {
+        return type;
+    }
 
     /**
      * Gets the string representation of the path for debugging

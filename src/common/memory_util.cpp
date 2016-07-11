@@ -7,13 +7,13 @@
 #include "common/memory_util.h"
 
 #ifdef _WIN32
-    #include <windows.h>
-    #include <psapi.h>
-    #include "common/common_funcs.h"
-    #include "common/string_util.h"
+#include <windows.h>
+#include <psapi.h>
+#include "common/common_funcs.h"
+#include "common/string_util.h"
 #else
-    #include <cstdlib>
-    #include <sys/mman.h>
+#include <cstdlib>
+#include <sys/mman.h>
 #endif
 
 #if !defined(_WIN32) && defined(ARCHITECTURE_X64) && !defined(MAP_32BIT)
@@ -25,8 +25,7 @@
 // This is purposely not a full wrapper for virtualalloc/mmap, but it
 // provides exactly the primitive operations that Dolphin needs.
 
-void* AllocateExecutableMemory(size_t size, bool low)
-{
+void* AllocateExecutableMemory(size_t size, bool low) {
 #if defined(_WIN32)
     void* ptr = VirtualAlloc(nullptr, size, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 #else
@@ -38,32 +37,33 @@ void* AllocateExecutableMemory(size_t size, bool low)
     // An older version of this code used MAP_FIXED, but that has the side
     // effect of discarding already mapped pages that happen to be in the
     // requested virtual memory range (such as the emulated RAM, sometimes).
-    if (low && (!map_hint))
-        map_hint = (char*)round_page(512*1024*1024); /* 0.5 GB rounded up to the next page */
+    if (low && (!map_hint)) {
+        map_hint = (char*)round_page(512*1024*1024);    /* 0.5 GB rounded up to the next page */
+    }
 #endif
     void* ptr = mmap(map_hint, size, PROT_READ | PROT_WRITE | PROT_EXEC,
-        MAP_ANON | MAP_PRIVATE
+                     MAP_ANON | MAP_PRIVATE
 #if defined(ARCHITECTURE_X64) && defined(MAP_32BIT)
-        | (low ? MAP_32BIT : 0)
+                     | (low ? MAP_32BIT : 0)
 #endif
-        , -1, 0);
+                     , -1, 0);
 #endif /* defined(_WIN32) */
 
 #ifdef _WIN32
-    if (ptr == nullptr)
-    {
+    if (ptr == nullptr) {
 #else
-    if (ptr == MAP_FAILED)
-    {
+    if (ptr == MAP_FAILED) {
         ptr = nullptr;
 #endif
-        LOG_ERROR(Common_Memory, "Failed to allocate executable memory");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_ERROR(Common_Memory, "Failed to allocate executable memory"));
+#endif
+
     }
 #if !defined(_WIN32) && defined(ARCHITECTURE_X64) && !defined(MAP_32BIT)
-    else
-    {
-        if (low)
-        {
+    else {
+        if (low) {
             map_hint += size;
             map_hint = (char*)round_page(map_hint); /* round up to the next page */
         }
@@ -71,33 +71,42 @@ void* AllocateExecutableMemory(size_t size, bool low)
 #endif
 
 #if EMU_ARCH_BITS == 64
-    if ((u64)ptr >= 0x80000000 && low == true)
-        LOG_ERROR(Common_Memory, "Executable memory ended up above 2GB!");
+    if ((u64)ptr >= 0x80000000 && low == true) {
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_ERROR(Common_Memory, "Executable memory ended up above 2GB!"));
+#endif
+
+    }
 #endif
 
     return ptr;
 }
 
-void* AllocateMemoryPages(size_t size)
-{
+void* AllocateMemoryPages(size_t size) {
 #ifdef _WIN32
     void* ptr = VirtualAlloc(nullptr, size, MEM_COMMIT, PAGE_READWRITE);
 #else
     void* ptr = mmap(nullptr, size, PROT_READ | PROT_WRITE,
-            MAP_ANON | MAP_PRIVATE, -1, 0);
+                     MAP_ANON | MAP_PRIVATE, -1, 0);
 
-    if (ptr == MAP_FAILED)
+    if (ptr == MAP_FAILED) {
         ptr = nullptr;
+    }
 #endif
 
-    if (ptr == nullptr)
-        LOG_ERROR(Common_Memory, "Failed to allocate raw memory");
+    if (ptr == nullptr) {
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_ERROR(Common_Memory, "Failed to allocate raw memory"));
+#endif
+
+    }
 
     return ptr;
 }
 
-void* AllocateAlignedMemory(size_t size,size_t alignment)
-{
+void* AllocateAlignedMemory(size_t size,size_t alignment) {
 #ifdef _WIN32
     void* ptr =  _aligned_malloc(size,alignment);
 #else
@@ -105,66 +114,84 @@ void* AllocateAlignedMemory(size_t size,size_t alignment)
 #ifdef ANDROID
     ptr = memalign(alignment, size);
 #else
-    if (posix_memalign(&ptr, alignment, size) != 0)
-        LOG_ERROR(Common_Memory, "Failed to allocate aligned memory");
+    if (posix_memalign(&ptr, alignment, size) != 0) {
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_ERROR(Common_Memory, "Failed to allocate aligned memory"));
+#endif
+
+    }
 #endif
 #endif
 
-    if (ptr == nullptr)
-        LOG_ERROR(Common_Memory, "Failed to allocate aligned memory");
+    if (ptr == nullptr) {
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_ERROR(Common_Memory, "Failed to allocate aligned memory"));
+#endif
+
+    }
 
     return ptr;
 }
 
-void FreeMemoryPages(void* ptr, size_t size)
-{
-    if (ptr)
-    {
+void FreeMemoryPages(void* ptr, size_t size) {
+    if (ptr) {
 #ifdef _WIN32
-        if (!VirtualFree(ptr, 0, MEM_RELEASE))
-            LOG_ERROR(Common_Memory, "FreeMemoryPages failed!\n%s", GetLastErrorMsg());
+        if (!VirtualFree(ptr, 0, MEM_RELEASE)) {
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+            LOG_ERROR(Common_Memory, "FreeMemoryPages failed!\n%s", GetLastErrorMsg()));
+#endif
+
+        }
 #else
         munmap(ptr, size);
 #endif
     }
 }
 
-void FreeAlignedMemory(void* ptr)
-{
-    if (ptr)
-    {
+void FreeAlignedMemory(void* ptr) {
+    if (ptr) {
 #ifdef _WIN32
-    _aligned_free(ptr);
+        _aligned_free(ptr);
 #else
-    free(ptr);
+        free(ptr);
 #endif
     }
 }
 
-void WriteProtectMemory(void* ptr, size_t size, bool allowExecute)
-{
+void WriteProtectMemory(void* ptr, size_t size, bool allowExecute) {
 #ifdef _WIN32
     DWORD oldValue;
-    if (!VirtualProtect(ptr, size, allowExecute ? PAGE_EXECUTE_READ : PAGE_READONLY, &oldValue))
-        LOG_ERROR(Common_Memory, "WriteProtectMemory failed!\n%s", GetLastErrorMsg());
+    if (!VirtualProtect(ptr, size, allowExecute ? PAGE_EXECUTE_READ : PAGE_READONLY, &oldValue)) {
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_ERROR(Common_Memory, "WriteProtectMemory failed!\n%s", GetLastErrorMsg()));
+#endif
+
+    }
 #else
     mprotect(ptr, size, allowExecute ? (PROT_READ | PROT_EXEC) : PROT_READ);
 #endif
 }
 
-void UnWriteProtectMemory(void* ptr, size_t size, bool allowExecute)
-{
+void UnWriteProtectMemory(void* ptr, size_t size, bool allowExecute) {
 #ifdef _WIN32
     DWORD oldValue;
-    if (!VirtualProtect(ptr, size, allowExecute ? PAGE_EXECUTE_READWRITE : PAGE_READWRITE, &oldValue))
-        LOG_ERROR(Common_Memory, "UnWriteProtectMemory failed!\n%s", GetLastErrorMsg());
+    if (!VirtualProtect(ptr, size, allowExecute ? PAGE_EXECUTE_READWRITE : PAGE_READWRITE, &oldValue)) {
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_ERROR(Common_Memory, "UnWriteProtectMemory failed!\n%s", GetLastErrorMsg()));
+#endif
+
+    }
 #else
     mprotect(ptr, size, allowExecute ? (PROT_READ | PROT_WRITE | PROT_EXEC) : PROT_WRITE | PROT_READ);
 #endif
 }
 
-std::string MemUsage()
-{
+std::string MemUsage() {
 #ifdef _WIN32
 #pragma comment(lib, "psapi")
     DWORD processID = GetCurrentProcessId();
@@ -175,10 +202,13 @@ std::string MemUsage()
     // Print information about the memory usage of the process.
 
     hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processID);
-    if (nullptr == hProcess) return "MemUsage Error";
+    if (nullptr == hProcess) {
+        return "MemUsage Error";
+    }
 
-    if (GetProcessMemoryInfo(hProcess, &pmc, sizeof(pmc)))
+    if (GetProcessMemoryInfo(hProcess, &pmc, sizeof(pmc))) {
         Ret = Common::StringFromFormat("%s K", Common::ThousandSeparate(pmc.WorkingSetSize / 1024, 7).c_str());
+    }
 
     CloseHandle(hProcess);
     return Ret;

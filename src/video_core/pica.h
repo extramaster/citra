@@ -76,8 +76,7 @@ struct Regs {
 
     union VSOutputAttributes {
         // Maps components of output vertex attributes to semantics
-        enum Semantic : u32
-        {
+        enum Semantic : u32 {
             POSITION_X   =  0,
             POSITION_Y   =  1,
             POSITION_Z   =  2,
@@ -302,10 +301,10 @@ struct Regs {
     };
     const std::array<FullTextureConfig, 3> GetTextures() const {
         return {{
-                   { texture0_enable.ToBool(), texture0, texture0_format },
-                   { texture1_enable.ToBool(), texture1, texture1_format },
-                   { texture2_enable.ToBool(), texture2, texture2_format }
-               }};
+                { texture0_enable.ToBool(), texture0, texture0_format },
+                { texture1_enable.ToBool(), texture1, texture1_format },
+                { texture2_enable.ToBool(), texture2, texture2_format }
+            }};
     }
 
     // 0xc0-0xff: Texture Combiner (akin to glTexEnv)
@@ -478,9 +477,11 @@ struct Regs {
     INSERT_PADDING_WORDS(0x2);
 
     const std::array<Regs::TevStageConfig,6> GetTevStages() const {
-        return {{ tev_stage0, tev_stage1,
-                  tev_stage2, tev_stage3,
-                  tev_stage4, tev_stage5 }};
+        return {{
+                tev_stage0, tev_stage1,
+                tev_stage2, tev_stage3,
+                tev_stage4, tev_stage5
+            }};
     };
 
     enum class BlendEquation : u32 {
@@ -642,7 +643,11 @@ struct Regs {
         case ColorFormat::RGBA4:
             return 2;
         default:
-            LOG_CRITICAL(HW_GPU, "Unknown color format %u", format);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+            LOG_CRITICAL(HW_GPU, "Unknown color format %u", format));
+#endif
+
             UNIMPLEMENTED();
         }
     }
@@ -705,7 +710,11 @@ struct Regs {
         case DepthFormat::D24S8:
             return 4;
         default:
-            LOG_CRITICAL(HW_GPU, "Unknown depth format %u", format);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+            LOG_CRITICAL(HW_GPU, "Unknown depth format %u", format));
+#endif
+
             UNIMPLEMENTED();
         }
     }
@@ -719,7 +728,11 @@ struct Regs {
         case DepthFormat::D24S8:
             return 24;
         default:
-            LOG_CRITICAL(HW_GPU, "Unknown depth format %u", format);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+            LOG_CRITICAL(HW_GPU, "Unknown depth format %u", format));
+#endif
+
             UNIMPLEMENTED();
         }
     }
@@ -754,7 +767,7 @@ struct Regs {
         Config5 = 5, ///< Reflect Red/Green/Blue, Distribution 0, Fresnel, Spotlight
         Config6 = 6, ///< Reflect Red, Distribution 0/1, Fresnel, Spotlight
         Config7 = 8, ///< Reflect Red/Green/Blue, Distribution 0/1, Fresnel, Spotlight
-                     ///< NOTE: '8' is intentional, '7' does not appear to be a valid configuration
+        ///< NOTE: '8' is intentional, '7' does not appear to be a valid configuration
     };
 
     /// Selects which lighting components are affected by fresnel
@@ -895,7 +908,8 @@ struct Regs {
             const unsigned disable[] = { config1.disable_dist_atten_light_0, config1.disable_dist_atten_light_1,
                                          config1.disable_dist_atten_light_2, config1.disable_dist_atten_light_3,
                                          config1.disable_dist_atten_light_4, config1.disable_dist_atten_light_5,
-                                         config1.disable_dist_atten_light_6, config1.disable_dist_atten_light_7 };
+                                         config1.disable_dist_atten_light_6, config1.disable_dist_atten_light_7
+                                       };
             return disable[index] != 0;
         }
 
@@ -1057,7 +1071,7 @@ struct Regs {
 
         inline int GetElementSizeInBytes(int n) const {
             return (GetFormat(n) == VertexAttributeFormat::FLOAT) ? 4 :
-                (GetFormat(n) == VertexAttributeFormat::SHORT) ? 2 : 1;
+                   (GetFormat(n) == VertexAttributeFormat::SHORT) ? 2 : 1;
         }
 
         inline int GetStride(int n) const {
@@ -1272,8 +1286,7 @@ struct Regs {
         INSERT_PADDING_WORDS(0x2);
 
         struct {
-            enum Format : u32
-            {
+            enum Format : u32 {
                 FLOAT24 = 0,
                 FLOAT32 = 1
             };

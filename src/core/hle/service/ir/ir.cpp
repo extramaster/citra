@@ -46,9 +46,13 @@ void InitializeIrNopShared(Interface* self) {
 
     cmd_buff[1] = RESULT_SUCCESS.raw;
 
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
     LOG_WARNING(Service_IR, "(STUBBED) called, transfer_buff_size=%d, recv_buff_size=%d, "
                 "unk1=%d, send_buff_size=%d, unk2=%d, baud_rate=%u, handle=0x%08X",
-                transfer_buff_size, recv_buff_size, unk1, send_buff_size, unk2, baud_rate, handle);
+                transfer_buff_size, recv_buff_size, unk1, send_buff_size, unk2, baud_rate, handle));
+#endif
+
 }
 
 void RequireConnection(Interface* self) {
@@ -58,7 +62,11 @@ void RequireConnection(Interface* self) {
 
     cmd_buff[1] = RESULT_SUCCESS.raw;
 
-    LOG_WARNING(Service_IR, "(STUBBED) called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_IR, "(STUBBED) called"));
+#endif
+
 }
 
 void Disconnect(Interface* self) {
@@ -66,7 +74,11 @@ void Disconnect(Interface* self) {
 
     cmd_buff[1] = RESULT_SUCCESS.raw;
 
-    LOG_WARNING(Service_IR, "(STUBBED) called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_IR, "(STUBBED) called"));
+#endif
+
 }
 
 void GetConnectionStatusEvent(Interface* self) {
@@ -75,7 +87,11 @@ void GetConnectionStatusEvent(Interface* self) {
     cmd_buff[1] = RESULT_SUCCESS.raw;
     cmd_buff[3] = Kernel::g_handle_table.Create(Service::IR::conn_status_event).MoveFrom();
 
-    LOG_WARNING(Service_IR, "(STUBBED) called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_IR, "(STUBBED) called"));
+#endif
+
 }
 
 void FinalizeIrNop(Interface* self) {
@@ -83,7 +99,11 @@ void FinalizeIrNop(Interface* self) {
 
     cmd_buff[1] = RESULT_SUCCESS.raw;
 
-    LOG_WARNING(Service_IR, "(STUBBED) called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_IR, "(STUBBED) called"));
+#endif
+
 }
 
 void Init() {

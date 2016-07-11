@@ -36,8 +36,7 @@
 #include "citra_qt/util/spinbox.h"
 #include "common/assert.h"
 
-CSpinBox::CSpinBox(QWidget* parent) : QAbstractSpinBox(parent), min_value(-100), max_value(100), value(0), base(10), num_digits(0)
-{
+CSpinBox::CSpinBox(QWidget* parent) : QAbstractSpinBox(parent), min_value(-100), max_value(100), value(0), base(10), num_digits(0) {
     // TODO: Might be nice to not immediately call the slot.
     //       Think of an address that is being replaced by a different one, in which case a lot
     //       invalid intermediate addresses would be read from during editing.
@@ -46,8 +45,7 @@ CSpinBox::CSpinBox(QWidget* parent) : QAbstractSpinBox(parent), min_value(-100),
     UpdateText();
 }
 
-void CSpinBox::SetValue(qint64 val)
-{
+void CSpinBox::SetValue(qint64 val) {
     auto old_value = value;
     value = std::max(std::min(val, max_value), min_value);
 
@@ -57,8 +55,7 @@ void CSpinBox::SetValue(qint64 val)
     }
 }
 
-void CSpinBox::SetRange(qint64 min, qint64 max)
-{
+void CSpinBox::SetRange(qint64 min, qint64 max) {
     min_value = min;
     max_value = max;
 
@@ -66,8 +63,7 @@ void CSpinBox::SetRange(qint64 min, qint64 max)
     UpdateText();
 }
 
-void CSpinBox::stepBy(int steps)
-{
+void CSpinBox::stepBy(int steps) {
     auto new_value = value;
     // Scale number of steps by the currently selected digit
     // TODO: Move this code elsewhere and enable it.
@@ -93,42 +89,39 @@ void CSpinBox::stepBy(int steps)
     UpdateText();
 }
 
-QAbstractSpinBox::StepEnabled CSpinBox::stepEnabled() const
-{
+QAbstractSpinBox::StepEnabled CSpinBox::stepEnabled() const {
     StepEnabled ret = StepNone;
 
-    if (value > min_value)
+    if (value > min_value) {
         ret |= StepDownEnabled;
+    }
 
-    if (value < max_value)
+    if (value < max_value) {
         ret |= StepUpEnabled;
+    }
 
     return ret;
 }
 
-void CSpinBox::SetBase(int base)
-{
+void CSpinBox::SetBase(int base) {
     this->base = base;
 
     UpdateText();
 }
 
-void CSpinBox::SetNumDigits(int num_digits)
-{
+void CSpinBox::SetNumDigits(int num_digits) {
     this->num_digits = num_digits;
 
     UpdateText();
 }
 
-void CSpinBox::SetPrefix(const QString& prefix)
-{
+void CSpinBox::SetPrefix(const QString& prefix) {
     this->prefix = prefix;
 
     UpdateText();
 }
 
-void CSpinBox::SetSuffix(const QString& suffix)
-{
+void CSpinBox::SetSuffix(const QString& suffix) {
     this->suffix = suffix;
 
     UpdateText();
@@ -161,8 +154,7 @@ static QString StringToInputMask(const QString& input) {
     return mask;
 }
 
-void CSpinBox::UpdateText()
-{
+void CSpinBox::UpdateText() {
     // If a fixed number of digits is used, we put the line edit in insertion mode by setting an
     // input mask.
     QString mask;
@@ -170,8 +162,9 @@ void CSpinBox::UpdateText()
         mask += StringToInputMask(prefix);
 
         // For base 10 and negative range, demand a single sign character
-        if (HasSign())
-            mask += "X"; // identified as "-" or "+" in the validator
+        if (HasSign()) {
+            mask += "X";    // identified as "-" or "+" in the validator
+        }
 
         // Uppercase digits greater than 9.
         mask += ">";
@@ -203,53 +196,52 @@ void CSpinBox::UpdateText()
     lineEdit()->setCursorPosition(cursor_position);
 }
 
-QString CSpinBox::TextFromValue()
-{
+QString CSpinBox::TextFromValue() {
     return prefix
            + QString(HasSign() ? ((value < 0) ? "-" : "+") : "")
            + QString("%1").arg(std::abs(value), num_digits, base, QLatin1Char('0')).toUpper()
            + suffix;
 }
 
-qint64 CSpinBox::ValueFromText()
-{
+qint64 CSpinBox::ValueFromText() {
     unsigned strpos = prefix.length();
 
     QString num_string = text().mid(strpos, text().length() - strpos - suffix.length());
     return num_string.toLongLong(nullptr, base);
 }
 
-bool CSpinBox::HasSign() const
-{
+bool CSpinBox::HasSign() const {
     return base == 10 && min_value < 0;
 }
 
-void CSpinBox::OnEditingFinished()
-{
+void CSpinBox::OnEditingFinished() {
     // Only update for valid input
     QString input = lineEdit()->text();
     int pos = 0;
-    if (QValidator::Acceptable == validate(input, pos))
+    if (QValidator::Acceptable == validate(input, pos)) {
         SetValue(ValueFromText());
+    }
 }
 
-QValidator::State CSpinBox::validate(QString& input, int& pos) const
-{
-    if (!prefix.isEmpty() && input.left(prefix.length()) != prefix)
+QValidator::State CSpinBox::validate(QString& input, int& pos) const {
+    if (!prefix.isEmpty() && input.left(prefix.length()) != prefix) {
         return QValidator::Invalid;
+    }
 
     int strpos = prefix.length();
 
     // Empty "numbers" allowed as intermediate values
-    if (strpos >= input.length() - HasSign() - suffix.length())
+    if (strpos >= input.length() - HasSign() - suffix.length()) {
         return QValidator::Intermediate;
+    }
 
     DEBUG_ASSERT(base <= 10 || base == 16);
     QString regexp;
 
     // Demand sign character for negative ranges
-    if (HasSign())
+    if (HasSign()) {
         regexp += "[+\\-]";
+    }
 
     // Match digits corresponding to the chosen number base.
     regexp += QString("[0-%1").arg(std::min(base, 9));
@@ -270,19 +262,22 @@ QValidator::State CSpinBox::validate(QString& input, int& pos) const
     int num_pos = strpos;
     QString sub_input = input.mid(strpos, input.length() - strpos - suffix.length());
 
-    if (!num_regexp.exactMatch(sub_input) && num_regexp.matchedLength() == 0)
+    if (!num_regexp.exactMatch(sub_input) && num_regexp.matchedLength() == 0) {
         return QValidator::Invalid;
+    }
 
     sub_input = sub_input.left(num_regexp.matchedLength());
     bool ok;
     qint64 val = sub_input.toLongLong(&ok, base);
 
-    if (!ok)
+    if (!ok) {
         return QValidator::Invalid;
+    }
 
     // Outside boundaries => don't accept
-    if (val < min_value || val > max_value)
+    if (val < min_value || val > max_value) {
         return QValidator::Invalid;
+    }
 
     // Make sure we are actually at the end of this string...
     strpos += num_regexp.matchedLength();
@@ -293,8 +288,9 @@ QValidator::State CSpinBox::validate(QString& input, int& pos) const
         strpos += suffix.length();
     }
 
-    if (strpos != input.length())
+    if (strpos != input.length()) {
         return QValidator::Invalid;
+    }
 
     // At this point we can say for sure that the input is fine. Let's fix it up a bit though
     input.replace(num_pos, sub_input.length(), sub_input.toUpper());

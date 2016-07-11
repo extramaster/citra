@@ -3,7 +3,7 @@
 // Refer to the license.txt file included.
 
 namespace Y2R_U {
-    struct ConversionConfiguration;
+struct ConversionConfiguration;
 }
 
 namespace HW {

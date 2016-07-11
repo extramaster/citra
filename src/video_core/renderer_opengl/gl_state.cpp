@@ -238,7 +238,11 @@ GLenum OpenGLState::CheckFBStatus(GLenum target) {
     GLenum fb_status = glCheckFramebufferStatus(target);
     if (fb_status != GL_FRAMEBUFFER_COMPLETE) {
         const char* fb_description = (target == GL_READ_FRAMEBUFFER ? "READ" : (target == GL_DRAW_FRAMEBUFFER ? "DRAW" : "UNK"));
-        LOG_CRITICAL(Render_OpenGL, "OpenGL %s framebuffer check failed, status %X", fb_description, fb_status);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_CRITICAL(Render_OpenGL, "OpenGL %s framebuffer check failed, status %X", fb_description, fb_status));
+#endif
+
     }
 
     return fb_status;

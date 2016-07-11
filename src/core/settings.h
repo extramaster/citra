@@ -28,26 +28,28 @@ enum Values {
 };
 
 static const std::array<const char*, NUM_INPUTS> Mapping = {{
-    // directly mapped keys
-    "pad_a", "pad_b", "pad_x", "pad_y",
-    "pad_l", "pad_r", "pad_zl", "pad_zr",
-    "pad_start", "pad_select", "pad_home",
-    "pad_dup", "pad_ddown", "pad_dleft", "pad_dright",
-    "pad_cup", "pad_cdown", "pad_cleft", "pad_cright",
+        // directly mapped keys
+        "pad_a", "pad_b", "pad_x", "pad_y",
+        "pad_l", "pad_r", "pad_zl", "pad_zr",
+        "pad_start", "pad_select", "pad_home",
+        "pad_dup", "pad_ddown", "pad_dleft", "pad_dright",
+        "pad_cup", "pad_cdown", "pad_cleft", "pad_cright",
 
-    // indirectly mapped keys
-    "pad_circle_up", "pad_circle_down", "pad_circle_left", "pad_circle_right",
-    "pad_circle_modifier",
-}};
+        // indirectly mapped keys
+        "pad_circle_up", "pad_circle_down", "pad_circle_left", "pad_circle_right",
+        "pad_circle_modifier",
+    }
+};
 static const std::array<Values, NUM_INPUTS> All = {{
-    A, B, X, Y,
-    L, R, ZL, ZR,
-    START, SELECT, HOME,
-    DUP, DDOWN, DLEFT, DRIGHT,
-    CUP, CDOWN, CLEFT, CRIGHT,
-    CIRCLE_UP, CIRCLE_DOWN, CIRCLE_LEFT, CIRCLE_RIGHT,
-    CIRCLE_MODIFIER,
-}};
+        A, B, X, Y,
+        L, R, ZL, ZR,
+        START, SELECT, HOME,
+        DUP, DDOWN, DLEFT, DRIGHT,
+        CUP, CDOWN, CLEFT, CRIGHT,
+        CIRCLE_UP, CIRCLE_DOWN, CIRCLE_LEFT, CIRCLE_RIGHT,
+        CIRCLE_MODIFIER,
+    }
+};
 }
 
 enum class LayoutOption {

@@ -64,7 +64,11 @@ void Initialize(Service::Interface* self) {
 
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
 
-    LOG_DEBUG(Service_APT, "called app_id=0x%08X, flags=0x%08X", app_id, flags);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_DEBUG(Service_APT, "called app_id=0x%08X, flags=0x%08X", app_id, flags));
+#endif
+
 }
 
 void GetSharedFont(Service::Interface* self) {
@@ -95,7 +99,11 @@ void NotifyToWait(Service::Interface* self) {
     u32* cmd_buff = Kernel::GetCommandBuffer();
     u32 app_id = cmd_buff[1];
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
-    LOG_WARNING(Service_APT, "(STUBBED) app_id=%u", app_id);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_APT, "(STUBBED) app_id=%u", app_id));
+#endif
+
 }
 
 void GetLockHandle(Service::Interface* self) {
@@ -112,7 +120,11 @@ void GetLockHandle(Service::Interface* self) {
     cmd_buff[4] = IPC::CopyHandleDesc();
     cmd_buff[5] = Kernel::g_handle_table.Create(lock).MoveFrom();
 
-    LOG_WARNING(Service_APT, "(STUBBED) called handle=0x%08X applet_attributes=0x%08X", cmd_buff[5], applet_attributes);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_APT, "(STUBBED) called handle=0x%08X applet_attributes=0x%08X", cmd_buff[5], applet_attributes));
+#endif
+
 }
 
 void Enable(Service::Interface* self) {
@@ -120,7 +132,11 @@ void Enable(Service::Interface* self) {
     u32 attributes = cmd_buff[1];
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
     parameter_event->Signal(); // Let the application know that it has been started
-    LOG_WARNING(Service_APT, "(STUBBED) called attributes=0x%08X", attributes);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_APT, "(STUBBED) called attributes=0x%08X", attributes));
+#endif
+
 }
 
 void GetAppletManInfo(Service::Interface* self) {
@@ -132,7 +148,11 @@ void GetAppletManInfo(Service::Interface* self) {
     cmd_buff[4] = static_cast<u32>(AppletId::HomeMenu); // Home menu AppID
     cmd_buff[5] = static_cast<u32>(AppletId::Application); // TODO(purpasmart96): Do this correctly
 
-    LOG_WARNING(Service_APT, "(STUBBED) called unk=0x%08X", unk);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_APT, "(STUBBED) called unk=0x%08X", unk));
+#endif
+
 }
 
 void IsRegistered(Service::Interface* self) {
@@ -149,7 +169,11 @@ void IsRegistered(Service::Interface* self) {
     } else if (auto applet = HLE::Applets::Applet::Get(static_cast<AppletId>(app_id))) {
         cmd_buff[2] = 1; // Set to registered
     }
-    LOG_WARNING(Service_APT, "(STUBBED) called app_id=0x%08X", app_id);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_APT, "(STUBBED) called app_id=0x%08X", app_id));
+#endif
+
 }
 
 void InquireNotification(Service::Interface* self) {
@@ -157,7 +181,11 @@ void InquireNotification(Service::Interface* self) {
     u32 app_id = cmd_buff[1];
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
     cmd_buff[2] = static_cast<u32>(SignalType::None); // Signal type
-    LOG_WARNING(Service_APT, "(STUBBED) called app_id=0x%08X", app_id);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_APT, "(STUBBED) called app_id=0x%08X", app_id));
+#endif
+
 }
 
 void SendParameter(Service::Interface* self) {
@@ -174,7 +202,11 @@ void SendParameter(Service::Interface* self) {
     std::shared_ptr<HLE::Applets::Applet> dest_applet = HLE::Applets::Applet::Get(static_cast<AppletId>(dst_app_id));
 
     if (dest_applet == nullptr) {
-        LOG_ERROR(Service_APT, "Unknown applet id=0x%08X", dst_app_id);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_ERROR(Service_APT, "Unknown applet id=0x%08X", dst_app_id));
+#endif
+
         cmd_buff[1] = -1; // TODO(Subv): Find the right error code
         return;
     }
@@ -189,9 +221,13 @@ void SendParameter(Service::Interface* self) {
 
     cmd_buff[1] = dest_applet->ReceiveParameter(param).raw;
 
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
     LOG_WARNING(Service_APT, "(STUBBED) called src_app_id=0x%08X, dst_app_id=0x%08X, signal_type=0x%08X,"
-               "buffer_size=0x%08X, value=0x%08X, handle=0x%08X, size=0x%08X, in_param_buffer_ptr=0x%08X",
-               src_app_id, dst_app_id, signal_type, buffer_size, value, handle, size, buffer);
+                "buffer_size=0x%08X, value=0x%08X, handle=0x%08X, size=0x%08X, in_param_buffer_ptr=0x%08X",
+                src_app_id, dst_app_id, signal_type, buffer_size, value, handle, size, buffer));
+#endif
+
 }
 
 void ReceiveParameter(Service::Interface* self) {
@@ -206,14 +242,19 @@ void ReceiveParameter(Service::Interface* self) {
     cmd_buff[4] = next_parameter.buffer.size(); // Parameter buffer size
     cmd_buff[5] = 0x10;
     cmd_buff[6] = 0;
-    if (next_parameter.object != nullptr)
+    if (next_parameter.object != nullptr) {
         cmd_buff[6] = Kernel::g_handle_table.Create(next_parameter.object).MoveFrom();
+    }
     cmd_buff[7] = (next_parameter.buffer.size() << 14) | 2;
     cmd_buff[8] = buffer;
 
     Memory::WriteBlock(buffer, next_parameter.buffer.data(), next_parameter.buffer.size());
 
-    LOG_WARNING(Service_APT, "called app_id=0x%08X, buffer_size=0x%08X", app_id, buffer_size);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_APT, "called app_id=0x%08X, buffer_size=0x%08X", app_id, buffer_size));
+#endif
+
 }
 
 void GlanceParameter(Service::Interface* self) {
@@ -228,14 +269,19 @@ void GlanceParameter(Service::Interface* self) {
     cmd_buff[4] = next_parameter.buffer.size(); // Parameter buffer size
     cmd_buff[5] = 0x10;
     cmd_buff[6] = 0;
-    if (next_parameter.object != nullptr)
+    if (next_parameter.object != nullptr) {
         cmd_buff[6] = Kernel::g_handle_table.Create(next_parameter.object).MoveFrom();
+    }
     cmd_buff[7] = (next_parameter.buffer.size() << 14) | 2;
     cmd_buff[8] = buffer;
 
     Memory::WriteBlock(buffer, next_parameter.buffer.data(), std::min(static_cast<size_t>(buffer_size), next_parameter.buffer.size()));
 
-    LOG_WARNING(Service_APT, "called app_id=0x%08X, buffer_size=0x%08X", app_id, buffer_size);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_APT, "called app_id=0x%08X, buffer_size=0x%08X", app_id, buffer_size));
+#endif
+
 }
 
 void CancelParameter(Service::Interface* self) {
@@ -248,8 +294,12 @@ void CancelParameter(Service::Interface* self) {
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
     cmd_buff[2] = 1; // Set to Success
 
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
     LOG_WARNING(Service_APT, "(STUBBED) called flag1=0x%08X, unk=0x%08X, flag2=0x%08X, app_id=0x%08X",
-                flag1, unk, flag2, app_id);
+                flag1, unk, flag2, app_id));
+#endif
+
 }
 
 void PrepareToStartApplication(Service::Interface* self) {
@@ -266,8 +316,12 @@ void PrepareToStartApplication(Service::Interface* self) {
 
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
 
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
     LOG_WARNING(Service_APT, "(STUBBED) called title_info1=0x%08X, title_info2=0x%08X, title_info3=0x%08X,"
-               "title_info4=0x%08X, flags=0x%08X", title_info1, title_info2, title_info3, title_info4, flags);
+                "title_info4=0x%08X, flags=0x%08X", title_info1, title_info2, title_info3, title_info4, flags));
+#endif
+
 }
 
 void StartApplication(Service::Interface* self) {
@@ -282,9 +336,13 @@ void StartApplication(Service::Interface* self) {
 
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
 
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
     LOG_WARNING(Service_APT, "(STUBBED) called buffer1_size=0x%08X, buffer2_size=0x%08X, flag=0x%08X,"
-               "size1=0x%08X, buffer1_ptr=0x%08X, size2=0x%08X, buffer2_ptr=0x%08X",
-               buffer1_size, buffer2_size, flag, size1, buffer1_ptr, size2, buffer2_ptr);
+                "size1=0x%08X, buffer1_ptr=0x%08X, size2=0x%08X, buffer2_ptr=0x%08X",
+                buffer1_size, buffer2_size, flag, size1, buffer1_ptr, size2, buffer2_ptr));
+#endif
+
 }
 
 void AppletUtility(Service::Interface* self) {
@@ -299,9 +357,13 @@ void AppletUtility(Service::Interface* self) {
 
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
 
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
     LOG_WARNING(Service_APT, "(STUBBED) called command=0x%08X, buffer1_size=0x%08X, buffer2_size=0x%08X, "
-             "buffer1_addr=0x%08X, buffer2_addr=0x%08X", command, buffer1_size, buffer2_size,
-             buffer1_addr, buffer2_addr);
+                "buffer1_addr=0x%08X, buffer2_addr=0x%08X", command, buffer1_size, buffer2_size,
+                buffer1_addr, buffer2_addr));
+#endif
+
 }
 
 void SetAppCpuTimeLimit(Service::Interface* self) {
@@ -310,12 +372,20 @@ void SetAppCpuTimeLimit(Service::Interface* self) {
     cpu_percent = cmd_buff[2];
 
     if (value != 1) {
-        LOG_ERROR(Service_APT, "This value should be one, but is actually %u!", value);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_ERROR(Service_APT, "This value should be one, but is actually %u!", value));
+#endif
+
     }
 
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
 
-    LOG_WARNING(Service_APT, "(STUBBED) called cpu_percent=%u, value=%u", cpu_percent, value);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_APT, "(STUBBED) called cpu_percent=%u, value=%u", cpu_percent, value));
+#endif
+
 }
 
 void GetAppCpuTimeLimit(Service::Interface* self) {
@@ -323,13 +393,21 @@ void GetAppCpuTimeLimit(Service::Interface* self) {
     u32 value = cmd_buff[1];
 
     if (value != 1) {
-        LOG_ERROR(Service_APT, "This value should be one, but is actually %u!", value);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_ERROR(Service_APT, "This value should be one, but is actually %u!", value));
+#endif
+
     }
 
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
     cmd_buff[2] = cpu_percent;
 
-    LOG_WARNING(Service_APT, "(STUBBED) called value=%u", value);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_APT, "(STUBBED) called value=%u", value));
+#endif
+
 }
 
 void PrepareToStartLibraryApplet(Service::Interface* self) {
@@ -337,12 +415,20 @@ void PrepareToStartLibraryApplet(Service::Interface* self) {
     AppletId applet_id = static_cast<AppletId>(cmd_buff[1]);
     auto applet = HLE::Applets::Applet::Get(applet_id);
     if (applet) {
-        LOG_WARNING(Service_APT, "applet has already been started id=%08X", applet_id);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_WARNING(Service_APT, "applet has already been started id=%08X", applet_id));
+#endif
+
         cmd_buff[1] = RESULT_SUCCESS.raw;
     } else {
         cmd_buff[1] = HLE::Applets::Applet::Create(applet_id).raw;
     }
-    LOG_DEBUG(Service_APT, "called applet_id=%08X", applet_id);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_DEBUG(Service_APT, "called applet_id=%08X", applet_id));
+#endif
+
 }
 
 void PreloadLibraryApplet(Service::Interface* self) {
@@ -350,12 +436,20 @@ void PreloadLibraryApplet(Service::Interface* self) {
     AppletId applet_id = static_cast<AppletId>(cmd_buff[1]);
     auto applet = HLE::Applets::Applet::Get(applet_id);
     if (applet) {
-        LOG_WARNING(Service_APT, "applet has already been started id=%08X", applet_id);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_WARNING(Service_APT, "applet has already been started id=%08X", applet_id));
+#endif
+
         cmd_buff[1] = RESULT_SUCCESS.raw;
     } else {
         cmd_buff[1] = HLE::Applets::Applet::Create(applet_id).raw;
     }
-    LOG_DEBUG(Service_APT, "called applet_id=%08X", applet_id);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_DEBUG(Service_APT, "called applet_id=%08X", applet_id));
+#endif
+
 }
 
 void StartLibraryApplet(Service::Interface* self) {
@@ -363,10 +457,18 @@ void StartLibraryApplet(Service::Interface* self) {
     AppletId applet_id = static_cast<AppletId>(cmd_buff[1]);
     std::shared_ptr<HLE::Applets::Applet> applet = HLE::Applets::Applet::Get(applet_id);
 
-    LOG_DEBUG(Service_APT, "called applet_id=%08X", applet_id);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_DEBUG(Service_APT, "called applet_id=%08X", applet_id));
+#endif
+
 
     if (applet == nullptr) {
-        LOG_ERROR(Service_APT, "unknown applet id=%08X", applet_id);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_ERROR(Service_APT, "unknown applet id=%08X", applet_id));
+#endif
+
         cmd_buff[1] = -1; // TODO(Subv): Find the right error code
         return;
     }
@@ -389,7 +491,11 @@ void SetNSStateField(Service::Interface* self) {
 
     cmd_buff[0] = IPC::MakeHeader(0x55, 1, 0);
     cmd_buff[1] = RESULT_SUCCESS.raw;
-    LOG_WARNING(Service_APT, "(STUBBED) unknown_ns_state_field=%u", unknown_ns_state_field);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_APT, "(STUBBED) unknown_ns_state_field=%u", unknown_ns_state_field));
+#endif
+
 }
 
 void GetNSStateField(Service::Interface* self) {
@@ -398,7 +504,11 @@ void GetNSStateField(Service::Interface* self) {
     cmd_buff[0] = IPC::MakeHeader(0x56, 2, 0);
     cmd_buff[1] = RESULT_SUCCESS.raw;
     cmd_buff[8] = unknown_ns_state_field;
-    LOG_WARNING(Service_APT, "(STUBBED) unknown_ns_state_field=%u", unknown_ns_state_field);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_APT, "(STUBBED) unknown_ns_state_field=%u", unknown_ns_state_field));
+#endif
+
 }
 
 void GetAppletInfo(Service::Interface* self) {
@@ -416,7 +526,11 @@ void GetAppletInfo(Service::Interface* self) {
         cmd_buff[1] = ResultCode(ErrorDescription::NotFound, ErrorModule::Applet,
                                  ErrorSummary::NotFound, ErrorLevel::Status).raw;
     }
-    LOG_WARNING(Service_APT, "(stubbed) called appid=%u", app_id);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_APT, "(stubbed) called appid=%u", app_id));
+#endif
+
 }
 
 void GetStartupArgument(Service::Interface* self) {
@@ -425,12 +539,20 @@ void GetStartupArgument(Service::Interface* self) {
     StartupArgumentType startup_argument_type = static_cast<StartupArgumentType>(cmd_buff[2]);
 
     if (parameter_size >= 0x300) {
-        LOG_ERROR(Service_APT, "Parameter size is outside the valid range (capped to 0x300): parameter_size=0x%08x", parameter_size);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_ERROR(Service_APT, "Parameter size is outside the valid range (capped to 0x300): parameter_size=0x%08x", parameter_size));
+#endif
+
         return;
     }
 
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
     LOG_WARNING(Service_APT,"(stubbed) called startup_argument_type=%u , parameter_size=0x%08x , parameter_value=0x%08x",
-                startup_argument_type, parameter_size, Memory::Read32(cmd_buff[41]));
+                startup_argument_type, parameter_size, Memory::Read32(cmd_buff[41])));
+#endif
+
 
     cmd_buff[1] = RESULT_SUCCESS.raw;
     cmd_buff[2] = (parameter_size > 0) ? 1 : 0;
@@ -447,7 +569,11 @@ void CheckNew3DSApp(Service::Interface* self) {
     }
 
     cmd_buff[0] = IPC::MakeHeader(0x101, 2, 0);
-    LOG_WARNING(Service_APT, "(STUBBED) called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_APT, "(STUBBED) called"));
+#endif
+
 }
 
 void CheckNew3DS(Service::Interface* self) {
@@ -456,7 +582,11 @@ void CheckNew3DS(Service::Interface* self) {
     PTM::CheckNew3DS(self);
 
     cmd_buff[0] = IPC::MakeHeader(0x102, 2, 0);
-    LOG_WARNING(Service_APT, "(STUBBED) called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_APT, "(STUBBED) called"));
+#endif
+
 }
 
 void Init() {
@@ -481,11 +611,15 @@ void Init() {
         // Create shared font memory object
         using Kernel::MemoryPermission;
         shared_font_mem = Kernel::SharedMemory::Create(nullptr, 0x332000, // 3272 KB
-                MemoryPermission::ReadWrite, MemoryPermission::Read, 0, Kernel::MemoryRegion::SYSTEM, "APT:SharedFont");
+                          MemoryPermission::ReadWrite, MemoryPermission::Read, 0, Kernel::MemoryRegion::SYSTEM, "APT:SharedFont");
         // Read shared font data
         file.ReadBytes(shared_font_mem->GetPointer(), file.GetSize());
     } else {
-        LOG_WARNING(Service_APT, "Unable to load shared font: %s", filepath.c_str());
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_WARNING(Service_APT, "Unable to load shared font: %s", filepath.c_str()));
+#endif
+
         shared_font_mem = nullptr;
     }
 

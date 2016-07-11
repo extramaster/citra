@@ -15,8 +15,7 @@ class CSpinBox;
 
 class GraphicsSurfaceWidget;
 
-class SurfacePicture : public QLabel
-{
+class SurfacePicture : public QLabel {
     Q_OBJECT
 
 public:

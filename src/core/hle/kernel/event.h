@@ -26,11 +26,17 @@ public:
      */
     static SharedPtr<Event> Create(ResetType reset_type, std::string name = "Unknown");
 
-    std::string GetTypeName() const override { return "Event"; }
-    std::string GetName() const override { return name; }
+    std::string GetTypeName() const override {
+        return "Event";
+    }
+    std::string GetName() const override {
+        return name;
+    }
 
     static const HandleType HANDLE_TYPE = HandleType::Event;
-    HandleType GetHandleType() const override { return HANDLE_TYPE; }
+    HandleType GetHandleType() const override {
+        return HANDLE_TYPE;
+    }
 
     ResetType reset_type;                   ///< Current ResetType
 

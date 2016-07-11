@@ -9,8 +9,7 @@
 
 #include "video_core/gpu_debugger.h"
 
-class GPUCommandStreamItemModel : public QAbstractListModel, public GraphicsDebugger::DebuggerObserver
-{
+class GPUCommandStreamItemModel : public QAbstractListModel, public GraphicsDebugger::DebuggerObserver {
     Q_OBJECT
 
 public:
@@ -32,8 +31,7 @@ private:
     int command_count;
 };
 
-class GPUCommandStreamWidget : public QDockWidget
-{
+class GPUCommandStreamWidget : public QDockWidget {
     Q_OBJECT
 
 public:

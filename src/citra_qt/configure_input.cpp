@@ -9,7 +9,7 @@
 
 ConfigureInput::ConfigureInput(QWidget* parent) :
     QWidget(parent),
-    ui(new Ui::ConfigureInput){
+    ui(new Ui::ConfigureInput) {
     ui->setupUi(this);
 
     // Initialize mapping of input enum to UI button.
@@ -47,15 +47,18 @@ ConfigureInput::ConfigureInput(QWidget* parent) :
     setFocusPolicy(Qt::ClickFocus);
     timer = new QTimer(this);
     timer->setSingleShot(true);
-    connect(timer, &QTimer::timeout, this, [&]() { key_pressed = Qt::Key_Escape; setKey(); });
+    connect(timer, &QTimer::timeout, this, [&]() {
+        key_pressed = Qt::Key_Escape;
+        setKey();
+    });
     this->setConfiguration();
 }
 
-ConfigureInput::~ConfigureInput(){
+ConfigureInput::~ConfigureInput() {
 }
 
 /// Event handler for all button released() event.
-void ConfigureInput::handleClick(){
+void ConfigureInput::handleClick() {
     QPushButton* sender = qobject_cast<QPushButton*>(QObject::sender());
     previous_mapping = sender->text();
     sender->setText(tr("[waiting]"));
@@ -67,7 +70,7 @@ void ConfigureInput::handleClick(){
 }
 
 /// Save all button configurations to settings file
-void ConfigureInput::applyConfiguration(){
+void ConfigureInput::applyConfiguration() {
     for (int i = 0; i < Settings::NativeInput::NUM_INPUTS - 1; ++i) {
         int value = getKeyValue(input_mapping[Settings::NativeInput::Values(i)]->text());
         Settings::values.input_mappings[Settings::NativeInput::All[i]] = value;
@@ -76,7 +79,7 @@ void ConfigureInput::applyConfiguration(){
 }
 
 /// Load configuration settings into button text
-void ConfigureInput::setConfiguration(){
+void ConfigureInput::setConfiguration() {
     for (int i = 0; i < Settings::NativeInput::NUM_INPUTS - 1; ++i) {
         QString keyValue = getKeyName(Settings::values.input_mappings[i]);
         input_mapping[Settings::NativeInput::Values(i)]->setText(keyValue);
@@ -84,9 +87,8 @@ void ConfigureInput::setConfiguration(){
 }
 
 /// Handle key press event for input tab when a button is 'waiting'.
-void ConfigureInput::keyPressEvent(QKeyEvent* event){
-    if (changing_button != nullptr && event->key() != Qt::Key_unknown)
-    {
+void ConfigureInput::keyPressEvent(QKeyEvent* event) {
+    if (changing_button != nullptr && event->key() != Qt::Key_unknown) {
         key_pressed = event->key();
         timer->stop();
         setKey();
@@ -94,12 +96,13 @@ void ConfigureInput::keyPressEvent(QKeyEvent* event){
 }
 
 /// Set button text to name of key pressed.
-void ConfigureInput::setKey(){
+void ConfigureInput::setKey() {
     QString key_value = getKeyName(key_pressed);
-    if (key_pressed == Qt::Key_Escape)
+    if (key_pressed == Qt::Key_Escape) {
         changing_button->setText(previous_mapping);
-    else
+    } else {
         changing_button->setText(key_value);
+    }
     removeDuplicates(key_value);
     key_pressed = Qt::Key_unknown;
     releaseKeyboard();
@@ -109,47 +112,58 @@ void ConfigureInput::setKey(){
 }
 
 /// Convert key ASCII value to its' letter/name
-QString ConfigureInput::getKeyName(int key_code) const{
-    if (key_code == Qt::Key_Shift)
+QString ConfigureInput::getKeyName(int key_code) const {
+    if (key_code == Qt::Key_Shift) {
         return tr("Shift");
+    }
 
-    if (key_code == Qt::Key_Control)
+    if (key_code == Qt::Key_Control) {
         return tr("Ctrl");
+    }
 
-    if (key_code == Qt::Key_Alt)
+    if (key_code == Qt::Key_Alt) {
         return tr("Alt");
+    }
 
-    if (key_code == Qt::Key_Meta)
+    if (key_code == Qt::Key_Meta) {
         return "";
+    }
 
-    if (key_code == -1)
+    if (key_code == -1) {
         return "";
+    }
 
     return QKeySequence(key_code).toString();
 }
 
 /// Convert letter/name of key to its ASCII value.
-Qt::Key ConfigureInput::getKeyValue(const QString& text) const{
-    if (text == "Shift")
+Qt::Key ConfigureInput::getKeyValue(const QString& text) const {
+    if (text == "Shift") {
         return Qt::Key_Shift;
-    if (text == "Ctrl")
+    }
+    if (text == "Ctrl") {
         return Qt::Key_Control;
-    if (text == "Alt")
+    }
+    if (text == "Alt") {
         return Qt::Key_Alt;
-    if (text == "Meta")
+    }
+    if (text == "Meta") {
         return Qt::Key_unknown;
-    if (text == "")
+    }
+    if (text == "") {
         return Qt::Key_unknown;
+    }
     return Qt::Key(QKeySequence(text)[0]);
 }
 
 /// Check all inputs for duplicate keys. Clears out any other button with same key as new button.
-void ConfigureInput::removeDuplicates(const QString& newValue){
+void ConfigureInput::removeDuplicates(const QString& newValue) {
     for (int i = 0; i < Settings::NativeInput::NUM_INPUTS - 1; ++i) {
         if (changing_button != input_mapping[Settings::NativeInput::Values(i)]) {
             QString oldValue = input_mapping[Settings::NativeInput::Values(i)]->text();
-            if (newValue == oldValue)
+            if (newValue == oldValue) {
                 input_mapping[Settings::NativeInput::Values(i)]->setText("");
+            }
         }
     }
 }

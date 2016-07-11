@@ -18,25 +18,33 @@
 namespace FileSys {
 
 ResultVal<std::unique_ptr<FileBackend>> DiskArchive::OpenFile(const Path& path, const Mode mode) const {
-    LOG_DEBUG(Service_FS, "called path=%s mode=%01X", path.DebugStr().c_str(), mode.hex);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_DEBUG(Service_FS, "called path=%s mode=%01X", path.DebugStr().c_str(), mode.hex));
+#endif
+
     auto file = std::make_unique<DiskFile>(*this, path, mode);
     ResultCode result = file->Open();
-    if (result.IsError())
+    if (result.IsError()) {
         return result;
+    }
     return MakeResult<std::unique_ptr<FileBackend>>(std::move(file));
 }
 
 ResultCode DiskArchive::DeleteFile(const Path& path) const {
     std::string file_path = mount_point + path.AsString();
 
-    if (FileUtil::IsDirectory(file_path))
+    if (FileUtil::IsDirectory(file_path)) {
         return ResultCode(ErrorDescription::FS_NotAFile, ErrorModule::FS, ErrorSummary::Canceled, ErrorLevel::Status);
+    }
 
-    if (!FileUtil::Exists(file_path))
+    if (!FileUtil::Exists(file_path)) {
         return ResultCode(ErrorDescription::FS_NotFound, ErrorModule::FS, ErrorSummary::NotFound, ErrorLevel::Status);
+    }
 
-    if (FileUtil::Delete(file_path))
+    if (FileUtil::Delete(file_path)) {
         return RESULT_SUCCESS;
+    }
 
     return ResultCode(ErrorDescription::FS_NotAFile, ErrorModule::FS, ErrorSummary::Canceled, ErrorLevel::Status);
 }
@@ -52,11 +60,13 @@ bool DiskArchive::DeleteDirectory(const Path& path) const {
 ResultCode DiskArchive::CreateFile(const FileSys::Path& path, u64 size) const {
     std::string full_path = mount_point + path.AsString();
 
-    if (FileUtil::IsDirectory(full_path))
+    if (FileUtil::IsDirectory(full_path)) {
         return ResultCode(ErrorDescription::FS_NotAFile, ErrorModule::FS, ErrorSummary::Canceled, ErrorLevel::Status);
+    }
 
-    if (FileUtil::Exists(full_path))
+    if (FileUtil::Exists(full_path)) {
         return ResultCode(ErrorDescription::FS_AlreadyExists, ErrorModule::FS, ErrorSummary::NothingHappened, ErrorLevel::Status);
+    }
 
     if (size == 0) {
         FileUtil::CreateEmptyFile(full_path);
@@ -66,8 +76,9 @@ ResultCode DiskArchive::CreateFile(const FileSys::Path& path, u64 size) const {
     FileUtil::IOFile file(full_path, "wb");
     // Creates a sparse file (or a normal file on filesystems without the concept of sparse files)
     // We do this by seeking to the right size, then writing a single null byte.
-    if (file.Seek(size - 1, SEEK_SET) && file.WriteBytes("", 1) == 1)
+    if (file.Seek(size - 1, SEEK_SET) && file.WriteBytes("", 1) == 1) {
         return RESULT_SUCCESS;
+    }
 
     return ResultCode(ErrorDescription::TooLarge, ErrorModule::FS, ErrorSummary::OutOfResource, ErrorLevel::Info);
 }
@@ -82,10 +93,15 @@ bool DiskArchive::RenameDirectory(const Path& src_path, const Path& dest_path) c
 }
 
 std::unique_ptr<DirectoryBackend> DiskArchive::OpenDirectory(const Path& path) const {
-    LOG_DEBUG(Service_FS, "called path=%s", path.DebugStr().c_str());
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_DEBUG(Service_FS, "called path=%s", path.DebugStr().c_str()));
+#endif
+
     auto directory = std::make_unique<DiskDirectory>(*this, path);
-    if (!directory->Open())
+    if (!directory->Open()) {
         return nullptr;
+    }
     return std::move(directory);
 }
 
@@ -105,8 +121,9 @@ DiskFile::DiskFile(const DiskArchive& archive, const Path& path, const Mode mode
 }
 
 ResultCode DiskFile::Open() {
-    if (FileUtil::IsDirectory(path))
+    if (FileUtil::IsDirectory(path)) {
         return ResultCode(ErrorDescription::FS_NotAFile, ErrorModule::FS, ErrorSummary::Canceled, ErrorLevel::Status);
+    }
 
     // Specifying only the Create flag is invalid
     if (mode.create_flag && !mode.read_flag && !mode.write_flag) {
@@ -115,7 +132,11 @@ ResultCode DiskFile::Open() {
 
     if (!FileUtil::Exists(path)) {
         if (!mode.create_flag) {
-            LOG_ERROR(Service_FS, "Non-existing file %s can't be open without mode create.", path.c_str());
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+            LOG_ERROR(Service_FS, "Non-existing file %s can't be open without mode create.", path.c_str()));
+#endif
+
             return ResultCode(ErrorDescription::FS_NotFound, ErrorModule::FS, ErrorSummary::NotFound, ErrorLevel::Status);
         } else {
             // Create the file
@@ -124,36 +145,41 @@ ResultCode DiskFile::Open() {
     }
 
     std::string mode_string = "";
-    if (mode.write_flag)
-        mode_string += "r+"; // Files opened with Write access can be read from
-    else if (mode.read_flag)
+    if (mode.write_flag) {
+        mode_string += "r+";    // Files opened with Write access can be read from
+    } else if (mode.read_flag) {
         mode_string += "r";
+    }
 
     // Open the file in binary mode, to avoid problems with CR/LF on Windows systems
     mode_string += "b";
 
     file = std::make_unique<FileUtil::IOFile>(path, mode_string.c_str());
-    if (file->IsOpen())
+    if (file->IsOpen()) {
         return RESULT_SUCCESS;
+    }
     return ResultCode(ErrorDescription::FS_NotFound, ErrorModule::FS, ErrorSummary::NotFound, ErrorLevel::Status);
 }
 
 ResultVal<size_t> DiskFile::Read(const u64 offset, const size_t length, u8* buffer) const {
-    if (!mode.read_flag && !mode.write_flag)
+    if (!mode.read_flag && !mode.write_flag) {
         return ResultCode(ErrorDescription::FS_InvalidOpenFlags, ErrorModule::FS, ErrorSummary::Canceled, ErrorLevel::Status);
+    }
 
     file->Seek(offset, SEEK_SET);
     return MakeResult<size_t>(file->ReadBytes(buffer, length));
 }
 
 ResultVal<size_t> DiskFile::Write(const u64 offset, const size_t length, const bool flush, const u8* buffer) const {
-    if (!mode.write_flag)
+    if (!mode.write_flag) {
         return ResultCode(ErrorDescription::FS_InvalidOpenFlags, ErrorModule::FS, ErrorSummary::Canceled, ErrorLevel::Status);
+    }
 
     file->Seek(offset, SEEK_SET);
     size_t written = file->WriteBytes(buffer, length);
-    if (flush)
+    if (flush) {
         file->Flush();
+    }
     return MakeResult<size_t>(written);
 }
 
@@ -181,8 +207,9 @@ DiskDirectory::DiskDirectory(const DiskArchive& archive, const Path& path) : dir
 }
 
 bool DiskDirectory::Open() {
-    if (!FileUtil::IsDirectory(path))
+    if (!FileUtil::IsDirectory(path)) {
         return false;
+    }
     unsigned size = FileUtil::ScanDirectoryTree(path, directory);
     directory.size = size;
     directory.isDirectory = true;
@@ -198,13 +225,18 @@ u32 DiskDirectory::Read(const u32 count, Entry* entries) {
         const std::string& filename = file.virtualName;
         Entry& entry = entries[entries_read];
 
-        LOG_TRACE(Service_FS, "File %s: size=%llu dir=%d", filename.c_str(), file.size, file.isDirectory);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_TRACE(Service_FS, "File %s: size=%llu dir=%d", filename.c_str(), file.size, file.isDirectory));
+#endif
+
 
         // TODO(Link Mauve): use a proper conversion to UTF-16.
         for (size_t j = 0; j < FILENAME_LENGTH; ++j) {
             entry.filename[j] = filename[j];
-            if (!filename[j])
+            if (!filename[j]) {
                 break;
+            }
         }
 
         FileUtil::SplitFilename83(filename, entry.short_name, entry.extension);

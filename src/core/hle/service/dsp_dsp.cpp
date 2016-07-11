@@ -61,10 +61,12 @@ public:
             return evt != nullptr;
         });
 
-        if (zero != nullptr)
+        if (zero != nullptr) {
             number++;
-        if (one != nullptr)
+        }
+        if (one != nullptr) {
             number++;
+        }
 
         return number >= max_number_of_interrupt_events;
     }
@@ -108,7 +110,11 @@ static void ConvertProcessAddressFromDspDram(Service::Interface* self) {
     // TODO(merry): There is a per-region offset missing in this calculation (that seems to be always zero).
     cmd_buff[2] = (addr << 1) + (Memory::DSP_RAM_VADDR + 0x40000);
 
-    LOG_DEBUG(Service_DSP, "addr=0x%08X", addr);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_DEBUG(Service_DSP, "addr=0x%08X", addr));
+#endif
+
 }
 
 /**
@@ -145,13 +151,25 @@ static void LoadComponent(Service::Interface* self) {
     std::vector<u8> component_data(size);
     Memory::ReadBlock(buffer, component_data.data(), component_data.size());
 
-    LOG_INFO(Service_DSP, "Firmware hash: %#" PRIx64, Common::ComputeHash64(component_data.data(), component_data.size()));
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_INFO(Service_DSP, "Firmware hash: %#" PRIx64, Common::ComputeHash64(component_data.data(), component_data.size())));
+#endif
+
     // Some versions of the firmware have the location of DSP structures listed here.
     ASSERT(size > 0x37C);
-    LOG_INFO(Service_DSP, "Structures hash: %#" PRIx64, Common::ComputeHash64(component_data.data() + 0x340, 60));
 
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_INFO(Service_DSP, "Structures hash: %#" PRIx64, Common::ComputeHash64(component_data.data() + 0x340, 60)));
+#endif
+
+
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
     LOG_WARNING(Service_DSP, "(STUBBED) called size=0x%X, prog_mask=0x%08X, data_mask=0x%08X, buffer=0x%08X",
-                size, prog_mask, data_mask, buffer);
+                size, prog_mask, data_mask, buffer));
+#endif
+
 }
 
 /**
@@ -168,7 +186,11 @@ static void GetSemaphoreEventHandle(Service::Interface* self) {
     // cmd_buff[2] not set
     cmd_buff[3] = Kernel::g_handle_table.Create(semaphore_event).MoveFrom(); // Event handle
 
-    LOG_WARNING(Service_DSP, "(STUBBED) called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_DSP, "(STUBBED) called"));
+#endif
+
 }
 
 /**
@@ -193,7 +215,11 @@ static void FlushDataCache(Service::Interface* self) {
     cmd_buff[0] = IPC::MakeHeader(0x13, 1, 0);
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
 
-    LOG_TRACE(Service_DSP, "called address=0x%08X, size=0x%X, process=0x%08X", address, size, process);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_TRACE(Service_DSP, "called address=0x%08X, size=0x%X, process=0x%08X", address, size, process));
+#endif
+
 }
 
 /**
@@ -224,23 +250,39 @@ static void RegisterInterruptEvents(Service::Interface* self) {
         auto evt = Kernel::g_handle_table.Get<Kernel::Event>(cmd_buff[4]);
 
         if (!evt) {
-            LOG_INFO(Service_DSP, "Invalid event handle! type=%u, pipe=%u, event_handle=0x%08X", type_index, pipe_index, event_handle);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+            LOG_INFO(Service_DSP, "Invalid event handle! type=%u, pipe=%u, event_handle=0x%08X", type_index, pipe_index, event_handle));
+#endif
+
             ASSERT(false); // TODO: This should really be handled at an IPC translation layer.
         }
 
         if (interrupt_events.HasTooManyEventsRegistered()) {
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
             LOG_INFO(Service_DSP, "Ran out of space to register interrupts (Attempted to register type=%u, pipe=%u, event_handle=0x%08X)",
-                     type_index, pipe_index, event_handle);
+                     type_index, pipe_index, event_handle));
+#endif
+
             cmd_buff[1] = ResultCode(ErrorDescription::InvalidResultValue, ErrorModule::DSP, ErrorSummary::OutOfResource, ErrorLevel::Status).raw;
             return;
         }
 
         interrupt_events.Get(type, pipe) = evt;
-        LOG_INFO(Service_DSP, "Registered type=%u, pipe=%u, event_handle=0x%08X", type_index, pipe_index, event_handle);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_INFO(Service_DSP, "Registered type=%u, pipe=%u, event_handle=0x%08X", type_index, pipe_index, event_handle));
+#endif
+
         cmd_buff[1] = RESULT_SUCCESS.raw;
     } else {
         interrupt_events.Get(type, pipe) = nullptr;
-        LOG_INFO(Service_DSP, "Unregistered interrupt=%u, channel=%u, event_handle=0x%08X", type_index, pipe_index, event_handle);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_INFO(Service_DSP, "Unregistered interrupt=%u, channel=%u, event_handle=0x%08X", type_index, pipe_index, event_handle));
+#endif
+
         cmd_buff[1] = RESULT_SUCCESS.raw;
     }
 }
@@ -258,7 +300,11 @@ static void SetSemaphore(Service::Interface* self) {
     cmd_buff[0] = IPC::MakeHeader(0x7, 1, 0);
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
 
-    LOG_WARNING(Service_DSP, "(STUBBED) called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_DSP, "(STUBBED) called"));
+#endif
+
 }
 
 /**
@@ -282,7 +328,11 @@ static void WriteProcessPipe(Service::Interface* self) {
     DSP::HLE::DspPipe pipe = static_cast<DSP::HLE::DspPipe>(pipe_index);
 
     if (IPC::StaticBufferDesc(size, 1) != cmd_buff[3]) {
-        LOG_ERROR(Service_DSP, "IPC static buffer descriptor failed validation (0x%X). pipe=%u, size=0x%X, buffer=0x%08X", cmd_buff[3], pipe_index, size, buffer);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_ERROR(Service_DSP, "IPC static buffer descriptor failed validation (0x%X). pipe=%u, size=0x%X, buffer=0x%08X", cmd_buff[3], pipe_index, size, buffer));
+#endif
+
         cmd_buff[0] = IPC::MakeHeader(0, 1, 0);
         cmd_buff[1] = ResultCode(ErrorDescription::OS_InvalidBufferDescriptor, ErrorModule::OS, ErrorSummary::WrongArgument, ErrorLevel::Permanent).raw;
         return;
@@ -315,7 +365,11 @@ static void WriteProcessPipe(Service::Interface* self) {
     cmd_buff[0] = IPC::MakeHeader(0xD, 1, 0);
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
 
-    LOG_DEBUG(Service_DSP, "pipe=%u, size=0x%X, buffer=0x%08X", pipe_index, size, buffer);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_DEBUG(Service_DSP, "pipe=%u, size=0x%X, buffer=0x%08X", pipe_index, size, buffer));
+#endif
+
 }
 
 /**
@@ -358,7 +412,11 @@ static void ReadPipeIfPossible(Service::Interface* self) {
     cmd_buff[3] = IPC::StaticBufferDesc(size, 0);
     cmd_buff[4] = addr;
 
-    LOG_DEBUG(Service_DSP, "pipe=%u, unknown=0x%08X, size=0x%X, buffer=0x%08X, return cmd_buff[2]=0x%08X", pipe_index, unknown, size, addr, cmd_buff[2]);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_DEBUG(Service_DSP, "pipe=%u, unknown=0x%08X, size=0x%X, buffer=0x%08X, return cmd_buff[2]=0x%08X", pipe_index, unknown, size, addr, cmd_buff[2]));
+#endif
+
 }
 
 /**
@@ -399,7 +457,11 @@ static void ReadPipe(Service::Interface* self) {
         UNREACHABLE();
     }
 
-    LOG_DEBUG(Service_DSP, "pipe=%u, unknown=0x%08X, size=0x%X, buffer=0x%08X, return cmd_buff[2]=0x%08X", pipe_index, unknown, size, addr, cmd_buff[2]);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_DEBUG(Service_DSP, "pipe=%u, unknown=0x%08X, size=0x%X, buffer=0x%08X, return cmd_buff[2]=0x%08X", pipe_index, unknown, size, addr, cmd_buff[2]));
+#endif
+
 }
 
 /**
@@ -423,7 +485,11 @@ static void GetPipeReadableSize(Service::Interface* self) {
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
     cmd_buff[2] = static_cast<u32>(DSP::HLE::GetPipeReadableSize(pipe));
 
-    LOG_DEBUG(Service_DSP, "pipe=%u, unknown=0x%08X, return cmd_buff[2]=0x%08X", pipe_index, unknown, cmd_buff[2]);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_DEBUG(Service_DSP, "pipe=%u, unknown=0x%08X, return cmd_buff[2]=0x%08X", pipe_index, unknown, cmd_buff[2]));
+#endif
+
 }
 
 /**
@@ -441,7 +507,11 @@ static void SetSemaphoreMask(Service::Interface* self) {
     cmd_buff[0] = IPC::MakeHeader(0x17, 1, 0);
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
 
-    LOG_WARNING(Service_DSP, "(STUBBED) called mask=0x%08X", mask);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_DSP, "(STUBBED) called mask=0x%08X", mask));
+#endif
+
 }
 
 /**
@@ -460,7 +530,11 @@ static void GetHeadphoneStatus(Service::Interface* self) {
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
     cmd_buff[2] = 0; // Not using headphones
 
-    LOG_DEBUG(Service_DSP, "called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_DEBUG(Service_DSP, "called"));
+#endif
+
 }
 
 /**
@@ -498,7 +572,11 @@ static void RecvData(Service::Interface* self) {
         break;
     }
 
-    LOG_DEBUG(Service_DSP, "register_number=%u", register_number);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_DEBUG(Service_DSP, "register_number=%u", register_number));
+#endif
+
 }
 
 /**
@@ -523,7 +601,11 @@ static void RecvDataIsReady(Service::Interface* self) {
     cmd_buff[1] = RESULT_SUCCESS.raw;
     cmd_buff[2] = 1; // Ready to read
 
-    LOG_DEBUG(Service_DSP, "register_number=%u", register_number);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_DEBUG(Service_DSP, "register_number=%u", register_number));
+#endif
+
 }
 
 const Interface::FunctionInfo FunctionTable[] = {

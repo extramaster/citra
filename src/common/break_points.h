@@ -11,21 +11,21 @@
 
 class DebugInterface;
 
-struct TBreakPoint
-{
+struct TBreakPoint {
     u32  iAddress;
     bool bOn;
     bool bTemporary;
 };
 
 // Code breakpoints.
-class BreakPoints
-{
+class BreakPoints {
 public:
     typedef std::vector<TBreakPoint> TBreakPoints;
     typedef std::vector<std::string> TBreakPointsStr;
 
-    const TBreakPoints& GetBreakPoints() { return m_BreakPoints; }
+    const TBreakPoints& GetBreakPoints() {
+        return m_BreakPoints;
+    }
 
     TBreakPointsStr GetStrings() const;
     void AddFromStrings(const TBreakPointsStr& bps);

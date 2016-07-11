@@ -44,11 +44,17 @@ public:
      */
     static SharedPtr<ResourceLimit> GetForCategory(ResourceLimitCategory category);
 
-    std::string GetTypeName() const override { return "ResourceLimit"; }
-    std::string GetName() const override { return name; }
+    std::string GetTypeName() const override {
+        return "ResourceLimit";
+    }
+    std::string GetName() const override {
+        return name;
+    }
 
     static const HandleType HANDLE_TYPE = HandleType::ResourceLimit;
-    HandleType GetHandleType() const override { return HANDLE_TYPE; }
+    HandleType GetHandleType() const override {
+        return HANDLE_TYPE;
+    }
 
     /**
      * Gets the current value for the specified resource.

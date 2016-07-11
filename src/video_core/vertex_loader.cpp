@@ -41,7 +41,11 @@ void VertexLoader::Setup(const Pica::Regs& regs) {
         // TODO: What happens if a loader overwrites a previous one's data?
         for (unsigned component = 0; component < loader_config.component_count; ++component) {
             if (component >= 12) {
-                LOG_ERROR(HW_GPU, "Overflow in the vertex attribute loader %u trying to load component %u", loader, component);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+                LOG_ERROR(HW_GPU, "Overflow in the vertex attribute loader %u trying to load component %u", loader, component));
+#endif
+
                 continue;
             }
 
@@ -76,37 +80,33 @@ void VertexLoader::LoadVertex(u32 base_address, int index, int vertex, Shader::I
 
             if (g_debug_context && Pica::g_debug_context->recorder) {
                 memory_accesses.AddAccess(source_addr, vertex_attribute_elements[i] * (
-                    (vertex_attribute_formats[i] == Regs::VertexAttributeFormat::FLOAT) ? 4
-                    : (vertex_attribute_formats[i] == Regs::VertexAttributeFormat::SHORT) ? 2 : 1));
+                                              (vertex_attribute_formats[i] == Regs::VertexAttributeFormat::FLOAT) ? 4
+                                              : (vertex_attribute_formats[i] == Regs::VertexAttributeFormat::SHORT) ? 2 : 1));
             }
 
             switch (vertex_attribute_formats[i]) {
-            case Regs::VertexAttributeFormat::BYTE:
-            {
+            case Regs::VertexAttributeFormat::BYTE: {
                 const s8* srcdata = reinterpret_cast<const s8*>(Memory::GetPhysicalPointer(source_addr));
                 for (unsigned int comp = 0; comp < vertex_attribute_elements[i]; ++comp) {
                     input.attr[i][comp] = float24::FromFloat32(srcdata[comp]);
                 }
                 break;
             }
-            case Regs::VertexAttributeFormat::UBYTE:
-            {
+            case Regs::VertexAttributeFormat::UBYTE: {
                 const u8* srcdata = reinterpret_cast<const u8*>(Memory::GetPhysicalPointer(source_addr));
                 for (unsigned int comp = 0; comp < vertex_attribute_elements[i]; ++comp) {
                     input.attr[i][comp] = float24::FromFloat32(srcdata[comp]);
                 }
                 break;
             }
-            case Regs::VertexAttributeFormat::SHORT:
-            {
+            case Regs::VertexAttributeFormat::SHORT: {
                 const s16* srcdata = reinterpret_cast<const s16*>(Memory::GetPhysicalPointer(source_addr));
                 for (unsigned int comp = 0; comp < vertex_attribute_elements[i]; ++comp) {
                     input.attr[i][comp] = float24::FromFloat32(srcdata[comp]);
                 }
                 break;
             }
-            case Regs::VertexAttributeFormat::FLOAT:
-            {
+            case Regs::VertexAttributeFormat::FLOAT: {
                 const float* srcdata = reinterpret_cast<const float*>(Memory::GetPhysicalPointer(source_addr));
                 for (unsigned int comp = 0; comp < vertex_attribute_elements[i]; ++comp) {
                     input.attr[i][comp] = float24::FromFloat32(srcdata[comp]);
@@ -122,19 +122,27 @@ void VertexLoader::LoadVertex(u32 base_address, int index, int vertex, Shader::I
                 input.attr[i][comp] = comp == 3 ? float24::FromFloat32(1.0f) : float24::FromFloat32(0.0f);
             }
 
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
             LOG_TRACE(HW_GPU, "Loaded %d components of attribute %x for vertex %x (index %x) from 0x%08x + 0x%08x + 0x%04x: %f %f %f %f",
-                vertex_attribute_elements[i], i, vertex, index,
-                base_address,
-                vertex_attribute_sources[i],
-                vertex_attribute_strides[i] * vertex,
-                input.attr[i][0].ToFloat32(), input.attr[i][1].ToFloat32(), input.attr[i][2].ToFloat32(), input.attr[i][3].ToFloat32());
+                      vertex_attribute_elements[i], i, vertex, index,
+                      base_address,
+                      vertex_attribute_sources[i],
+                      vertex_attribute_strides[i] * vertex,
+                      input.attr[i][0].ToFloat32(), input.attr[i][1].ToFloat32(), input.attr[i][2].ToFloat32(), input.attr[i][3].ToFloat32()));
+#endif
+
         } else if (vertex_attribute_is_default[i]) {
             // Load the default attribute if we're configured to do so
             input.attr[i] = g_state.vs_default_attributes[i];
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
             LOG_TRACE(HW_GPU, "Loaded default attribute %x for vertex %x (index %x): (%f, %f, %f, %f)",
-                i, vertex, index,
-                input.attr[i][0].ToFloat32(), input.attr[i][1].ToFloat32(),
-                input.attr[i][2].ToFloat32(), input.attr[i][3].ToFloat32());
+                      i, vertex, index,
+                      input.attr[i][0].ToFloat32(), input.attr[i][1].ToFloat32(),
+                      input.attr[i][2].ToFloat32(), input.attr[i][3].ToFloat32()));
+#endif
+
         } else {
             // TODO(yuriks): In this case, no data gets loaded and the vertex
             // remains with the last value it had. This isn't currently maintained

@@ -35,7 +35,11 @@ static void RegisterClient(Service::Interface* self) {
     }
     cmd_buff[0] = IPC::MakeHeader(0x1, 0x1, 0); //0x10040
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
-    LOG_WARNING(Service_SRV, "(STUBBED) called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_SRV, "(STUBBED) called"));
+#endif
+
 }
 
 /**
@@ -59,7 +63,11 @@ static void EnableNotification(Service::Interface* self) {
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
     cmd_buff[2] = IPC::TransferHandleDesc();
     cmd_buff[3] = Kernel::g_handle_table.Create(event_handle).MoveFrom();
-    LOG_WARNING(Service_SRV, "(STUBBED) called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_SRV, "(STUBBED) called"));
+#endif
+
 }
 
 /**
@@ -82,9 +90,17 @@ static void GetServiceHandle(Service::Interface* self) {
 
     if (it != Service::g_srv_services.end()) {
         cmd_buff[3] = Kernel::g_handle_table.Create(it->second).MoveFrom();
-        LOG_TRACE(Service_SRV, "called port=%s, handle=0x%08X", port_name.c_str(), cmd_buff[3]);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_TRACE(Service_SRV, "called port=%s, handle=0x%08X", port_name.c_str(), cmd_buff[3]));
+#endif
+
     } else {
-        LOG_ERROR(Service_SRV, "(UNIMPLEMENTED) called port=%s", port_name.c_str());
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_ERROR(Service_SRV, "(UNIMPLEMENTED) called port=%s", port_name.c_str()));
+#endif
+
         res = UnimplementedFunction(ErrorModule::SRV);
     }
     cmd_buff[1] = res.raw;
@@ -106,7 +122,11 @@ static void Subscribe(Service::Interface* self) {
 
     cmd_buff[0] = IPC::MakeHeader(0x9, 0x1, 0); // 0x90040
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
-    LOG_WARNING(Service_SRV, "(STUBBED) called, notification_id=0x%X", notification_id);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_SRV, "(STUBBED) called, notification_id=0x%X", notification_id));
+#endif
+
 }
 
 /**
@@ -125,7 +145,11 @@ static void Unsubscribe(Service::Interface* self) {
 
     cmd_buff[0] = IPC::MakeHeader(0xA, 0x1, 0); // 0xA0040
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
-    LOG_WARNING(Service_SRV, "(STUBBED) called, notification_id=0x%X", notification_id);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_SRV, "(STUBBED) called, notification_id=0x%X", notification_id));
+#endif
+
 }
 
 /**
@@ -146,7 +170,11 @@ static void PublishToSubscriber(Service::Interface* self) {
 
     cmd_buff[0] = IPC::MakeHeader(0xC, 0x1, 0); // 0xC0040
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
-    LOG_WARNING(Service_SRV, "(STUBBED) called, notification_id=0x%X, flags=%u", notification_id, flags);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_SRV, "(STUBBED) called, notification_id=0x%X, flags=%u", notification_id, flags));
+#endif
+
 }
 
 const Interface::FunctionInfo FunctionTable[] = {

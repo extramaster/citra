@@ -29,11 +29,12 @@ std::string GetExtSaveDataPath(const std::string& mount_point, const Path& path)
 }
 
 std::string GetExtDataContainerPath(const std::string& mount_point, bool shared) {
-    if (shared)
+    if (shared) {
         return Common::StringFromFormat("%sdata/%s/extdata/", mount_point.c_str(), SYSTEM_ID.c_str());
+    }
 
     return Common::StringFromFormat("%sNintendo 3DS/%s/%s/extdata/", mount_point.c_str(),
-            SYSTEM_ID.c_str(), SDCARD_ID.c_str());
+                                    SYSTEM_ID.c_str(), SDCARD_ID.c_str());
 }
 
 Path ConstructExtDataBinaryPath(u32 media_type, u32 high, u32 low) {
@@ -43,28 +44,39 @@ Path ConstructExtDataBinaryPath(u32 media_type, u32 high, u32 low) {
     // Append each word byte by byte
 
     // The first word is the media type
-    for (unsigned i = 0; i < 4; ++i)
+    for (unsigned i = 0; i < 4; ++i) {
         binary_path.push_back((media_type >> (8 * i)) & 0xFF);
+    }
 
     // Next is the low word
-    for (unsigned i = 0; i < 4; ++i)
+    for (unsigned i = 0; i < 4; ++i) {
         binary_path.push_back((low >> (8 * i)) & 0xFF);
+    }
 
     // Next is the high word
-    for (unsigned i = 0; i < 4; ++i)
+    for (unsigned i = 0; i < 4; ++i) {
         binary_path.push_back((high >> (8 * i)) & 0xFF);
+    }
 
     return { binary_path };
 }
 
 ArchiveFactory_ExtSaveData::ArchiveFactory_ExtSaveData(const std::string& mount_location, bool shared)
-        : shared(shared), mount_point(GetExtDataContainerPath(mount_location, shared)) {
-    LOG_INFO(Service_FS, "Directory %s set as base for ExtSaveData.", mount_point.c_str());
+    : shared(shared), mount_point(GetExtDataContainerPath(mount_location, shared)) {
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_INFO(Service_FS, "Directory %s set as base for ExtSaveData.", mount_point.c_str()));
+#endif
+
 }
 
 bool ArchiveFactory_ExtSaveData::Initialize() {
     if (!FileUtil::CreateFullPath(mount_point)) {
-        LOG_ERROR(Service_FS, "Unable to create ExtSaveData base path.");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_ERROR(Service_FS, "Unable to create ExtSaveData base path."));
+#endif
+
         return false;
     }
 
@@ -113,7 +125,11 @@ ResultVal<ArchiveFormatInfo> ArchiveFactory_ExtSaveData::GetFormatInfo(const Pat
     FileUtil::IOFile file(metadata_path, "rb");
 
     if (!file.IsOpen()) {
-        LOG_ERROR(Service_FS, "Could not open metadata information for archive");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_ERROR(Service_FS, "Could not open metadata information for archive"));
+#endif
+
         // TODO(Subv): Verify error code
         return ResultCode(ErrorDescription::FS_NotFormatted, ErrorModule::FS, ErrorSummary::InvalidState, ErrorLevel::Status);
     }

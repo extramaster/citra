@@ -21,10 +21,8 @@ int g_clock_rate_arm11 = 268123480;
 #define INITIAL_SLICE_LENGTH 20000
 #define MAX_SLICE_LENGTH 100000000
 
-namespace CoreTiming
-{
-struct EventType
-{
+namespace CoreTiming {
+struct EventType {
     EventType() {}
 
     EventType(TimedCallback cb, const char* n)
@@ -36,8 +34,7 @@ struct EventType
 
 static std::vector<EventType> event_types;
 
-struct BaseEvent
-{
+struct BaseEvent {
     s64 time;
     u64 userdata;
     int type;
@@ -71,8 +68,9 @@ static AdvanceCallback* advance_callback = nullptr;
 static std::vector<MHzChangeCallback> mhz_change_callbacks;
 
 static void FireMhzChange() {
-    for (auto callback : mhz_change_callbacks)
+    for (auto callback : mhz_change_callbacks) {
         callback();
+    }
 }
 
 void SetClockFrequencyMHz(int cpu_mhz) {
@@ -103,8 +101,9 @@ u64 GetGlobalTimeUs() {
 }
 
 static Event* GetNewEvent() {
-    if (!event_pool)
+    if (!event_pool) {
         return new Event;
+    }
 
     Event* event = event_pool;
     event_pool = event->next;
@@ -114,8 +113,9 @@ static Event* GetNewEvent() {
 static Event* GetNewTsEvent() {
     allocated_ts_events++;
 
-    if (!event_ts_pool)
+    if (!event_ts_pool) {
         return new Event;
+    }
 
     Event* event = event_ts_pool;
     event_ts_pool = event->next;
@@ -139,20 +139,30 @@ int RegisterEvent(const char* name, TimedCallback callback) {
 }
 
 static void AntiCrashCallback(u64 userdata, int cycles_late) {
-    LOG_CRITICAL(Core_Timing, "Savestate broken: an unregistered event was called.");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_CRITICAL(Core_Timing, "Savestate broken: an unregistered event was called."));
+#endif
+
     Core::Halt("invalid timing events");
 }
 
 void RestoreRegisterEvent(int event_type, const char* name, TimedCallback callback) {
-    if (event_type >= (int)event_types.size())
+    if (event_type >= (int)event_types.size()) {
         event_types.resize(event_type + 1, EventType(AntiCrashCallback, "INVALID EVENT"));
+    }
 
     event_types[event_type] = EventType(callback, name);
 }
 
 void UnregisterAllEvents() {
-    if (first)
-        LOG_ERROR(Core_Timing, "Cannot unregister events with events pending");
+    if (first) {
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_ERROR(Core_Timing, "Cannot unregister events with events pending"));
+#endif
+
+    }
     event_types.clear();
 }
 
@@ -214,10 +224,12 @@ void ScheduleEvent_Threadsafe(s64 cycles_into_future, int event_type, u64 userda
     new_event->type = event_type;
     new_event->next = nullptr;
     new_event->userdata = userdata;
-    if (!ts_first)
+    if (!ts_first) {
         ts_first = new_event;
-    if (ts_last)
+    }
+    if (ts_last) {
         ts_last->next = new_event;
+    }
     ts_last = new_event;
 
     has_ts_events = true;
@@ -226,13 +238,12 @@ void ScheduleEvent_Threadsafe(s64 cycles_into_future, int event_type, u64 userda
 // Same as ScheduleEvent_Threadsafe(0, ...) EXCEPT if we are already on the CPU thread
 // in which case the event will get handled immediately, before returning.
 void ScheduleEvent_Threadsafe_Immediate(int event_type, u64 userdata) {
-    if (false) //Core::IsCPUThread())
-    {
+    if (false) { //Core::IsCPUThread())
         std::lock_guard<std::recursive_mutex> lock(external_event_section);
         event_types[event_type].callback(userdata, 0);
-    }
-    else
+    } else {
         ScheduleEvent_Threadsafe(0, event_type, userdata);
+    }
 }
 
 void ClearPendingEvents() {
@@ -268,8 +279,9 @@ void ScheduleEvent(s64 cycles_into_future, int event_type, u64 userdata) {
 
 s64 UnscheduleEvent(int event_type, u64 userdata) {
     s64 result = 0;
-    if (!first)
+    if (!first) {
         return result;
+    }
     while (first) {
         if (first->type == event_type && first->userdata == userdata) {
             result = first->time - GetTicks();
@@ -281,8 +293,9 @@ s64 UnscheduleEvent(int event_type, u64 userdata) {
             break;
         }
     }
-    if (!first)
+    if (!first) {
         return result;
+    }
 
     Event* prev_event = first;
     Event* ptr = prev_event->next;
@@ -306,8 +319,9 @@ s64 UnscheduleEvent(int event_type, u64 userdata) {
 s64 UnscheduleThreadsafeEvent(int event_type, u64 userdata) {
     s64 result = 0;
     std::lock_guard<std::recursive_mutex> lock(external_event_section);
-    if (!ts_first)
+    if (!ts_first) {
         return result;
+    }
 
     while (ts_first) {
         if (ts_first->type == event_type && ts_first->userdata == userdata) {
@@ -321,8 +335,7 @@ s64 UnscheduleThreadsafeEvent(int event_type, u64 userdata) {
         }
     }
 
-    if (!ts_first)
-    {
+    if (!ts_first) {
         ts_last = nullptr;
         return result;
     }
@@ -334,8 +347,9 @@ s64 UnscheduleThreadsafeEvent(int event_type, u64 userdata) {
             result = next->time - GetTicks();
 
             prev_event->next = next->next;
-            if (next == ts_last)
+            if (next == ts_last) {
                 ts_last = prev_event;
+            }
             FreeTsEvent(next);
             next = prev_event->next;
         } else {
@@ -357,20 +371,23 @@ void RegisterMHzChangeCallback(MHzChangeCallback callback) {
 }
 
 bool IsScheduled(int event_type) {
-    if (!first)
+    if (!first) {
         return false;
+    }
     Event* event = first;
     while (event) {
-        if (event->type == event_type)
+        if (event->type == event_type) {
             return true;
+        }
         event = event->next;
     }
     return false;
 }
 
 void RemoveEvent(int event_type) {
-    if (!first)
+    if (!first) {
         return;
+    }
     while (first) {
         if (first->type == event_type) {
             Event *next = first->next;
@@ -380,8 +397,9 @@ void RemoveEvent(int event_type) {
             break;
         }
     }
-    if (!first)
+    if (!first) {
         return;
+    }
     Event* prev = first;
     Event* next = prev->next;
     while (next) {
@@ -398,8 +416,9 @@ void RemoveEvent(int event_type) {
 
 void RemoveThreadsafeEvent(int event_type) {
     std::lock_guard<std::recursive_mutex> lock(external_event_section);
-    if (!ts_first)
+    if (!ts_first) {
         return;
+    }
 
     while (ts_first) {
         if (ts_first->type == event_type) {
@@ -421,8 +440,9 @@ void RemoveThreadsafeEvent(int event_type) {
     while (next) {
         if (next->type == event_type) {
             prev->next = next->next;
-            if (next == ts_last)
+            if (next == ts_last) {
                 ts_last = prev;
+            }
             FreeTsEvent(next);
             next = prev->next;
         } else {
@@ -487,8 +507,9 @@ void Advance() {
     global_timer += cycles_executed;
     Core::g_app_core->down_count = g_slice_length;
 
-    if (has_ts_events)
+    if (has_ts_events) {
         MoveEvents();
+    }
     ProcessFifoWaitEvents();
 
     if (!first) {
@@ -499,15 +520,17 @@ void Advance() {
     } else {
         // Note that events can eat cycles as well.
         int target = (int)(first->time - global_timer);
-        if (target > MAX_SLICE_LENGTH)
+        if (target > MAX_SLICE_LENGTH) {
             target = MAX_SLICE_LENGTH;
+        }
 
         const int diff = target - g_slice_length;
         g_slice_length += diff;
         Core::g_app_core->down_count += diff;
     }
-    if (advance_callback)
+    if (advance_callback) {
         advance_callback(static_cast<int>(cycles_executed));
+    }
 }
 
 void LogPendingEvents() {
@@ -520,8 +543,9 @@ void LogPendingEvents() {
 
 void Idle(int max_idle) {
     s64 cycles_down = Core::g_app_core->down_count;
-    if (max_idle != 0 && cycles_down > max_idle)
+    if (max_idle != 0 && cycles_down > max_idle) {
         cycles_down = max_idle;
+    }
 
     if (first && cycles_down > 0) {
         s64 cycles_executed = g_slice_length - Core::g_app_core->down_count;
@@ -530,17 +554,23 @@ void Idle(int max_idle) {
         if (cycles_next_event < cycles_executed + cycles_down) {
             cycles_down = cycles_next_event - cycles_executed;
             // Now, now... no time machines, please.
-            if (cycles_down < 0)
+            if (cycles_down < 0) {
                 cycles_down = 0;
+            }
         }
     }
 
-    LOG_TRACE(Core_Timing, "Idle for %" PRId64 " cycles! (%f ms)", cycles_down, cycles_down / (float)(g_clock_rate_arm11 * 0.001f));
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_TRACE(Core_Timing, "Idle for %" PRId64 " cycles! (%f ms)", cycles_down, cycles_down / (float)(g_clock_rate_arm11 * 0.001f)));
+#endif
+
 
     idled_cycles += cycles_down;
     Core::g_app_core->down_count -= cycles_down;
-    if (Core::g_app_core->down_count == 0)
+    if (Core::g_app_core->down_count == 0) {
         Core::g_app_core->down_count = -1;
+    }
 }
 
 std::string GetScheduledEventsSummary() {
@@ -549,13 +579,19 @@ std::string GetScheduledEventsSummary() {
     text.reserve(1000);
     while (event) {
         unsigned int t = event->type;
-        if (t >= event_types.size())
-            LOG_ERROR(Core_Timing, "Invalid event type"); // %i", t);
+        if (t >= event_types.size()) {
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+            LOG_ERROR(Core_Timing, "Invalid event type");    // %i", t));
+#endif
+
+        }
         const char* name = event_types[event->type].name;
-        if (!name)
+        if (!name) {
             name = "[unknown]";
+        }
         text += Common::StringFromFormat("%s : %i %08x%08x\n", name, (int)event->time,
-                (u32)(event->userdata >> 32), (u32)(event->userdata));
+                                         (u32)(event->userdata >> 32), (u32)(event->userdata));
         event = event->next;
     }
     return text;

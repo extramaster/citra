@@ -28,8 +28,7 @@
 #include "core/arm/skyeye_common/vfp/asm_vfp.h"
 #include "core/arm/skyeye_common/vfp/vfp.h"
 
-void VFPInit(ARMul_State* state)
-{
+void VFPInit(ARMul_State* state) {
     state->VFP[VFP_FPSID] = VFP_FPSID_IMPLMEN<<24 | VFP_FPSID_SW<<23 | VFP_FPSID_SUBARCH<<16 |
                             VFP_FPSID_PARTNUM<<8 | VFP_FPSID_VARIANT<<4 | VFP_FPSID_REVISION;
     state->VFP[VFP_FPEXC] = 0;
@@ -44,66 +43,46 @@ void VFPInit(ARMul_State* state)
     state->VFP[VFP_MVFR1] = 0;
 }
 
-void VMOVBRS(ARMul_State* state, u32 to_arm, u32 t, u32 n, u32* value)
-{
-    if (to_arm)
-    {
+void VMOVBRS(ARMul_State* state, u32 to_arm, u32 t, u32 n, u32* value) {
+    if (to_arm) {
         *value = state->ExtReg[n];
-    }
-    else
-    {
+    } else {
         state->ExtReg[n] = *value;
     }
 }
 
-void VMOVBRRD(ARMul_State* state, u32 to_arm, u32 t, u32 t2, u32 n, u32* value1, u32* value2)
-{
-    if (to_arm)
-    {
+void VMOVBRRD(ARMul_State* state, u32 to_arm, u32 t, u32 t2, u32 n, u32* value1, u32* value2) {
+    if (to_arm) {
         *value2 = state->ExtReg[n*2+1];
         *value1 = state->ExtReg[n*2];
-    }
-    else
-    {
+    } else {
         state->ExtReg[n*2+1] = *value2;
         state->ExtReg[n*2] = *value1;
     }
 }
-void VMOVBRRSS(ARMul_State* state, u32 to_arm, u32 t, u32 t2, u32 n, u32* value1, u32* value2)
-{
-    if (to_arm)
-    {
+void VMOVBRRSS(ARMul_State* state, u32 to_arm, u32 t, u32 t2, u32 n, u32* value1, u32* value2) {
+    if (to_arm) {
         *value1 = state->ExtReg[n+0];
         *value2 = state->ExtReg[n+1];
-    }
-    else
-    {
+    } else {
         state->ExtReg[n+0] = *value1;
         state->ExtReg[n+1] = *value2;
     }
 }
 
-void VMOVI(ARMul_State* state, u32 single, u32 d, u32 imm)
-{
-    if (single)
-    {
+void VMOVI(ARMul_State* state, u32 single, u32 d, u32 imm) {
+    if (single) {
         state->ExtReg[d] = imm;
-    }
-    else
-    {
+    } else {
         /* Check endian please */
         state->ExtReg[d*2+1] = imm;
         state->ExtReg[d*2] = 0;
     }
 }
-void VMOVR(ARMul_State* state, u32 single, u32 d, u32 m)
-{
-    if (single)
-    {
+void VMOVR(ARMul_State* state, u32 single, u32 d, u32 m) {
+    if (single) {
         state->ExtReg[d] = state->ExtReg[m];
-    }
-    else
-    {
+    } else {
         /* Check endian please */
         state->ExtReg[d*2+1] = state->ExtReg[m*2+1];
         state->ExtReg[d*2] = state->ExtReg[m*2];
@@ -111,28 +90,40 @@ void VMOVR(ARMul_State* state, u32 single, u32 d, u32 m)
 }
 
 /* Miscellaneous functions */
-s32 vfp_get_float(ARMul_State* state, unsigned int reg)
-{
-    LOG_TRACE(Core_ARM11, "VFP get float: s%d=[%08x]", reg, state->ExtReg[reg]);
+s32 vfp_get_float(ARMul_State* state, unsigned int reg) {
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_TRACE(Core_ARM11, "VFP get float: s%d=[%08x]", reg, state->ExtReg[reg]));
+#endif
+
     return state->ExtReg[reg];
 }
 
-void vfp_put_float(ARMul_State* state, s32 val, unsigned int reg)
-{
-    LOG_TRACE(Core_ARM11, "VFP put float: s%d <= [%08x]", reg, val);
+void vfp_put_float(ARMul_State* state, s32 val, unsigned int reg) {
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_TRACE(Core_ARM11, "VFP put float: s%d <= [%08x]", reg, val));
+#endif
+
     state->ExtReg[reg] = val;
 }
 
-u64 vfp_get_double(ARMul_State* state, unsigned int reg)
-{
+u64 vfp_get_double(ARMul_State* state, unsigned int reg) {
     u64 result = ((u64) state->ExtReg[reg*2+1])<<32 | state->ExtReg[reg*2];
-    LOG_TRACE(Core_ARM11, "VFP get double: s[%d-%d]=[%016llx]", reg * 2 + 1, reg * 2, result);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_TRACE(Core_ARM11, "VFP get double: s[%d-%d]=[%016llx]", reg * 2 + 1, reg * 2, result));
+#endif
+
     return result;
 }
 
-void vfp_put_double(ARMul_State* state, u64 val, unsigned int reg)
-{
-    LOG_TRACE(Core_ARM11, "VFP put double: s[%d-%d] <= [%08x-%08x]", reg * 2 + 1, reg * 2, (u32)(val >> 32), (u32)(val & 0xffffffff));
+void vfp_put_double(ARMul_State* state, u64 val, unsigned int reg) {
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_TRACE(Core_ARM11, "VFP put double: s[%d-%d] <= [%08x-%08x]", reg * 2 + 1, reg * 2, (u32)(val >> 32), (u32)(val & 0xffffffff)));
+#endif
+
     state->ExtReg[reg*2] = (u32) (val & 0xffffffff);
     state->ExtReg[reg*2+1] = (u32) (val>>32);
 }
@@ -140,12 +131,19 @@ void vfp_put_double(ARMul_State* state, u64 val, unsigned int reg)
 /*
  * Process bitmask of exception conditions. (from vfpmodule.c)
  */
-void vfp_raise_exceptions(ARMul_State* state, u32 exceptions, u32 inst, u32 fpscr)
-{
-    LOG_TRACE(Core_ARM11, "VFP: raising exceptions %08x", exceptions);
+void vfp_raise_exceptions(ARMul_State* state, u32 exceptions, u32 inst, u32 fpscr) {
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_TRACE(Core_ARM11, "VFP: raising exceptions %08x", exceptions));
+#endif
+
 
     if (exceptions == VFP_EXCEPTION_ERROR) {
-        LOG_CRITICAL(Core_ARM11, "unhandled bounce %x", inst);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_CRITICAL(Core_ARM11, "unhandled bounce %x", inst));
+#endif
+
         Crash();
     }
 
@@ -154,8 +152,9 @@ void vfp_raise_exceptions(ARMul_State* state, u32 exceptions, u32 inst, u32 fpsc
      * Comparison instructions always return at least one of
      * these flags set.
      */
-    if (exceptions & (FPSCR_NFLAG|FPSCR_ZFLAG|FPSCR_CFLAG|FPSCR_VFLAG))
+    if (exceptions & (FPSCR_NFLAG|FPSCR_ZFLAG|FPSCR_CFLAG|FPSCR_VFLAG)) {
         fpscr &= ~(FPSCR_NFLAG|FPSCR_ZFLAG|FPSCR_CFLAG|FPSCR_VFLAG);
+    }
 
     fpscr |= exceptions;
 

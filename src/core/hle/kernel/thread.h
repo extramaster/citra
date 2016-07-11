@@ -17,7 +17,7 @@
 #include "core/hle/kernel/kernel.h"
 #include "core/hle/result.h"
 
-enum ThreadPriority : s32{
+enum ThreadPriority : s32 {
     THREADPRIO_HIGHEST          = 0,  ///< Highest thread priority
     THREADPRIO_USERLAND_MAX     = 24, ///< Highest thread priority for userland apps
     THREADPRIO_DEFAULT          = 48, ///< Default thread priority for userland apps
@@ -60,13 +60,19 @@ public:
      * @return A shared pointer to the newly created thread
      */
     static ResultVal<SharedPtr<Thread>> Create(std::string name, VAddr entry_point, s32 priority,
-        u32 arg, s32 processor_id, VAddr stack_top);
+                                     u32 arg, s32 processor_id, VAddr stack_top);
 
-    std::string GetName() const override { return name; }
-    std::string GetTypeName() const override { return "Thread"; }
+    std::string GetName() const override {
+        return name;
+    }
+    std::string GetTypeName() const override {
+        return "Thread";
+    }
 
     static const HandleType HANDLE_TYPE = HandleType::Thread;
-    HandleType GetHandleType() const override { return HANDLE_TYPE; }
+    HandleType GetHandleType() const override {
+        return HANDLE_TYPE;
+    }
 
     bool ShouldWait() override;
     void Acquire() override;
@@ -75,7 +81,9 @@ public:
      * Gets the thread's current priority
      * @return The current thread's priority
      */
-    s32 GetPriority() const { return current_priority; }
+    s32 GetPriority() const {
+        return current_priority;
+    }
 
     /**
      * Sets the thread's current priority
@@ -93,7 +101,9 @@ public:
      * Gets the thread's thread ID
      * @return The thread's ID
      */
-    u32 GetThreadId() const { return thread_id; }
+    u32 GetThreadId() const {
+        return thread_id;
+    }
 
     /**
      * Resumes a thread from waiting
@@ -127,7 +137,9 @@ public:
      * Returns the Thread Local Storage address of the current thread
      * @returns VAddr of the thread's TLS
      */
-    VAddr GetTLSAddress() const { return tls_address; }
+    VAddr GetTLSAddress() const {
+        return tls_address;
+    }
 
     Core::ThreadContext context;
 

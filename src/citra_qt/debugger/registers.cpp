@@ -35,11 +35,13 @@ RegistersWidget::RegistersWidget(QWidget* parent) : QDockWidget(parent) {
     CreateVFPSystemRegisterChildren();
 
     // Set Registers to display in monospace font
-    for (int i = 0; i < core_registers->childCount(); ++i)
+    for (int i = 0; i < core_registers->childCount(); ++i) {
         core_registers->child(i)->setFont(1, font);
+    }
 
-    for (int i = 0; i < vfp_registers->childCount(); ++i)
+    for (int i = 0; i < vfp_registers->childCount(); ++i) {
         vfp_registers->child(i)->setFont(1, font);
+    }
 
     for (int i = 0; i < vfp_system_registers->childCount(); ++i) {
         vfp_system_registers->child(i)->setFont(1, font);
@@ -59,14 +61,17 @@ RegistersWidget::RegistersWidget(QWidget* parent) : QDockWidget(parent) {
 }
 
 void RegistersWidget::OnDebugModeEntered() {
-    if (!Core::g_app_core)
+    if (!Core::g_app_core) {
         return;
+    }
 
-    for (int i = 0; i < core_registers->childCount(); ++i)
+    for (int i = 0; i < core_registers->childCount(); ++i) {
         core_registers->child(i)->setText(1, QString("0x%1").arg(Core::g_app_core->GetReg(i), 8, 16, QLatin1Char('0')));
+    }
 
-    for (int i = 0; i < vfp_registers->childCount(); ++i)
+    for (int i = 0; i < vfp_registers->childCount(); ++i) {
         vfp_registers->child(i)->setText(1, QString("0x%1").arg(Core::g_app_core->GetVFPReg(i), 8, 16, QLatin1Char('0')));
+    }
 
     UpdateCPSRValues();
     UpdateVFPSystemRegisterValues();
@@ -81,24 +86,29 @@ void RegistersWidget::OnEmulationStarting(EmuThread* emu_thread) {
 
 void RegistersWidget::OnEmulationStopping() {
     // Reset widget text
-    for (int i = 0; i < core_registers->childCount(); ++i)
+    for (int i = 0; i < core_registers->childCount(); ++i) {
         core_registers->child(i)->setText(1, QString(""));
+    }
 
-    for (int i = 0; i < vfp_registers->childCount(); ++i)
+    for (int i = 0; i < vfp_registers->childCount(); ++i) {
         vfp_registers->child(i)->setText(1, QString(""));
+    }
 
-    for (int i = 0; i < cpsr->childCount(); ++i)
+    for (int i = 0; i < cpsr->childCount(); ++i) {
         cpsr->child(i)->setText(1, QString(""));
+    }
 
     cpsr->setText(1, QString(""));
 
     // FPSCR
-    for (int i = 0; i < vfp_system_registers->child(0)->childCount(); ++i)
+    for (int i = 0; i < vfp_system_registers->child(0)->childCount(); ++i) {
         vfp_system_registers->child(0)->child(i)->setText(1, QString(""));
+    }
 
     // FPEXC
-    for (int i = 0; i < vfp_system_registers->child(1)->childCount(); ++i)
+    for (int i = 0; i < vfp_system_registers->child(1)->childCount(); ++i) {
         vfp_system_registers->child(1)->child(i)->setText(1, QString(""));
+    }
 
     vfp_system_registers->child(0)->setText(1, QString(""));
     vfp_system_registers->child(1)->setText(1, QString(""));

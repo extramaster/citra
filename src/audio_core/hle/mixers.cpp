@@ -21,10 +21,9 @@ void Mixers::Reset() {
 }
 
 DspStatus Mixers::Tick(DspConfiguration& config,
-        const IntermediateMixSamples& read_samples,
-        IntermediateMixSamples& write_samples,
-        const std::array<QuadFrame32, 3>& input)
-{
+                       const IntermediateMixSamples& read_samples,
+                       IntermediateMixSamples& write_samples,
+                       const std::array<QuadFrame32, 3>& input) {
     ParseConfig(config);
 
     AuxReturn(read_samples);
@@ -43,48 +42,80 @@ void Mixers::ParseConfig(DspConfiguration& config) {
     if (config.mixer1_enabled_dirty) {
         config.mixer1_enabled_dirty.Assign(0);
         state.mixer1_enabled = config.mixer1_enabled != 0;
-        LOG_TRACE(Audio_DSP, "mixers mixer1_enabled = %hu", config.mixer1_enabled);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_TRACE(Audio_DSP, "mixers mixer1_enabled = %hu", config.mixer1_enabled));
+#endif
+
     }
 
     if (config.mixer2_enabled_dirty) {
         config.mixer2_enabled_dirty.Assign(0);
         state.mixer2_enabled = config.mixer2_enabled != 0;
-        LOG_TRACE(Audio_DSP, "mixers mixer2_enabled = %hu", config.mixer2_enabled);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_TRACE(Audio_DSP, "mixers mixer2_enabled = %hu", config.mixer2_enabled));
+#endif
+
     }
 
     if (config.volume_0_dirty) {
         config.volume_0_dirty.Assign(0);
         state.intermediate_mixer_volume[0] = config.volume[0];
-        LOG_TRACE(Audio_DSP, "mixers volume[0] = %f", config.volume[0]);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_TRACE(Audio_DSP, "mixers volume[0] = %f", config.volume[0]));
+#endif
+
     }
 
     if (config.volume_1_dirty) {
         config.volume_1_dirty.Assign(0);
         state.intermediate_mixer_volume[1] = config.volume[1];
-        LOG_TRACE(Audio_DSP, "mixers volume[1] = %f", config.volume[1]);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_TRACE(Audio_DSP, "mixers volume[1] = %f", config.volume[1]));
+#endif
+
     }
 
     if (config.volume_2_dirty) {
         config.volume_2_dirty.Assign(0);
         state.intermediate_mixer_volume[2] = config.volume[2];
-        LOG_TRACE(Audio_DSP, "mixers volume[2] = %f", config.volume[2]);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_TRACE(Audio_DSP, "mixers volume[2] = %f", config.volume[2]));
+#endif
+
     }
 
     if (config.output_format_dirty) {
         config.output_format_dirty.Assign(0);
         state.output_format = config.output_format;
-        LOG_TRACE(Audio_DSP, "mixers output_format = %zu", static_cast<size_t>(config.output_format));
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_TRACE(Audio_DSP, "mixers output_format = %zu", static_cast<size_t>(config.output_format)));
+#endif
+
     }
 
     if (config.headphones_connected_dirty) {
         config.headphones_connected_dirty.Assign(0);
         // Do nothing.
         // (Note: Whether headphones are connected does affect coefficients used for surround sound.)
-        LOG_TRACE(Audio_DSP, "mixers headphones_connected=%hu", config.headphones_connected);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_TRACE(Audio_DSP, "mixers headphones_connected=%hu", config.headphones_connected));
+#endif
+
     }
 
     if (config.dirty_raw) {
-        LOG_DEBUG(Audio_DSP, "mixers remaining_dirty=%x", config.dirty_raw);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_DEBUG(Audio_DSP, "mixers remaining_dirty=%x", config.dirty_raw));
+#endif
+
     }
 
     config.dirty_raw = 0;
@@ -107,27 +138,27 @@ void Mixers::DownmixAndMixIntoCurrentFrame(float gain, const QuadFrame32& sample
     switch (state.output_format) {
     case OutputFormat::Mono:
         std::transform(current_frame.begin(), current_frame.end(), samples.begin(), current_frame.begin(),
-            [gain](const std::array<s16, 2>& accumulator, const std::array<s32, 4>& sample) -> std::array<s16, 2> {
-                // Downmix to mono
-                s16 mono = ClampToS16(static_cast<s32>((gain * sample[0] + gain * sample[1] + gain * sample[2] + gain * sample[3]) / 2));
-                // Mix into current frame
-                return AddAndClampToS16(accumulator, { mono, mono });
-            });
+        [gain](const std::array<s16, 2>& accumulator, const std::array<s32, 4>& sample) -> std::array<s16, 2> {
+            // Downmix to mono
+            s16 mono = ClampToS16(static_cast<s32>((gain * sample[0] + gain * sample[1] + gain * sample[2] + gain * sample[3]) / 2));
+            // Mix into current frame
+            return AddAndClampToS16(accumulator, { mono, mono });
+        });
         return;
 
     case OutputFormat::Surround:
-        // TODO(merry): Implement surround sound.
-        // fallthrough
+    // TODO(merry): Implement surround sound.
+    // fallthrough
 
     case OutputFormat::Stereo:
         std::transform(current_frame.begin(), current_frame.end(), samples.begin(), current_frame.begin(),
-            [gain](const std::array<s16, 2>& accumulator, const std::array<s32, 4>& sample) -> std::array<s16, 2> {
-                // Downmix to stereo
-                s16 left = ClampToS16(static_cast<s32>(gain * sample[0] + gain * sample[2]));
-                s16 right = ClampToS16(static_cast<s32>(gain * sample[1] + gain * sample[3]));
-                // Mix into current frame
-                return AddAndClampToS16(accumulator, { left, right });
-            });
+        [gain](const std::array<s16, 2>& accumulator, const std::array<s32, 4>& sample) -> std::array<s16, 2> {
+            // Downmix to stereo
+            s16 left = ClampToS16(static_cast<s32>(gain * sample[0] + gain * sample[2]));
+            s16 right = ClampToS16(static_cast<s32>(gain * sample[1] + gain * sample[3]));
+            // Mix into current frame
+            return AddAndClampToS16(accumulator, { left, right });
+        });
         return;
     }
 

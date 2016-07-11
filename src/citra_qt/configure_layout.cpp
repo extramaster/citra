@@ -10,14 +10,12 @@
 
 ConfigureLayout::ConfigureLayout(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::ConfigureLayout)
-{
+    ui(new Ui::ConfigureLayout) {
     ui->setupUi(this);
     this->setConfiguration();
 }
 
-ConfigureLayout::~ConfigureLayout()
-{
+ConfigureLayout::~ConfigureLayout() {
     delete ui;
 }
 

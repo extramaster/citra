@@ -31,8 +31,7 @@
  * - DO NOT TREAT THIS CLASS AS A GUI TOOLKIT ABSTRACTION LAYER. That's not what it is. Please
  *   re-read the upper points again and think about it if you don't see this.
  */
-class EmuWindow
-{
+class EmuWindow {
 public:
     /// Data structure to store emuwindow configuration
     struct WindowConfig {
@@ -284,9 +283,9 @@ private:
 
     s16 gyro_x = 0, gyro_y = 0, gyro_z = 0;
 
-   /**
-    * Clip the provided coordinates to be inside the touchscreen area.
-    */
+    /**
+     * Clip the provided coordinates to be inside the touchscreen area.
+     */
     std::tuple<unsigned,unsigned> ClipToTouchScreen(unsigned new_x, unsigned new_y);
 
     Service::HID::PadState pad_state;

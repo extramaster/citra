@@ -76,8 +76,8 @@ const char* GetLogClassName(Class log_class) {
         ALL_LOG_CLASSES()
 #undef CLS
 #undef SUB
-        case Class::Count:
-            UNREACHABLE();
+    case Class::Count:
+        UNREACHABLE();
     }
 }
 
@@ -90,15 +90,15 @@ const char* GetLevelName(Level log_level) {
         LVL(Warning);
         LVL(Error);
         LVL(Critical);
-        case Level::Count:
-            UNREACHABLE();
+    case Level::Count:
+        UNREACHABLE();
     }
 #undef LVL
 }
 
 Entry CreateEntry(Class log_class, Level log_level,
-                        const char* filename, unsigned int line_nr, const char* function,
-                        const char* format, va_list args) {
+                  const char* filename, unsigned int line_nr, const char* function,
+                  const char* format, va_list args) {
     using std::chrono::steady_clock;
     using std::chrono::duration_cast;
 
@@ -129,13 +129,14 @@ void SetFilter(Filter* new_filter) {
 void LogMessage(Class log_class, Level log_level,
                 const char* filename, unsigned int line_nr, const char* function,
                 const char* format, ...) {
-    if (filter != nullptr && !filter->CheckMessage(log_class, log_level))
+    if (filter != nullptr && !filter->CheckMessage(log_class, log_level)) {
         return;
+    }
 
     va_list args;
     va_start(args, format);
     Entry entry = CreateEntry(log_class, log_level,
-            filename, line_nr, function, format, args);
+                              filename, line_nr, function, format, args);
     va_end(args);
 
     PrintColoredMessage(entry);

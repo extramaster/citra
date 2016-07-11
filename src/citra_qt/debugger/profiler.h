@@ -13,8 +13,7 @@
 #include "common/microprofile.h"
 #include "common/profiler_reporting.h"
 
-class ProfilerModel : public QAbstractItemModel
-{
+class ProfilerModel : public QAbstractItemModel {
     Q_OBJECT
 
 public:
@@ -34,8 +33,7 @@ private:
     Common::Profiling::AggregatedFrameResult results;
 };
 
-class ProfilerWidget : public QDockWidget
-{
+class ProfilerWidget : public QDockWidget {
     Q_OBJECT
 
 public:

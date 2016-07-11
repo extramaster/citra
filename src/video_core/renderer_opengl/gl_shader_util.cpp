@@ -21,7 +21,11 @@ GLuint LoadProgram(const char* vertex_shader, const char* fragment_shader) {
     int info_log_length;
 
     // Compile Vertex Shader
-    LOG_DEBUG(Render_OpenGL, "Compiling vertex shader...");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_DEBUG(Render_OpenGL, "Compiling vertex shader..."));
+#endif
+
 
     glShaderSource(vertex_shader_id, 1, &vertex_shader, nullptr);
     glCompileShader(vertex_shader_id);
@@ -34,14 +38,26 @@ GLuint LoadProgram(const char* vertex_shader, const char* fragment_shader) {
         std::vector<char> vertex_shader_error(info_log_length);
         glGetShaderInfoLog(vertex_shader_id, info_log_length, nullptr, &vertex_shader_error[0]);
         if (result) {
-            LOG_DEBUG(Render_OpenGL, "%s", &vertex_shader_error[0]);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+            LOG_DEBUG(Render_OpenGL, "%s", &vertex_shader_error[0]));
+#endif
+
         } else {
-            LOG_ERROR(Render_OpenGL, "Error compiling vertex shader:\n%s", &vertex_shader_error[0]);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+            LOG_ERROR(Render_OpenGL, "Error compiling vertex shader:\n%s", &vertex_shader_error[0]));
+#endif
+
         }
     }
 
     // Compile Fragment Shader
-    LOG_DEBUG(Render_OpenGL, "Compiling fragment shader...");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_DEBUG(Render_OpenGL, "Compiling fragment shader..."));
+#endif
+
 
     glShaderSource(fragment_shader_id, 1, &fragment_shader, nullptr);
     glCompileShader(fragment_shader_id);
@@ -54,14 +70,26 @@ GLuint LoadProgram(const char* vertex_shader, const char* fragment_shader) {
         std::vector<char> fragment_shader_error(info_log_length);
         glGetShaderInfoLog(fragment_shader_id, info_log_length, nullptr, &fragment_shader_error[0]);
         if (result) {
-            LOG_DEBUG(Render_OpenGL, "%s", &fragment_shader_error[0]);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+            LOG_DEBUG(Render_OpenGL, "%s", &fragment_shader_error[0]));
+#endif
+
         } else {
-            LOG_ERROR(Render_OpenGL, "Error compiling fragment shader:\n%s", &fragment_shader_error[0]);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+            LOG_ERROR(Render_OpenGL, "Error compiling fragment shader:\n%s", &fragment_shader_error[0]));
+#endif
+
         }
     }
 
     // Link the program
-    LOG_DEBUG(Render_OpenGL, "Linking program...");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_DEBUG(Render_OpenGL, "Linking program..."));
+#endif
+
 
     GLuint program_id = glCreateProgram();
     glAttachShader(program_id, vertex_shader_id);
@@ -77,9 +105,17 @@ GLuint LoadProgram(const char* vertex_shader, const char* fragment_shader) {
         std::vector<char> program_error(info_log_length);
         glGetProgramInfoLog(program_id, info_log_length, nullptr, &program_error[0]);
         if (result) {
-            LOG_DEBUG(Render_OpenGL, "%s", &program_error[0]);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+            LOG_DEBUG(Render_OpenGL, "%s", &program_error[0]));
+#endif
+
         } else {
-            LOG_ERROR(Render_OpenGL, "Error linking shader:\n%s", &program_error[0]);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+            LOG_ERROR(Render_OpenGL, "Error linking shader:\n%s", &program_error[0]));
+#endif
+
         }
     }
 

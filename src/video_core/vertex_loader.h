@@ -25,7 +25,9 @@ public:
     void Setup(const Pica::Regs& regs);
     void LoadVertex(u32 base_address, int index, int vertex, Shader::InputVertex& input, DebugUtils::MemoryAccessTracker& memory_accesses);
 
-    int GetNumTotalAttributes() const { return num_total_attributes; }
+    int GetNumTotalAttributes() const {
+        return num_total_attributes;
+    }
 
 private:
     std::array<u32, 16> vertex_attribute_sources;

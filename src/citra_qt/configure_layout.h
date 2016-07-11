@@ -11,8 +11,7 @@ namespace Ui {
 class ConfigureLayout;
 }
 
-class ConfigureLayout : public QWidget
-{
+class ConfigureLayout : public QWidget {
     Q_OBJECT
 
 public:

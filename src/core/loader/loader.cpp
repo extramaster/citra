@@ -43,7 +43,11 @@ FileType IdentifyFile(FileUtil::IOFile& file) {
 FileType IdentifyFile(const std::string& file_name) {
     FileUtil::IOFile file(file_name, "rb");
     if (!file.IsOpen()) {
-        LOG_ERROR(Loader, "Failed to load file %s", file_name.c_str());
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_ERROR(Loader, "Failed to load file %s", file_name.c_str()));
+#endif
+
         return FileType::Unknown;
     }
 
@@ -53,20 +57,25 @@ FileType IdentifyFile(const std::string& file_name) {
 FileType GuessFromExtension(const std::string& extension_) {
     std::string extension = Common::ToLower(extension_);
 
-    if (extension == ".elf" || extension == ".axf")
+    if (extension == ".elf" || extension == ".axf") {
         return FileType::ELF;
+    }
 
-    if (extension == ".cci" || extension == ".3ds")
+    if (extension == ".cci" || extension == ".3ds") {
         return FileType::CCI;
+    }
 
-    if (extension == ".cxi")
+    if (extension == ".cxi") {
         return FileType::CXI;
+    }
 
-    if (extension == ".3dsx")
+    if (extension == ".3dsx") {
         return FileType::THREEDSX;
+    }
 
-    if (extension == ".cia")
+    if (extension == ".cia") {
         return FileType::CIA;
+    }
 
     return FileType::Unknown;
 }
@@ -100,7 +109,7 @@ const char* GetFileTypeString(FileType type) {
  * @return std::unique_ptr<AppLoader> a pointer to a loader object;  nullptr for unsupported type
  */
 static std::unique_ptr<AppLoader> GetFileLoader(FileUtil::IOFile&& file, FileType type,
-    const std::string& filename, const std::string& filepath) {
+        const std::string& filename, const std::string& filepath) {
     switch (type) {
 
     // 3DSX file format.
@@ -124,7 +133,11 @@ static std::unique_ptr<AppLoader> GetFileLoader(FileUtil::IOFile&& file, FileTyp
 std::unique_ptr<AppLoader> GetLoader(const std::string& filename) {
     FileUtil::IOFile file(filename, "rb");
     if (!file.IsOpen()) {
-        LOG_ERROR(Loader, "Failed to load file %s", filename.c_str());
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_ERROR(Loader, "Failed to load file %s", filename.c_str()));
+#endif
+
         return nullptr;
     }
 
@@ -135,12 +148,21 @@ std::unique_ptr<AppLoader> GetLoader(const std::string& filename) {
     FileType filename_type = GuessFromExtension(filename_extension);
 
     if (type != filename_type) {
-        LOG_WARNING(Loader, "File %s has a different type than its extension.", filename.c_str());
-        if (FileType::Unknown == type)
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_WARNING(Loader, "File %s has a different type than its extension.", filename.c_str()));
+#endif
+
+        if (FileType::Unknown == type) {
             type = filename_type;
+        }
     }
 
-    LOG_INFO(Loader, "Loading file %s as %s...", filename.c_str(), GetFileTypeString(type));
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_INFO(Loader, "Loading file %s as %s...", filename.c_str(), GetFileTypeString(type)));
+#endif
+
 
     return GetFileLoader(std::move(file), type, filename_filename, filename);
 }

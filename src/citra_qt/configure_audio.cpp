@@ -10,9 +10,8 @@
 #include "core/settings.h"
 
 ConfigureAudio::ConfigureAudio(QWidget* parent) :
-        QWidget(parent),
-        ui(std::make_unique<Ui::ConfigureAudio>())
-{
+    QWidget(parent),
+    ui(std::make_unique<Ui::ConfigureAudio>()) {
     ui->setupUi(this);
 
     ui->output_sink_combo_box->clear();

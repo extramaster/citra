@@ -61,7 +61,7 @@ union PicaShaderConfig {
         state.depthmap_enable = regs.depthmap_enable;
 
         state.alpha_test_func = regs.output_merger.alpha_test.enable ?
-            regs.output_merger.alpha_test.func.Value() : Pica::Regs::CompareFunc::Always;
+                                regs.output_merger.alpha_test.func.Value() : Pica::Regs::CompareFunc::Always;
 
         state.texture0_type = regs.texture0.type;
 

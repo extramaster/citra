@@ -121,8 +121,9 @@ struct ThreadQueueList {
 
     void prepare(Priority priority) {
         Queue* cur = &queues[priority];
-        if (cur->next_nonempty == UnlinkedTag())
+        if (cur->next_nonempty == UnlinkedTag()) {
             link(priority);
+        }
     }
 
 private:

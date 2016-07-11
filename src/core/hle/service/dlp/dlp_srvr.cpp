@@ -16,7 +16,11 @@ static void unk_0x000E0040(Interface* self) {
     cmd_buff[1] = RESULT_SUCCESS.raw;
     cmd_buff[2] = 0;
 
-    LOG_WARNING(Service_DLP, "(STUBBED) called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_DLP, "(STUBBED) called"));
+#endif
+
 }
 
 const Interface::FunctionInfo FunctionTable[] = {

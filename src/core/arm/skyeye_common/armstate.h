@@ -143,8 +143,7 @@ enum {
 };
 
 
-struct ARMul_State final
-{
+struct ARMul_State final {
 public:
     explicit ARMul_State(PrivilegeMode initial_mode);
 

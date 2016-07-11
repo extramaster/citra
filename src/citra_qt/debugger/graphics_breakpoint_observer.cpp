@@ -7,9 +7,8 @@
 #include "citra_qt/debugger/graphics_breakpoint_observer.h"
 
 BreakPointObserverDock::BreakPointObserverDock(std::shared_ptr<Pica::DebugContext> debug_context,
-                                               const QString& title, QWidget* parent)
-    : QDockWidget(title, parent), BreakPointObserver(debug_context)
-{
+        const QString& title, QWidget* parent)
+    : QDockWidget(title, parent), BreakPointObserver(debug_context) {
     qRegisterMetaType<Pica::DebugContext::Event>("Pica::DebugContext::Event");
 
     connect(this, SIGNAL(Resumed()), this, SLOT(OnResumed()));
@@ -21,12 +20,10 @@ BreakPointObserverDock::BreakPointObserverDock(std::shared_ptr<Pica::DebugContex
             Qt::BlockingQueuedConnection);
 }
 
-void BreakPointObserverDock::OnPicaBreakPointHit(Pica::DebugContext::Event event, void* data)
-{
+void BreakPointObserverDock::OnPicaBreakPointHit(Pica::DebugContext::Event event, void* data) {
     emit BreakPointHit(event, data);
 }
 
-void BreakPointObserverDock::OnPicaResume()
-{
+void BreakPointObserverDock::OnPicaResume() {
     emit Resumed();
 }

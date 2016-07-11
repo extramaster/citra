@@ -51,7 +51,9 @@ public:
     File(std::unique_ptr<FileSys::FileBackend>&& backend, const FileSys::Path& path);
     ~File();
 
-    std::string GetName() const override { return "Path: " + path.DebugStr(); }
+    std::string GetName() const override {
+        return "Path: " + path.DebugStr();
+    }
     ResultVal<bool> SyncRequest() override;
 
     FileSys::Path path; ///< Path of the file
@@ -64,7 +66,9 @@ public:
     Directory(std::unique_ptr<FileSys::DirectoryBackend>&& backend, const FileSys::Path& path);
     ~Directory();
 
-    std::string GetName() const override { return "Directory: " + path.DebugStr(); }
+    std::string GetName() const override {
+        return "Directory: " + path.DebugStr();
+    }
     ResultVal<bool> SyncRequest() override;
 
     FileSys::Path path; ///< Path of the directory
@@ -113,7 +117,7 @@ ResultCode RegisterArchiveType(std::unique_ptr<FileSys::ArchiveFactory>&& factor
  * @return The opened File object as a Session
  */
 ResultVal<Kernel::SharedPtr<File>> OpenFileFromArchive(ArchiveHandle archive_handle,
-        const FileSys::Path& path, const FileSys::Mode mode);
+                                const FileSys::Path& path, const FileSys::Mode mode);
 
 /**
  * Delete a File from an Archive
@@ -168,7 +172,7 @@ ResultCode CreateDirectoryFromArchive(ArchiveHandle archive_handle, const FileSy
  * @return Whether rename succeeded
  */
 ResultCode RenameDirectoryBetweenArchives(ArchiveHandle src_archive_handle, const FileSys::Path& src_path,
-                                          ArchiveHandle dest_archive_handle, const FileSys::Path& dest_path);
+        ArchiveHandle dest_archive_handle, const FileSys::Path& dest_path);
 
 /**
  * Open a Directory from an Archive
@@ -177,7 +181,7 @@ ResultCode RenameDirectoryBetweenArchives(ArchiveHandle src_archive_handle, cons
  * @return The opened Directory object as a Session
  */
 ResultVal<Kernel::SharedPtr<Directory>> OpenDirectoryFromArchive(ArchiveHandle archive_handle,
-        const FileSys::Path& path);
+                                     const FileSys::Path& path);
 
 /**
  * Get the free space in an Archive

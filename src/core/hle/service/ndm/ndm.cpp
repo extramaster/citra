@@ -30,7 +30,11 @@ void EnterExclusiveState(Service::Interface* self) {
 
     cmd_buff[0] = IPC::MakeHeader(0x1, 1, 0);
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
-    LOG_WARNING(Service_NDM, "(STUBBED) exclusive_state=0x%08X ", exclusive_state);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_NDM, "(STUBBED) exclusive_state=0x%08X ", exclusive_state));
+#endif
+
 }
 
 void LeaveExclusiveState(Service::Interface* self) {
@@ -39,7 +43,11 @@ void LeaveExclusiveState(Service::Interface* self) {
 
     cmd_buff[0] = IPC::MakeHeader(0x2, 1, 0);
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
-    LOG_WARNING(Service_NDM, "(STUBBED) exclusive_state=0x%08X ", exclusive_state);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_NDM, "(STUBBED) exclusive_state=0x%08X ", exclusive_state));
+#endif
+
 }
 
 void QueryExclusiveMode(Service::Interface* self) {
@@ -48,7 +56,11 @@ void QueryExclusiveMode(Service::Interface* self) {
     cmd_buff[0] = IPC::MakeHeader(0x3, 2, 0);
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
     cmd_buff[2] = static_cast<u32>(exclusive_state);
-    LOG_WARNING(Service_NDM, "(STUBBED) exclusive_state=0x%08X ", exclusive_state);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_NDM, "(STUBBED) exclusive_state=0x%08X ", exclusive_state));
+#endif
+
 }
 
 void LockState(Service::Interface* self) {
@@ -57,7 +69,11 @@ void LockState(Service::Interface* self) {
 
     cmd_buff[0] = IPC::MakeHeader(0x4, 1, 0);
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
-    LOG_WARNING(Service_NDM, "(STUBBED) daemon_lock_enabled=0x%08X ", daemon_lock_enabled);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_NDM, "(STUBBED) daemon_lock_enabled=0x%08X ", daemon_lock_enabled));
+#endif
+
 }
 
 void UnlockState(Service::Interface* self) {
@@ -66,7 +82,11 @@ void UnlockState(Service::Interface* self) {
 
     cmd_buff[0] = IPC::MakeHeader(0x5, 1, 0);
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
-    LOG_WARNING(Service_NDM, "(STUBBED) daemon_lock_enabled=0x%08X ", daemon_lock_enabled);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_NDM, "(STUBBED) daemon_lock_enabled=0x%08X ", daemon_lock_enabled));
+#endif
+
 }
 
 void SuspendDaemons(Service::Interface* self) {
@@ -81,7 +101,11 @@ void SuspendDaemons(Service::Interface* self) {
 
     cmd_buff[0] = IPC::MakeHeader(0x6, 1, 0);
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
-    LOG_WARNING(Service_NDM, "(STUBBED) daemon_bit_mask=0x%08X ", daemon_bit_mask);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_NDM, "(STUBBED) daemon_bit_mask=0x%08X ", daemon_bit_mask));
+#endif
+
 }
 
 void ResumeDaemons(Service::Interface* self) {
@@ -96,7 +120,11 @@ void ResumeDaemons(Service::Interface* self) {
 
     cmd_buff[0] = IPC::MakeHeader(0x7, 1, 0);
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
-    LOG_WARNING(Service_NDM, "(STUBBED) daemon_bit_mask=0x%08X ", daemon_bit_mask);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_NDM, "(STUBBED) daemon_bit_mask=0x%08X ", daemon_bit_mask));
+#endif
+
 }
 
 void SuspendScheduler(Service::Interface* self) {
@@ -104,7 +132,11 @@ void SuspendScheduler(Service::Interface* self) {
 
     cmd_buff[0] = IPC::MakeHeader(0x8, 1, 0);
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
-    LOG_WARNING(Service_NDM, "(STUBBED) called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_NDM, "(STUBBED) called"));
+#endif
+
 }
 
 void ResumeScheduler(Service::Interface* self) {
@@ -112,7 +144,11 @@ void ResumeScheduler(Service::Interface* self) {
 
     cmd_buff[0] = IPC::MakeHeader(0x9, 1, 0);
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
-    LOG_WARNING(Service_NDM, "(STUBBED) called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_NDM, "(STUBBED) called"));
+#endif
+
 }
 
 void QueryStatus(Service::Interface* self) {
@@ -122,7 +158,11 @@ void QueryStatus(Service::Interface* self) {
     cmd_buff[0] = IPC::MakeHeader(0xD, 2, 0);
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
     cmd_buff[2] = static_cast<u32>(daemon_status.at(daemon));
-    LOG_WARNING(Service_NDM, "(STUBBED) daemon=0x%08X, daemon_status=0x%08X", daemon, cmd_buff[2]);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_NDM, "(STUBBED) daemon=0x%08X, daemon_status=0x%08X", daemon, cmd_buff[2]));
+#endif
+
 }
 
 void GetDaemonDisableCount(Service::Interface* self) {
@@ -133,7 +173,11 @@ void GetDaemonDisableCount(Service::Interface* self) {
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
     cmd_buff[2] = 0;
     cmd_buff[3] = 0;
-    LOG_WARNING(Service_NDM, "(STUBBED) daemon=0x%08X", daemon);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_NDM, "(STUBBED) daemon=0x%08X", daemon));
+#endif
+
 }
 
 void GetSchedulerDisableCount(Service::Interface* self) {
@@ -143,7 +187,11 @@ void GetSchedulerDisableCount(Service::Interface* self) {
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
     cmd_buff[2] = 0;
     cmd_buff[3] = 0;
-    LOG_WARNING(Service_NDM, "(STUBBED) called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_NDM, "(STUBBED) called"));
+#endif
+
 }
 
 void SetScanInterval(Service::Interface* self) {
@@ -152,7 +200,11 @@ void SetScanInterval(Service::Interface* self) {
 
     cmd_buff[0] = IPC::MakeHeader(0x10, 1, 0);
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
-    LOG_WARNING(Service_NDM, "(STUBBED) scan_interval=0x%08X ", scan_interval);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_NDM, "(STUBBED) scan_interval=0x%08X ", scan_interval));
+#endif
+
 }
 
 void GetScanInterval(Service::Interface* self) {
@@ -161,7 +213,11 @@ void GetScanInterval(Service::Interface* self) {
     cmd_buff[0] = IPC::MakeHeader(0x11, 2, 0);
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
     cmd_buff[2] = scan_interval;
-    LOG_WARNING(Service_NDM, "(STUBBED) scan_interval=0x%08X ", scan_interval);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_NDM, "(STUBBED) scan_interval=0x%08X ", scan_interval));
+#endif
+
 }
 
 void SetRetryInterval(Service::Interface* self) {
@@ -170,7 +226,11 @@ void SetRetryInterval(Service::Interface* self) {
 
     cmd_buff[0] = IPC::MakeHeader(0x12, 1, 0);
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
-    LOG_WARNING(Service_NDM, "(STUBBED) retry_interval=0x%08X ", retry_interval);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_NDM, "(STUBBED) retry_interval=0x%08X ", retry_interval));
+#endif
+
 }
 
 void GetRetryInterval(Service::Interface* self) {
@@ -179,7 +239,11 @@ void GetRetryInterval(Service::Interface* self) {
     cmd_buff[0] = IPC::MakeHeader(0x13, 2, 0);
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
     cmd_buff[2] = retry_interval;
-    LOG_WARNING(Service_NDM, "(STUBBED) retry_interval=0x%08X ", retry_interval);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_NDM, "(STUBBED) retry_interval=0x%08X ", retry_interval));
+#endif
+
 }
 
 void OverrideDefaultDaemons(Service::Interface* self) {
@@ -195,7 +259,11 @@ void OverrideDefaultDaemons(Service::Interface* self) {
 
     cmd_buff[0] = IPC::MakeHeader(0x14, 1, 0);
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
-    LOG_WARNING(Service_NDM, "(STUBBED) default_daemon_bit_mask=0x%08X ", default_daemon_bit_mask);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_NDM, "(STUBBED) default_daemon_bit_mask=0x%08X ", default_daemon_bit_mask));
+#endif
+
 }
 
 void ResetDefaultDaemons(Service::Interface* self) {
@@ -204,7 +272,11 @@ void ResetDefaultDaemons(Service::Interface* self) {
 
     cmd_buff[0] = IPC::MakeHeader(0x15, 1, 0);
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
-    LOG_WARNING(Service_NDM, "(STUBBED) default_daemon_bit_mask=0x%08X ", default_daemon_bit_mask);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_NDM, "(STUBBED) default_daemon_bit_mask=0x%08X ", default_daemon_bit_mask));
+#endif
+
 }
 
 void GetDefaultDaemons(Service::Interface* self) {
@@ -213,7 +285,11 @@ void GetDefaultDaemons(Service::Interface* self) {
     cmd_buff[0] = IPC::MakeHeader(0x16, 2, 0);
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
     cmd_buff[2] = static_cast<u32>(default_daemon_bit_mask);
-    LOG_WARNING(Service_NDM, "(STUBBED) default_daemon_bit_mask=0x%08X ", default_daemon_bit_mask);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_NDM, "(STUBBED) default_daemon_bit_mask=0x%08X ", default_daemon_bit_mask));
+#endif
+
 }
 
 void ClearHalfAwakeMacFilter(Service::Interface* self) {
@@ -221,7 +297,11 @@ void ClearHalfAwakeMacFilter(Service::Interface* self) {
 
     cmd_buff[0] = IPC::MakeHeader(0x17, 1, 0);
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
-    LOG_WARNING(Service_NDM, "(STUBBED) called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_NDM, "(STUBBED) called"));
+#endif
+
 }
 
 void Init() {

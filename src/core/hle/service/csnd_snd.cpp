@@ -45,8 +45,8 @@ void Initialize(Service::Interface* self) {
     u32 size = Common::AlignUp(cmd_buff[1], Memory::PAGE_SIZE);
     using Kernel::MemoryPermission;
     shared_memory = Kernel::SharedMemory::Create(nullptr, size,
-                                                 MemoryPermission::ReadWrite, MemoryPermission::ReadWrite,
-                                                 0, Kernel::MemoryRegion::BASE, "CSND:SharedMemory");
+                    MemoryPermission::ReadWrite, MemoryPermission::ReadWrite,
+                    0, Kernel::MemoryRegion::BASE, "CSND:SharedMemory");
 
     mutex = Kernel::Mutex::Create(false);
 
@@ -64,7 +64,11 @@ void ExecuteType0Commands(Service::Interface* self) {
         Type0Command command;
         std::memcpy(&command, ptr, sizeof(Type0Command));
 
-        LOG_WARNING(Service, "(STUBBED) CSND_SND::ExecuteType0Commands");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_WARNING(Service, "(STUBBED) CSND_SND::ExecuteType0Commands"));
+#endif
+
         command.finished |= 1;
         cmd_buff[1] = 0;
 

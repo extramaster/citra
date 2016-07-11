@@ -26,7 +26,11 @@ namespace Applets {
 
 ResultCode SoftwareKeyboard::ReceiveParameter(Service::APT::MessageParameter const& parameter) {
     if (parameter.signal != static_cast<u32>(Service::APT::SignalType::LibAppJustStarted)) {
-        LOG_ERROR(Service_APT, "unsupported signal %u", parameter.signal);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_ERROR(Service_APT, "unsupported signal %u", parameter.signal));
+#endif
+
         UNIMPLEMENTED();
         // TODO(Subv): Find the right error code
         return ResultCode(-1);
@@ -44,8 +48,8 @@ ResultCode SoftwareKeyboard::ReceiveParameter(Service::APT::MessageParameter con
     heap_memory = std::make_shared<std::vector<u8>>(capture_info.size);
     // Create a SharedMemory that directly points to this heap block.
     framebuffer_memory = Kernel::SharedMemory::CreateForApplet(heap_memory, 0, heap_memory->size(),
-                                                               MemoryPermission::ReadWrite, MemoryPermission::ReadWrite,
-                                                               "SoftwareKeyboard Memory");
+                         MemoryPermission::ReadWrite, MemoryPermission::ReadWrite,
+                         "SoftwareKeyboard Memory");
 
     // Send the response message with the newly created SharedMemory
     Service::APT::MessageParameter result;

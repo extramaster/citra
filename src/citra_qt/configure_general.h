@@ -11,8 +11,7 @@ namespace Ui {
 class ConfigureGeneral;
 }
 
-class ConfigureGeneral : public QWidget
-{
+class ConfigureGeneral : public QWidget {
     Q_OBJECT
 
 public:

@@ -34,7 +34,11 @@ void GetAdapterState(Service::Interface* self) {
     cmd_buff[1] = RESULT_SUCCESS.raw;
     cmd_buff[2] = battery_is_charging ? 1 : 0;
 
-    LOG_WARNING(Service_PTM, "(STUBBED) called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_PTM, "(STUBBED) called"));
+#endif
+
 }
 
 void GetShellState(Service::Interface* self) {
@@ -53,7 +57,11 @@ void GetBatteryLevel(Service::Interface* self) {
     cmd_buff[1] = RESULT_SUCCESS.raw;
     cmd_buff[2] = static_cast<u32>(ChargeLevels::CompletelyFull); // Set to a completely full battery
 
-    LOG_WARNING(Service_PTM, "(STUBBED) called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_PTM, "(STUBBED) called"));
+#endif
+
 }
 
 void GetBatteryChargeState(Service::Interface* self) {
@@ -65,7 +73,11 @@ void GetBatteryChargeState(Service::Interface* self) {
     cmd_buff[1] = RESULT_SUCCESS.raw;
     cmd_buff[2] = battery_is_charging ? 1 : 0;
 
-    LOG_WARNING(Service_PTM, "(STUBBED) called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_PTM, "(STUBBED) called"));
+#endif
+
 }
 
 void GetTotalStepCount(Service::Interface* self) {
@@ -77,7 +89,11 @@ void GetTotalStepCount(Service::Interface* self) {
     cmd_buff[1] = RESULT_SUCCESS.raw;
     cmd_buff[2] = 0;
 
-    LOG_WARNING(Service_PTM, "(STUBBED) called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_PTM, "(STUBBED) called"));
+#endif
+
 }
 
 void IsLegacyPowerOff(Service::Interface* self) {
@@ -86,7 +102,11 @@ void IsLegacyPowerOff(Service::Interface* self) {
     cmd_buff[1] = RESULT_SUCCESS.raw;
     cmd_buff[2] = 0;
 
-    LOG_WARNING(Service_PTM, "(STUBBED) called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_PTM, "(STUBBED) called"));
+#endif
+
 }
 
 void CheckNew3DS(Service::Interface* self) {
@@ -94,14 +114,22 @@ void CheckNew3DS(Service::Interface* self) {
     const bool is_new_3ds = Settings::values.is_new_3ds;
 
     if (is_new_3ds) {
-        LOG_CRITICAL(Service_PTM, "The option 'is_new_3ds' is enabled as part of the 'System' settings. Citra does not fully support New 3DS emulation yet!");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_CRITICAL(Service_PTM, "The option 'is_new_3ds' is enabled as part of the 'System' settings. Citra does not fully support New 3DS emulation yet!"));
+#endif
+
     }
 
     cmd_buff[0] = IPC::MakeHeader(0x40A, 0x2, 0);
     cmd_buff[1] = RESULT_SUCCESS.raw;
     cmd_buff[2] = is_new_3ds ? 1 : 0;
 
-    LOG_WARNING(Service_PTM, "(STUBBED) called isNew3DS = 0x%08x", static_cast<u32>(is_new_3ds));
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_PTM, "(STUBBED) called isNew3DS = 0x%08x", static_cast<u32>(is_new_3ds)));
+#endif
+
 }
 
 void ConfigureNew3DSCPU(Interface* self) {
@@ -111,7 +139,11 @@ void ConfigureNew3DSCPU(Interface* self) {
     cmd_buff[0] = IPC::MakeHeader(0x818, 0x1, 0);
     cmd_buff[1] = SVC::KernelSetState(static_cast<u32>(SVC::KernelSetStateType::ConfigureNew3DSCPU), value, 0, 0).raw;
 
-    LOG_WARNING(Service_PTM, "(STUBBED) called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_PTM, "(STUBBED) called"));
+#endif
+
 }
 
 void Init() {

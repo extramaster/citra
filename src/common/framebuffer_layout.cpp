@@ -42,7 +42,7 @@ FramebufferLayout FramebufferLayout::DefaultFrameLayout(unsigned width, unsigned
 
     float window_aspect_ratio = static_cast<float>(height) / width;
     float emulation_aspect_ratio = static_cast<float>(VideoCore::kScreenTopHeight * 2) /
-        VideoCore::kScreenTopWidth;
+                                   VideoCore::kScreenTopWidth;
 
     if (window_aspect_ratio > emulation_aspect_ratio) {
         // Window is narrower than the emulation content => apply borders to the top and bottom
@@ -54,7 +54,7 @@ FramebufferLayout FramebufferLayout::DefaultFrameLayout(unsigned width, unsigned
         res.top_screen.bottom = res.top_screen.top + viewport_height / 2;
 
         int bottom_width = static_cast<int>((static_cast<float>(VideoCore::kScreenBottomWidth) /
-            VideoCore::kScreenTopWidth) * (res.top_screen.right - res.top_screen.left));
+                                             VideoCore::kScreenTopWidth) * (res.top_screen.right - res.top_screen.left));
         int bottom_border = ((res.top_screen.right - res.top_screen.left) - bottom_width) / 2;
 
         res.bottom_screen.left = bottom_border;
@@ -71,7 +71,7 @@ FramebufferLayout FramebufferLayout::DefaultFrameLayout(unsigned width, unsigned
         res.top_screen.bottom = res.top_screen.top + height / 2;
 
         int bottom_width = static_cast<int>((static_cast<float>(VideoCore::kScreenBottomWidth) /
-            VideoCore::kScreenTopWidth) * (res.top_screen.right - res.top_screen.left));
+                                             VideoCore::kScreenTopWidth) * (res.top_screen.right - res.top_screen.left));
         int bottom_border = ((res.top_screen.right - res.top_screen.left) - bottom_width) / 2;
 
         res.bottom_screen.left = res.top_screen.left + bottom_border;
@@ -93,7 +93,7 @@ FramebufferLayout FramebufferLayout::InverseDefaultLayout(unsigned width, unsign
 
     float window_aspect_ratio = static_cast<float>(height) / width;
     float emulation_aspect_ratio = static_cast<float>(VideoCore::kScreenTopHeight * 2) /
-        VideoCore::kScreenTopWidth;
+                                   VideoCore::kScreenTopWidth;
 
     if (window_aspect_ratio > emulation_aspect_ratio) {
         // Window is narrower than the emulation content => apply borders to the top and bottom
@@ -103,7 +103,7 @@ FramebufferLayout FramebufferLayout::InverseDefaultLayout(unsigned width, unsign
         res.top_screen.right = res.top_screen.left + width;
 
         int bottom_width = static_cast<int>((static_cast<float>(VideoCore::kScreenBottomWidth) /
-            VideoCore::kScreenTopWidth) * (res.top_screen.right - res.top_screen.left));
+                                             VideoCore::kScreenTopWidth) * (res.top_screen.right - res.top_screen.left));
         int bottom_border = ((res.top_screen.right - res.top_screen.left) - bottom_width) / 2;
 
         res.bottom_screen.left = bottom_border;
@@ -113,15 +113,14 @@ FramebufferLayout FramebufferLayout::InverseDefaultLayout(unsigned width, unsign
 
         res.top_screen.top = res.bottom_screen.bottom;
         res.top_screen.bottom = res.top_screen.top + viewport_height / 2;
-    }
-    else {
+    } else {
         // Otherwise, apply borders to the left and right sides of the window.
         int viewport_width = static_cast<int>(std::round(height / emulation_aspect_ratio));
         res.top_screen.left = (width - viewport_width) / 2;
         res.top_screen.right = res.top_screen.left + viewport_width;
 
         int bottom_width = static_cast<int>((static_cast<float>(VideoCore::kScreenBottomWidth) /
-            VideoCore::kScreenTopWidth) * (res.top_screen.right - res.top_screen.left));
+                                             VideoCore::kScreenTopWidth) * (res.top_screen.right - res.top_screen.left));
         int bottom_border = ((res.top_screen.right - res.top_screen.left) - bottom_width) / 2;
 
         res.bottom_screen.left = res.top_screen.left + bottom_border;
@@ -146,7 +145,7 @@ FramebufferLayout FramebufferLayout::SingleFrameLayout(unsigned width, unsigned 
 
     float window_aspect_ratio = static_cast<float>(height) / width;
     float emulation_aspect_ratio = static_cast<float>(VideoCore::kScreenTopHeight) /
-        VideoCore::kScreenTopWidth;
+                                   VideoCore::kScreenTopWidth;
 
     if (window_aspect_ratio > emulation_aspect_ratio) {
         // Window is narrower than the emulation content => apply borders to the top and bottom
@@ -161,8 +160,7 @@ FramebufferLayout FramebufferLayout::SingleFrameLayout(unsigned width, unsigned 
         res.bottom_screen.right = VideoCore::kScreenBottomWidth;
         res.bottom_screen.top = 0;
         res.bottom_screen.bottom = VideoCore::kScreenBottomHeight;
-    }
-    else {
+    } else {
         // Otherwise, apply borders to the left and right sides of the window.
         int viewport_width = static_cast<int>(std::round(height / emulation_aspect_ratio));
 
@@ -191,7 +189,7 @@ FramebufferLayout FramebufferLayout::InverseSingleLayout(unsigned width, unsigne
 
     float window_aspect_ratio = static_cast<float>(height) / width;
     float emulation_aspect_ratio = static_cast<float>(VideoCore::kScreenBottomHeight) /
-        VideoCore::kScreenBottomWidth;
+                                   VideoCore::kScreenBottomWidth;
 
     if (window_aspect_ratio > emulation_aspect_ratio) {
         // Window is narrower than the emulation content => apply borders to the top and bottom
@@ -207,8 +205,7 @@ FramebufferLayout FramebufferLayout::InverseSingleLayout(unsigned width, unsigne
         res.top_screen.right = VideoCore::kScreenTopWidth;
         res.top_screen.top = 0;
         res.top_screen.bottom = VideoCore::kScreenTopHeight;
-    }
-    else {
+    } else {
         // Otherwise, apply borders to the left and right sides of the window.
         int viewport_width = static_cast<int>(std::round(height / emulation_aspect_ratio));
 
@@ -236,7 +233,7 @@ FramebufferLayout FramebufferLayout::LargeFrameLayout(unsigned width, unsigned h
 
     float window_aspect_ratio = static_cast<float>(height) / width;
     float emulation_aspect_ratio = static_cast<float>(VideoCore::kScreenTopHeight * 4) /
-        (VideoCore::kScreenTopWidth * 4 + VideoCore::kScreenBottomWidth);
+                                   (VideoCore::kScreenTopWidth * 4 + VideoCore::kScreenBottomWidth);
 
     if (window_aspect_ratio > emulation_aspect_ratio) {
         // Window is narrower than the emulation content => apply borders to the top and bottom
@@ -249,7 +246,7 @@ FramebufferLayout FramebufferLayout::LargeFrameLayout(unsigned width, unsigned h
         res.top_screen.bottom = res.top_screen.top + viewport_height;
 
         int bottom_height = static_cast<int>((static_cast<float>(VideoCore::kScreenBottomHeight) /
-            VideoCore::kScreenBottomWidth) * (width - res.top_screen.right));
+                                              VideoCore::kScreenBottomWidth) * (width - res.top_screen.right));
 
         res.bottom_screen.left = res.top_screen.right;
         res.bottom_screen.right = width;
@@ -267,7 +264,7 @@ FramebufferLayout FramebufferLayout::LargeFrameLayout(unsigned width, unsigned h
         res.top_screen.bottom = height;
 
         int bottom_height = static_cast<int>((static_cast<float>(VideoCore::kScreenBottomHeight) /
-            VideoCore::kScreenBottomWidth) * (fifth_width));
+                                              VideoCore::kScreenBottomWidth) * (fifth_width));
 
         res.bottom_screen.left = res.top_screen.right;
         res.bottom_screen.right = width - (width - viewport_width) / 2;
@@ -289,7 +286,7 @@ FramebufferLayout FramebufferLayout::InverseLargeLayout(unsigned width, unsigned
 
     float window_aspect_ratio = static_cast<float>(height) / width;
     float emulation_aspect_ratio = static_cast<float>(VideoCore::kScreenBottomHeight * 4) /
-        (VideoCore::kScreenBottomWidth * 4 + VideoCore::kScreenTopWidth);
+                                   (VideoCore::kScreenBottomWidth * 4 + VideoCore::kScreenTopWidth);
 
     if (window_aspect_ratio > emulation_aspect_ratio) {
         // Window is narrower than the emulation content => apply borders to the top and bottom
@@ -302,7 +299,7 @@ FramebufferLayout FramebufferLayout::InverseLargeLayout(unsigned width, unsigned
         res.bottom_screen.bottom = res.bottom_screen.top + viewport_height;
 
         int top_height = static_cast<int>((static_cast<float>(VideoCore::kScreenTopHeight) /
-            VideoCore::kScreenTopWidth) * (width - res.bottom_screen.right));
+                                           VideoCore::kScreenTopWidth) * (width - res.bottom_screen.right));
 
         res.top_screen.left = res.bottom_screen.right;
         res.top_screen.right = width;
@@ -320,7 +317,7 @@ FramebufferLayout FramebufferLayout::InverseLargeLayout(unsigned width, unsigned
         res.bottom_screen.bottom = height;
 
         int top_height = static_cast<int>((static_cast<float>(VideoCore::kScreenTopHeight) /
-            VideoCore::kScreenTopWidth) * (fifth_width));
+                                           VideoCore::kScreenTopWidth) * (fifth_width));
 
         res.top_screen.left = res.bottom_screen.right;
         res.top_screen.right = width - (width - viewport_width) / 2;
@@ -333,6 +330,6 @@ FramebufferLayout FramebufferLayout::InverseLargeLayout(unsigned width, unsigned
 
 
 FramebufferLayout::FramebufferLayout(unsigned width, unsigned height, bool tenabled, bool benabled, InverseLayout inverse,
-    MathUtil::Rectangle<unsigned> tscreen, MathUtil::Rectangle<unsigned> bscreen) : width(width),
+                                     MathUtil::Rectangle<unsigned> tscreen, MathUtil::Rectangle<unsigned> bscreen) : width(width),
     height(height), inverse(inverse), top_screen_enabled(tenabled), bottom_screen_enabled(benabled),
     top_screen(tscreen), bottom_screen(bscreen) {}

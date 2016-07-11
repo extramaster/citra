@@ -28,7 +28,11 @@ struct SDL2Sink::Impl {
 
 SDL2Sink::SDL2Sink() : impl(std::make_unique<Impl>()) {
     if (SDL_Init(SDL_INIT_AUDIO) < 0) {
-        LOG_CRITICAL(Audio_Sink, "SDL_Init(SDL_INIT_AUDIO) failed");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_CRITICAL(Audio_Sink, "SDL_Init(SDL_INIT_AUDIO) failed"));
+#endif
+
         impl->audio_device_id = 0;
         return;
     }
@@ -47,7 +51,11 @@ SDL2Sink::SDL2Sink() : impl(std::make_unique<Impl>()) {
 
     impl->audio_device_id = SDL_OpenAudioDevice(nullptr, false, &desired_audiospec, &obtained_audiospec, 0);
     if (impl->audio_device_id <= 0) {
-        LOG_CRITICAL(Audio_Sink, "SDL_OpenAudioDevice failed");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_CRITICAL(Audio_Sink, "SDL_OpenAudioDevice failed"));
+#endif
+
         return;
     }
 
@@ -58,22 +66,25 @@ SDL2Sink::SDL2Sink() : impl(std::make_unique<Impl>()) {
 }
 
 SDL2Sink::~SDL2Sink() {
-    if (impl->audio_device_id <= 0)
+    if (impl->audio_device_id <= 0) {
         return;
+    }
 
     SDL_CloseAudioDevice(impl->audio_device_id);
 }
 
 unsigned int SDL2Sink::GetNativeSampleRate() const {
-    if (impl->audio_device_id <= 0)
+    if (impl->audio_device_id <= 0) {
         return native_sample_rate;
+    }
 
     return impl->sample_rate;
 }
 
 void SDL2Sink::EnqueueSamples(const std::vector<s16>& samples) {
-    if (impl->audio_device_id <= 0)
+    if (impl->audio_device_id <= 0) {
         return;
+    }
 
     ASSERT_MSG(samples.size() % 2 == 0, "Samples must be in interleaved stereo PCM16 format (size must be a multiple of two)");
 
@@ -83,16 +94,17 @@ void SDL2Sink::EnqueueSamples(const std::vector<s16>& samples) {
 }
 
 size_t SDL2Sink::SamplesInQueue() const {
-    if (impl->audio_device_id <= 0)
+    if (impl->audio_device_id <= 0) {
         return 0;
+    }
 
     SDL_LockAudioDevice(impl->audio_device_id);
 
     size_t total_size = std::accumulate(impl->queue.begin(), impl->queue.end(), static_cast<size_t>(0),
-        [](size_t sum, const auto& buffer) {
-            // Division by two because each stereo sample is made of two s16.
-            return sum + buffer.size() / 2;
-        });
+    [](size_t sum, const auto& buffer) {
+        // Division by two because each stereo sample is made of two s16.
+        return sum + buffer.size() / 2;
+    });
 
     SDL_UnlockAudioDevice(impl->audio_device_id);
 

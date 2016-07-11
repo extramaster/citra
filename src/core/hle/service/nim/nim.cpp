@@ -20,7 +20,11 @@ void CheckSysUpdateAvailable(Service::Interface* self) {
     cmd_buff[1] = RESULT_SUCCESS.raw;
     cmd_buff[2] = 0; // No update available
 
-    LOG_WARNING(Service_NWM, "(STUBBED) called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_NWM, "(STUBBED) called"));
+#endif
+
 }
 
 void Init() {

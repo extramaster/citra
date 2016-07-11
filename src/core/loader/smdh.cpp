@@ -15,8 +15,9 @@
 namespace Loader {
 
 bool IsValidSMDH(const std::vector<u8>& smdh_data) {
-    if (smdh_data.size() < sizeof(Loader::SMDH))
+    if (smdh_data.size() < sizeof(Loader::SMDH)) {
         return false;
+    }
 
     u32 magic;
     memcpy(&magic, smdh_data.data(), sizeof(u32));

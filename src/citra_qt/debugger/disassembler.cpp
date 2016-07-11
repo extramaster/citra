@@ -31,62 +31,61 @@ int DisassemblerModel::rowCount(const QModelIndex& parent) const {
 
 QVariant DisassemblerModel::data(const QModelIndex& index, int role) const {
     switch (role) {
-        case Qt::DisplayRole:
-        {
-            u32 address = base_address + index.row() * 4;
-            u32 instr = Memory::Read32(address);
-            std::string disassembly = ARM_Disasm::Disassemble(address, instr);
+    case Qt::DisplayRole: {
+        u32 address = base_address + index.row() * 4;
+        u32 instr = Memory::Read32(address);
+        std::string disassembly = ARM_Disasm::Disassemble(address, instr);
 
-            if (index.column() == 0) {
-                return QString("0x%1").arg((uint)(address), 8, 16, QLatin1Char('0'));
-            } else if (index.column() == 1) {
-                return QString::fromStdString(disassembly);
-            } else if (index.column() == 2) {
-                if(Symbols::HasSymbol(address)) {
-                    TSymbol symbol = Symbols::GetSymbol(address);
-                    return QString("%1 - Size:%2").arg(QString::fromStdString(symbol.name))
-                                                  .arg(symbol.size / 4); // divide by 4 to get instruction count
-                } else if (ARM_Disasm::Decode(instr) == OP_BL) {
-                    u32 offset = instr & 0xFFFFFF;
+        if (index.column() == 0) {
+            return QString("0x%1").arg((uint)(address), 8, 16, QLatin1Char('0'));
+        } else if (index.column() == 1) {
+            return QString::fromStdString(disassembly);
+        } else if (index.column() == 2) {
+            if(Symbols::HasSymbol(address)) {
+                TSymbol symbol = Symbols::GetSymbol(address);
+                return QString("%1 - Size:%2").arg(QString::fromStdString(symbol.name))
+                       .arg(symbol.size / 4); // divide by 4 to get instruction count
+            } else if (ARM_Disasm::Decode(instr) == OP_BL) {
+                u32 offset = instr & 0xFFFFFF;
 
-                    // Sign-extend the 24-bit offset
-                    if ((offset >> 23) & 1)
-                        offset |= 0xFF000000;
-
-                    // Pre-compute the left-shift and the prefetch offset
-                    offset <<= 2;
-                    offset += 8;
-
-                    TSymbol symbol = Symbols::GetSymbol(address + offset);
-                    return QString("    --> %1").arg(QString::fromStdString(symbol.name));
+                // Sign-extend the 24-bit offset
+                if ((offset >> 23) & 1) {
+                    offset |= 0xFF000000;
                 }
+
+                // Pre-compute the left-shift and the prefetch offset
+                offset <<= 2;
+                offset += 8;
+
+                TSymbol symbol = Symbols::GetSymbol(address + offset);
+                return QString("    --> %1").arg(QString::fromStdString(symbol.name));
             }
-
-            break;
         }
 
-        case Qt::BackgroundRole:
-        {
-            unsigned int address = base_address + 4 * index.row();
+        break;
+    }
 
-            if (breakpoints.IsAddressBreakPoint(address))
-                return QBrush(QColor(0xFF, 0xC0, 0xC0));
-            else if (address == program_counter)
-                return QBrush(QColor(0xC0, 0xC0, 0xFF));
+    case Qt::BackgroundRole: {
+        unsigned int address = base_address + 4 * index.row();
 
-            break;
+        if (breakpoints.IsAddressBreakPoint(address)) {
+            return QBrush(QColor(0xFF, 0xC0, 0xC0));
+        } else if (address == program_counter) {
+            return QBrush(QColor(0xC0, 0xC0, 0xFF));
         }
 
-        case Qt::FontRole:
-        {
-            if (index.column() == 0 || index.column() == 1) { // 2 is the symbols column
-                return GetMonospaceFont();
-            }
-            break;
-        }
+        break;
+    }
 
-        default:
-            break;
+    case Qt::FontRole: {
+        if (index.column() == 0 || index.column() == 1) { // 2 is the symbols column
+            return GetMonospaceFont();
+        }
+        break;
+    }
+
+    default:
+        break;
     }
 
     return QVariant();
@@ -106,12 +105,14 @@ void DisassemblerModel::ParseFromAddress(unsigned int address) {
     const unsigned int chunk_size = 1000*500;
 
     // If we haven't loaded anything yet, initialize base address to the parameter address
-    if (code_size == 0)
+    if (code_size == 0) {
         base_address = address;
+    }
 
     // If the new area is already loaded, just continue
-    if (base_address + code_size > address + chunk_size && base_address <= address)
+    if (base_address + code_size > address + chunk_size && base_address <= address) {
         return;
+    }
 
     // Insert rows before currently loaded data
     if (base_address > address) {
@@ -141,8 +142,9 @@ void DisassemblerModel::OnSelectionChanged(const QModelIndex& new_selection) {
 }
 
 void DisassemblerModel::OnSetOrUnsetBreakpoint() {
-    if (!selection.isValid())
+    if (!selection.isValid()) {
         return;
+    }
 
     unsigned int address = base_address + selection.row() * 4;
 
@@ -227,8 +229,9 @@ void DisassemblerWidget::OnToggleStartStop() {
 void DisassemblerWidget::OnDebugModeEntered() {
     u32 next_instr = Core::g_app_core->GetPC();
 
-    if (model->GetBreakPoints().IsAddressBreakPoint(next_instr))
+    if (model->GetBreakPoints().IsAddressBreakPoint(next_instr)) {
         emu_thread->SetRunning(false);
+    }
 
     model->SetNextInstruction(next_instr);
 
@@ -242,8 +245,9 @@ void DisassemblerWidget::OnDebugModeLeft() {
 
 int DisassemblerWidget::SelectedRow() {
     QModelIndex index = disasm_ui.treeView->selectionModel()->currentIndex();
-    if (!index.isValid())
+    if (!index.isValid()) {
         return -1;
+    }
 
     return disasm_ui.treeView->selectionModel()->currentIndex().row();
 }
@@ -255,7 +259,7 @@ void DisassemblerWidget::OnEmulationStarting(EmuThread* emu_thread) {
     disasm_ui.treeView->setModel(model);
 
     connect(disasm_ui.treeView->selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
-        model, SLOT(OnSelectionChanged(const QModelIndex&)));
+            model, SLOT(OnSelectionChanged(const QModelIndex&)));
     connect(disasm_ui.button_breakpoint, SIGNAL(clicked()), model, SLOT(OnSetOrUnsetBreakpoint()));
     connect(GetHotkey("Disassembler", "Set Breakpoint", this), SIGNAL(activated()), model, SLOT(OnSetOrUnsetBreakpoint()));
 

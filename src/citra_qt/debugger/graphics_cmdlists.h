@@ -13,8 +13,7 @@
 class QPushButton;
 class QTreeView;
 
-class GPUCommandListModel : public QAbstractListModel
-{
+class GPUCommandListModel : public QAbstractListModel {
     Q_OBJECT
 
 public:
@@ -36,8 +35,7 @@ private:
     Pica::DebugUtils::PicaTrace pica_trace;
 };
 
-class GPUCommandListWidget : public QDockWidget
-{
+class GPUCommandListWidget : public QDockWidget {
     Q_OBJECT
 
 public:

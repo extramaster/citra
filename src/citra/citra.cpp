@@ -35,16 +35,14 @@
 #include "video_core/video_core.h"
 
 
-static void PrintHelp(const char *argv0)
-{
+static void PrintHelp(const char *argv0) {
     std::cout << "Usage: " << argv0 << " [options] <filename>\n"
-                 "-g, --gdbport=NUMBER  Enable gdb stub on port NUMBER\n"
-                 "-h, --help            Display this help and exit\n"
-                 "-v, --version         Output version information and exit\n";
+              "-g, --gdbport=NUMBER  Enable gdb stub on port NUMBER\n"
+              "-h, --help            Display this help and exit\n"
+              "-v, --version         Output version information and exit\n";
 }
 
-static void PrintVersion()
-{
+static void PrintVersion() {
     std::cout << "Citra " << Common::g_scm_branch << " " << Common::g_scm_desc << std::endl;
 }
 
@@ -72,7 +70,9 @@ int main(int argc, char **argv) {
                 errno = 0;
                 gdb_port = strtoul(optarg, &endarg, 0);
                 use_gdbstub = true;
-                if (endarg == optarg) errno = EINVAL;
+                if (endarg == optarg) {
+                    errno = EINVAL;
+                }
                 if (errno != 0) {
                     perror("--gdbport");
                     exit(1);
@@ -98,7 +98,11 @@ int main(int argc, char **argv) {
     SCOPE_EXIT({ MicroProfileShutdown(); });
 
     if (boot_filename.empty()) {
-        LOG_CRITICAL(Frontend, "Failed to load ROM: No ROM specified");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_CRITICAL(Frontend, "Failed to load ROM: No ROM specified"));
+#endif
+
         return -1;
     }
 
@@ -116,13 +120,21 @@ int main(int argc, char **argv) {
 
     std::unique_ptr<Loader::AppLoader> loader = Loader::GetLoader(boot_filename);
     if (!loader) {
-        LOG_CRITICAL(Frontend, "Failed to obtain loader for %s!", boot_filename.c_str());
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_CRITICAL(Frontend, "Failed to obtain loader for %s!", boot_filename.c_str()));
+#endif
+
         return -1;
     }
 
     Loader::ResultStatus load_result = loader->Load();
     if (Loader::ResultStatus::Success != load_result) {
-        LOG_CRITICAL(Frontend, "Failed to load ROM (Error %i)!", load_result);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_CRITICAL(Frontend, "Failed to load ROM (Error %i)!", load_result));
+#endif
+
         return -1;
     }
 

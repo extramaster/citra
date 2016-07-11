@@ -32,7 +32,11 @@ static void CloseAsync(Service::Interface* self) {
     }
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
 
-    LOG_WARNING(Service_AC, "(STUBBED) called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_AC, "(STUBBED) called"));
+#endif
+
 }
 /**
  * AC_U::GetWifiStatus service function
@@ -49,7 +53,11 @@ static void GetWifiStatus(Service::Interface* self) {
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
     cmd_buff[2] = 0; // Connection type set to none
 
-    LOG_WARNING(Service_AC, "(STUBBED) called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_AC, "(STUBBED) called"));
+#endif
+
 }
 
 /**
@@ -64,7 +72,11 @@ static void IsConnected(Service::Interface* self) {
     cmd_buff[1] = RESULT_SUCCESS.raw; // No error
     cmd_buff[2] = false; // Not connected to ac:u service
 
-    LOG_WARNING(Service_AC, "(STUBBED) called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_AC, "(STUBBED) called"));
+#endif
+
 }
 
 const Interface::FunctionInfo FunctionTable[] = {

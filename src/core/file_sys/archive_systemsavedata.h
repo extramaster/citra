@@ -26,7 +26,9 @@ public:
     ResultCode Format(const Path& path, const FileSys::ArchiveFormatInfo& format_info) override;
     ResultVal<ArchiveFormatInfo> GetFormatInfo(const Path& path) const override;
 
-    std::string GetName() const override { return "SystemSaveData"; }
+    std::string GetName() const override {
+        return "SystemSaveData";
+    }
 
 private:
     std::string base_path;

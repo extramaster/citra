@@ -10,8 +10,9 @@
 #include "core/hle/service/cfg/cfg.h"
 
 static const std::array<int, 12> days_in_month = {{
-    31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
-}};
+        31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+    }
+};
 
 ConfigureSystem::ConfigureSystem(QWidget *parent) :
     QWidget(parent),
@@ -70,8 +71,9 @@ void ConfigureSystem::ReadSystemSettings() {
 }
 
 void ConfigureSystem::applyConfiguration() {
-    if (!enabled)
+    if (!enabled) {
         return;
+    }
 
     bool modified = false;
 
@@ -106,13 +108,15 @@ void ConfigureSystem::applyConfiguration() {
     }
 
     // update the config savegame if any item is modified.
-    if (modified)
+    if (modified) {
         Service::CFG::UpdateConfigNANDSavegame();
+    }
 }
 
 void ConfigureSystem::updateBirthdayComboBox(int birthmonth_index) {
-    if (birthmonth_index < 0 || birthmonth_index >= 12)
+    if (birthmonth_index < 0 || birthmonth_index >= 12) {
         return;
+    }
 
     // store current day selection
     int birthday_index = ui->combo_birthday->currentIndex();
@@ -122,8 +126,9 @@ void ConfigureSystem::updateBirthdayComboBox(int birthmonth_index) {
 
     // if the selected day is out of range,
     // reset it to 1st
-    if (birthday_index < 0 || birthday_index >= days)
+    if (birthday_index < 0 || birthday_index >= days) {
         birthday_index = 0;
+    }
 
     // update the day combo box
     ui->combo_birthday->clear();

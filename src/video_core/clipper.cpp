@@ -29,12 +29,11 @@ struct ClippingEdge {
 public:
     ClippingEdge(Math::Vec4<float24> coeffs,
                  Math::Vec4<float24> bias = Math::Vec4<float24>(float24::FromFloat32(0),
-                                                                float24::FromFloat32(0),
-                                                                float24::FromFloat32(0),
-                                                                float24::FromFloat32(0)))
+                                            float24::FromFloat32(0),
+                                            float24::FromFloat32(0),
+                                            float24::FromFloat32(0)))
         : coeffs(coeffs),
-          bias(bias)
-    {
+          bias(bias) {
     }
 
     bool IsInside(const OutputVertex& vertex) const {
@@ -59,8 +58,7 @@ private:
     Math::Vec4<float24> bias;
 };
 
-static void InitScreenCoordinates(OutputVertex& vtx)
-{
+static void InitScreenCoordinates(OutputVertex& vtx) {
     struct {
         float24 halfsize_x;
         float24 offset_x;
@@ -110,14 +108,15 @@ void ProcessTriangle(const OutputVertex &v0, const OutputVertex &v1, const Outpu
     static const float24 f0 = float24::FromFloat32(0.0);
     static const float24 f1 = float24::FromFloat32(1.0);
     static const std::array<ClippingEdge, 7> clipping_edges = {{
-        { Math::MakeVec( f1,  f0,  f0, -f1) },  // x = +w
-        { Math::MakeVec(-f1,  f0,  f0, -f1) },  // x = -w
-        { Math::MakeVec( f0,  f1,  f0, -f1) },  // y = +w
-        { Math::MakeVec( f0, -f1,  f0, -f1) },  // y = -w
-        { Math::MakeVec( f0,  f0,  f1,  f0) },  // z =  0
-        { Math::MakeVec( f0,  f0, -f1, -f1) },  // z = -w
-        { Math::MakeVec( f0,  f0,  f0, -f1), Math::Vec4<float24>(f0, f0, f0, EPSILON) }, // w = EPSILON
-    }};
+            { Math::MakeVec( f1,  f0,  f0, -f1) },  // x = +w
+            { Math::MakeVec(-f1,  f0,  f0, -f1) },  // x = -w
+            { Math::MakeVec( f0,  f1,  f0, -f1) },  // y = +w
+            { Math::MakeVec( f0, -f1,  f0, -f1) },  // y = -w
+            { Math::MakeVec( f0,  f0,  f1,  f0) },  // z =  0
+            { Math::MakeVec( f0,  f0, -f1, -f1) },  // z = -w
+            { Math::MakeVec( f0,  f0,  f0, -f1), Math::Vec4<float24>(f0, f0, f0, EPSILON) }, // w = EPSILON
+        }
+    };
 
     // TODO: If one vertex lies outside one of the depth clipping planes, some platforms (e.g. Wii)
     //       drop the whole primitive instead of clipping the primitive properly. We should test if
@@ -147,8 +146,9 @@ void ProcessTriangle(const OutputVertex &v0, const OutputVertex &v1, const Outpu
         }
 
         // Need to have at least a full triangle to continue...
-        if (output_list->size() < 3)
+        if (output_list->size() < 3) {
             return;
+        }
     }
 
     InitScreenCoordinates((*output_list)[0]);
@@ -161,6 +161,8 @@ void ProcessTriangle(const OutputVertex &v0, const OutputVertex &v1, const Outpu
 
         InitScreenCoordinates(vtx2);
 
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
         LOG_TRACE(Render_Software,
                   "Triangle %lu/%lu at position (%.3f, %.3f, %.3f, %.3f), "
                   "(%.3f, %.3f, %.3f, %.3f), (%.3f, %.3f, %.3f, %.3f) and "
@@ -171,7 +173,9 @@ void ProcessTriangle(const OutputVertex &v0, const OutputVertex &v1, const Outpu
                   vtx2.pos.x.ToFloat32(), vtx2.pos.y.ToFloat32(), vtx2.pos.z.ToFloat32(), vtx2.pos.w.ToFloat32(),
                   vtx0.screenpos.x.ToFloat32(), vtx0.screenpos.y.ToFloat32(), vtx0.screenpos.z.ToFloat32(),
                   vtx1.screenpos.x.ToFloat32(), vtx1.screenpos.y.ToFloat32(), vtx1.screenpos.z.ToFloat32(),
-                  vtx2.screenpos.x.ToFloat32(), vtx2.screenpos.y.ToFloat32(), vtx2.screenpos.z.ToFloat32());
+                  vtx2.screenpos.x.ToFloat32(), vtx2.screenpos.y.ToFloat32(), vtx2.screenpos.z.ToFloat32()));
+#endif
+
 
         Rasterizer::ProcessTriangle(vtx0, vtx1, vtx2);
     }

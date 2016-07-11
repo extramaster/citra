@@ -18,9 +18,9 @@
 // enough for our purposes.
 template <typename Fn>
 #if defined(_MSC_VER)
-    __declspec(noinline, noreturn)
+__declspec(noinline, noreturn)
 #elif defined(__GNUC__)
-    __attribute__((noinline, noreturn, cold))
+__attribute__((noinline, noreturn, cold))
 #endif
 static void assert_noinline_call(const Fn& fn) {
     fn();

@@ -7,10 +7,8 @@
 #include "common/common_types.h"
 #include <string>
 
-namespace Common
-{
-class Timer
-{
+namespace Common {
+class Timer {
 public:
     Timer();
 

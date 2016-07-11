@@ -49,17 +49,19 @@ static PadState GetCirclePadDirectionState(s16 circle_pad_x, s16 circle_pad_y) {
         float t = std::abs(static_cast<float>(circle_pad_y) / circle_pad_x);
 
         if (circle_pad_x != 0 && t < TAN60) {
-            if (circle_pad_x > 0)
+            if (circle_pad_x > 0) {
                 state.circle_right.Assign(1);
-            else
+            } else {
                 state.circle_left.Assign(1);
+            }
         }
 
         if (circle_pad_x == 0 || t > TAN30) {
-            if (circle_pad_y > 0)
+            if (circle_pad_y > 0) {
                 state.circle_up.Assign(1);
-            else
+            } else {
                 state.circle_down.Assign(1);
+            }
         }
     }
 
@@ -70,7 +72,11 @@ void Update() {
     SharedMem* mem = reinterpret_cast<SharedMem*>(shared_mem->GetPointer());
 
     if (mem == nullptr) {
-        LOG_DEBUG(Service_HID, "Cannot update HID prior to mapping shared memory!");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_DEBUG(Service_HID, "Cannot update HID prior to mapping shared memory!"));
+#endif
+
         return;
     }
 
@@ -207,7 +213,11 @@ void EnableAccelerometer(Service::Interface* self) {
 
     cmd_buff[1] = RESULT_SUCCESS.raw;
 
-    LOG_DEBUG(Service_HID, "called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_DEBUG(Service_HID, "called"));
+#endif
+
 }
 
 void DisableAccelerometer(Service::Interface* self) {
@@ -218,7 +228,11 @@ void DisableAccelerometer(Service::Interface* self) {
 
     cmd_buff[1] = RESULT_SUCCESS.raw;
 
-    LOG_DEBUG(Service_HID, "called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_DEBUG(Service_HID, "called"));
+#endif
+
 }
 
 void EnableGyroscopeLow(Service::Interface* self) {
@@ -229,7 +243,11 @@ void EnableGyroscopeLow(Service::Interface* self) {
 
     cmd_buff[1] = RESULT_SUCCESS.raw;
 
-    LOG_DEBUG(Service_HID, "called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_DEBUG(Service_HID, "called"));
+#endif
+
 }
 
 void DisableGyroscopeLow(Service::Interface* self) {
@@ -240,7 +258,11 @@ void DisableGyroscopeLow(Service::Interface* self) {
 
     cmd_buff[1] = RESULT_SUCCESS.raw;
 
-    LOG_DEBUG(Service_HID, "called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_DEBUG(Service_HID, "called"));
+#endif
+
 }
 
 void GetGyroscopeLowRawToDpsCoefficient(Service::Interface* self) {
@@ -265,7 +287,11 @@ void GetGyroscopeLowCalibrateParam(Service::Interface* self) {
     };
     memcpy(&cmd_buff[2], &param, sizeof(param));
 
-    LOG_WARNING(Service_HID, "(STUBBED) called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_HID, "(STUBBED) called"));
+#endif
+
 }
 
 void GetSoundVolume(Service::Interface* self) {
@@ -276,7 +302,11 @@ void GetSoundVolume(Service::Interface* self) {
     cmd_buff[1] = RESULT_SUCCESS.raw;
     cmd_buff[2] = volume;
 
-    LOG_WARNING(Service_HID, "(STUBBED) called");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_HID, "(STUBBED) called"));
+#endif
+
 }
 
 void Init() {

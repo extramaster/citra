@@ -114,8 +114,9 @@ void Shutdown() {
     time_stretcher.Flush();
     while (true) {
         std::vector<s16> residual_audio = time_stretcher.Process(sink->SamplesInQueue());
-        if (residual_audio.empty())
+        if (residual_audio.empty()) {
             break;
+        }
         sink->EnqueueSamples(residual_audio);
     }
 }

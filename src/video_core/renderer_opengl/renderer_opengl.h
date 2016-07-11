@@ -67,7 +67,7 @@ private:
 
     // Loads framebuffer from emulated memory into the display information structure
     void LoadFBToScreenInfo(const GPU::Regs::FramebufferConfig& framebuffer,
-                             ScreenInfo& screen_info);
+                            ScreenInfo& screen_info);
     // Fills active OpenGL texture with the given RGB color.
     void LoadColorToActiveGLTexture(u8 color_r, u8 color_g, u8 color_b,
                                     const TextureInfo& texture);

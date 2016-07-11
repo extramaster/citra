@@ -44,8 +44,9 @@ SharedPtr<Mutex> Mutex::Create(bool initial_locked, std::string name) {
     mutex->holding_thread = nullptr;
 
     // Acquire mutex with current thread if initialized as locked...
-    if (initial_locked)
+    if (initial_locked) {
         mutex->Acquire();
+    }
 
     return mutex;
 }
@@ -56,8 +57,9 @@ bool Mutex::ShouldWait() {
 
     // If the holding thread of the mutex is lower priority than this thread, that thread should
     // temporarily inherit this thread's priority
-    if (wait && thread->current_priority < holding_thread->current_priority)
+    if (wait && thread->current_priority < holding_thread->current_priority) {
         holding_thread->BoostPriority(thread->current_priority);
+    }
 
     return wait;
 }

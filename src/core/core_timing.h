@@ -61,8 +61,7 @@ inline u64 cyclesToMs(s64 cycles) {
     return cycles / (g_clock_rate_arm11 / 1000);
 }
 
-namespace CoreTiming
-{
+namespace CoreTiming {
 void Init();
 void Shutdown();
 

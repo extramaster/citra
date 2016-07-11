@@ -55,7 +55,11 @@ inline void Read(T &var, const u32 raw_addr) {
 
     // Reads other than u32 are untested, so I'd rather have them abort than silently fail
     if (index >= Regs::NumIds() || !std::is_same<T, u32>::value) {
-        LOG_ERROR(HW_GPU, "unknown Read%lu @ 0x%08X", sizeof(var) * 8, addr);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_ERROR(HW_GPU, "unknown Read%lu @ 0x%08X", sizeof(var) * 8, addr));
+#endif
+
         return;
     }
 
@@ -80,7 +84,11 @@ static Math::Vec4<u8> DecodePixel(Regs::PixelFormat input_format, const u8* src_
         return Color::DecodeRGBA4(src_pixel);
 
     default:
-        LOG_ERROR(HW_GPU, "Unknown source framebuffer format %x", input_format);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_ERROR(HW_GPU, "Unknown source framebuffer format %x", input_format));
+#endif
+
         return {0, 0, 0, 0};
     }
 }
@@ -95,7 +103,11 @@ inline void Write(u32 addr, const T data) {
 
     // Writes other than u32 are untested, so I'd rather have them abort than silently fail
     if (index >= Regs::NumIds() || !std::is_same<T, u32>::value) {
-        LOG_ERROR(HW_GPU, "unknown Write%lu 0x%08X @ 0x%08X", sizeof(data) * 8, (u32)data, addr);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_ERROR(HW_GPU, "unknown Write%lu 0x%08X @ 0x%08X", sizeof(data) * 8, (u32)data, addr));
+#endif
+
         return;
     }
 
@@ -105,8 +117,7 @@ inline void Write(u32 addr, const T data) {
 
     // Memory fills are triggered once the fill value is written.
     case GPU_REG_INDEX_WORKAROUND(memory_fill_config[0].trigger, 0x00004 + 0x3):
-    case GPU_REG_INDEX_WORKAROUND(memory_fill_config[1].trigger, 0x00008 + 0x3):
-    {
+    case GPU_REG_INDEX_WORKAROUND(memory_fill_config[1].trigger, 0x00008 + 0x3): {
         const bool is_second_filler = (index != GPU_REG_INDEX(memory_fill_config[0].trigger));
         auto& config = g_regs.memory_fill_config[is_second_filler];
 
@@ -139,18 +150,24 @@ inline void Write(u32 addr, const T data) {
                         if (end > start) {
                             u32 value = config.value_32bit;
                             size_t len = (end - start) / sizeof(u32);
-                            for (size_t i = 0; i < len; ++i)
+                            for (size_t i = 0; i < len; ++i) {
                                 memcpy(&start[i * sizeof(u32)], &value, sizeof(u32));
+                            }
                         }
                     } else {
                         // fill with 16-bit values
                         u16 value_16bit = config.value_16bit.Value();
-                        for (u8* ptr = start; ptr < end; ptr += sizeof(u16))
+                        for (u8* ptr = start; ptr < end; ptr += sizeof(u16)) {
                             memcpy(ptr, &value_16bit, sizeof(u16));
+                        }
                     }
                 }
 
-                LOG_TRACE(HW_GPU, "MemoryFill from 0x%08x to 0x%08x", config.GetStartAddress(), config.GetEndAddress());
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+                LOG_TRACE(HW_GPU, "MemoryFill from 0x%08x to 0x%08x", config.GetStartAddress(), config.GetEndAddress()));
+#endif
+
 
                 if (!is_second_filler) {
                     GSP_GPU::SignalInterrupt(GSP_GPU::InterruptId::PSC0);
@@ -167,15 +184,15 @@ inline void Write(u32 addr, const T data) {
         break;
     }
 
-    case GPU_REG_INDEX(display_transfer_config.trigger):
-    {
+    case GPU_REG_INDEX(display_transfer_config.trigger): {
         MICROPROFILE_SCOPE(GPU_DisplayTransfer);
 
         const auto& config = g_regs.display_transfer_config;
         if (config.trigger & 1) {
 
-            if (Pica::g_debug_context)
+            if (Pica::g_debug_context) {
                 Pica::g_debug_context->OnEvent(Pica::DebugContext::Event::IncomingDisplayTransfer, nullptr);
+            }
 
             if (!VideoCore::g_renderer->Rasterizer()->AccelerateDisplayTransfer(config)) {
                 u8* src_pointer = Memory::GetPhysicalPointer(config.GetPhysicalInputAddress());
@@ -217,24 +234,36 @@ inline void Write(u32 addr, const T data) {
                         }
                     }
 
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
                     LOG_TRACE(HW_GPU, "TextureCopy: 0x%X bytes from 0x%08X(%u+%u)-> 0x%08X(%u+%u), flags 0x%08X",
-                        config.texture_copy.size,
-                        config.GetPhysicalInputAddress(), input_width, input_gap,
-                        config.GetPhysicalOutputAddress(), output_width, output_gap,
-                        config.flags);
+                              config.texture_copy.size,
+                              config.GetPhysicalInputAddress(), input_width, input_gap,
+                              config.GetPhysicalOutputAddress(), output_width, output_gap,
+                              config.flags));
+#endif
+
 
                     GSP_GPU::SignalInterrupt(GSP_GPU::InterruptId::PPF);
                     break;
                 }
 
                 if (config.scaling > config.ScaleXY) {
-                    LOG_CRITICAL(HW_GPU, "Unimplemented display transfer scaling mode %u", config.scaling.Value());
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+                    LOG_CRITICAL(HW_GPU, "Unimplemented display transfer scaling mode %u", config.scaling.Value()));
+#endif
+
                     UNIMPLEMENTED();
                     break;
                 }
 
                 if (config.input_linear && config.scaling != config.NoScale) {
-                    LOG_CRITICAL(HW_GPU, "Scaling is only implemented on tiled input");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+                    LOG_CRITICAL(HW_GPU, "Scaling is only implemented on tiled input"));
+#endif
+
                     UNIMPLEMENTED();
                     break;
                 }
@@ -341,17 +370,25 @@ inline void Write(u32 addr, const T data) {
                             break;
 
                         default:
-                            LOG_ERROR(HW_GPU, "Unknown destination framebuffer format %x", config.output_format.Value());
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+                            LOG_ERROR(HW_GPU, "Unknown destination framebuffer format %x", config.output_format.Value()));
+#endif
+
                             break;
                         }
                     }
                 }
 
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
                 LOG_TRACE(HW_GPU, "DisplayTriggerTransfer: 0x%08x bytes from 0x%08x(%ux%u)-> 0x%08x(%ux%u), dst format %x, flags 0x%08X",
-                      config.output_height * output_width * GPU::Regs::BytesPerPixel(config.output_format),
-                      config.GetPhysicalInputAddress(), config.input_width.Value(), config.input_height.Value(),
-                      config.GetPhysicalOutputAddress(), output_width, output_height,
-                      config.output_format.Value(), config.flags);
+                          config.output_height * output_width * GPU::Regs::BytesPerPixel(config.output_format),
+                          config.GetPhysicalInputAddress(), config.input_width.Value(), config.input_height.Value(),
+                          config.GetPhysicalOutputAddress(), output_width, output_height,
+                          config.output_format.Value(), config.flags));
+#endif
+
             }
 
             g_regs.display_transfer_config.trigger = 0;
@@ -361,11 +398,9 @@ inline void Write(u32 addr, const T data) {
     }
 
     // Seems like writing to this register triggers processing
-    case GPU_REG_INDEX(command_processor_config.trigger):
-    {
+    case GPU_REG_INDEX(command_processor_config.trigger): {
         const auto& config = g_regs.command_processor_config;
-        if (config.trigger & 1)
-        {
+        if (config.trigger & 1) {
             MICROPROFILE_SCOPE(GPU_CmdlistProcessing);
 
             u32* buffer = (u32*)Memory::GetPhysicalPointer(config.GetPhysicalAddress());
@@ -474,12 +509,20 @@ void Init() {
     vblank_event = CoreTiming::RegisterEvent("GPU::VBlankCallback", VBlankCallback);
     CoreTiming::ScheduleEvent(frame_ticks, vblank_event);
 
-    LOG_DEBUG(HW_GPU, "initialized OK");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_DEBUG(HW_GPU, "initialized OK"));
+#endif
+
 }
 
 /// Shutdown hardware
 void Shutdown() {
-    LOG_DEBUG(HW_GPU, "shutdown OK");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_DEBUG(HW_GPU, "shutdown OK"));
+#endif
+
 }
 
 } // namespace

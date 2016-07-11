@@ -31,8 +31,7 @@ const std::array<QVariant, Settings::NativeInput::NUM_INPUTS> Config::defaults =
     Qt::Key_D,
 };
 
-const std::array<QVariant, Settings::NativeInput::NUM_INPUTS>& Config::GetDefaultInput()
-{
+const std::array<QVariant, Settings::NativeInput::NUM_INPUTS>& Config::GetDefaultInput() {
     return defaults;
 }
 
@@ -116,8 +115,8 @@ void Config::ReadValues() {
             qt_config->beginGroup(hotkey);
             UISettings::values.shortcuts.emplace_back(
                 UISettings::Shortcut(group + "/" + hotkey,
-                    UISettings::ContextualShortcut(qt_config->value("KeySeq").toString(),
-                        qt_config->value("Context").toInt())));
+                                     UISettings::ContextualShortcut(qt_config->value("KeySeq").toString(),
+                                             qt_config->value("Context").toInt())));
             qt_config->endGroup();
         }
 
@@ -137,7 +136,7 @@ void Config::SaveValues() {
     qt_config->beginGroup("Controls");
     for (int i = 0; i < Settings::NativeInput::NUM_INPUTS; ++i) {
         qt_config->setValue(QString::fromStdString(Settings::NativeInput::Mapping[i]),
-            Settings::values.input_mappings[Settings::NativeInput::All[i]]);
+                            Settings::values.input_mappings[Settings::NativeInput::All[i]]);
     }
     qt_config->setValue("pad_circle_modifier_scale", (double)Settings::values.pad_circle_modifier_scale);
     qt_config->endGroup();

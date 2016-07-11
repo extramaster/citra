@@ -44,7 +44,7 @@ template<ResultCode func(u32, u32, u32, u32)> void Wrap() {
     FuncReturn(func(PARAM(0), PARAM(1), PARAM(2), PARAM(3)).raw);
 }
 
-template<ResultCode func(u32*, u32, u32, u32, u32, u32)> void Wrap(){
+template<ResultCode func(u32*, u32, u32, u32, u32, u32)> void Wrap() {
     u32 param_1 = 0;
     u32 retval = func(&param_1, PARAM(0), PARAM(1), PARAM(2), PARAM(3), PARAM(4)).raw;
     Core::g_app_core->SetReg(1, param_1);
@@ -61,7 +61,7 @@ template<ResultCode func(u32*, s32, u32, u32, u32, s32)> void Wrap() {
 template<ResultCode func(s32*, u32*, s32, bool, s64)> void Wrap() {
     s32 param_1 = 0;
     s32 retval = func(&param_1, (Handle*)Memory::GetPointer(PARAM(1)), (s32)PARAM(2),
-        (PARAM(3) != 0), (((s64)PARAM(4) << 32) | PARAM(0))).raw;
+                      (PARAM(3) != 0), (((s64)PARAM(4) << 32) | PARAM(0))).raw;
 
     if (retval != RESULT_INVALID.raw) {
         Core::g_app_core->SetReg(1, (u32)param_1);
@@ -73,7 +73,7 @@ template<ResultCode func(u32, u32, u32, u32, s64)> void Wrap() {
     FuncReturn(func(PARAM(0), PARAM(1), PARAM(2), PARAM(3), (((s64)PARAM(5) << 32) | PARAM(4))).raw);
 }
 
-template<ResultCode func(u32*)> void Wrap(){
+template<ResultCode func(u32*)> void Wrap() {
     u32 param_1 = 0;
     u32 retval = func(&param_1).raw;
     Core::g_app_core->SetReg(1, param_1);
@@ -112,7 +112,7 @@ template<ResultCode func(MemoryInfo*, PageInfo*, Handle, u32)> void Wrap() {
     FuncReturn(retval);
 }
 
-template<ResultCode func(s32*, u32)> void Wrap(){
+template<ResultCode func(s32*, u32)> void Wrap() {
     s32 param_1 = 0;
     u32 retval = func(&param_1, PARAM(1)).raw;
     Core::g_app_core->SetReg(1, param_1);
@@ -123,7 +123,7 @@ template<ResultCode func(u32, s32)> void Wrap() {
     FuncReturn(func(PARAM(0), (s32)PARAM(1)).raw);
 }
 
-template<ResultCode func(u32*, u32)> void Wrap(){
+template<ResultCode func(u32*, u32)> void Wrap() {
     u32 param_1 = 0;
     u32 retval = func(&param_1, PARAM(1)).raw;
     Core::g_app_core->SetReg(1, param_1);
@@ -134,9 +134,9 @@ template<ResultCode func(u32)> void Wrap() {
     FuncReturn(func(PARAM(0)).raw);
 }
 
-template<ResultCode func(s64*, u32, u32*, u32)> void Wrap(){
+template<ResultCode func(s64*, u32, u32*, u32)> void Wrap() {
     FuncReturn(func((s64*)Memory::GetPointer(PARAM(0)), PARAM(1), (u32*)Memory::GetPointer(PARAM(2)),
-        (s32)PARAM(3)).raw);
+                    (s32)PARAM(3)).raw);
 }
 
 template<ResultCode func(u32*, const char*)> void Wrap() {

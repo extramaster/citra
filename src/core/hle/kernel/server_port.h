@@ -25,11 +25,17 @@ public:
      */
     static std::tuple<SharedPtr<ServerPort>, SharedPtr<ClientPort>> CreatePortPair(u32 max_sessions, std::string name = "UnknownPort");
 
-    std::string GetTypeName() const override { return "ServerPort"; }
-    std::string GetName() const override { return name; }
+    std::string GetTypeName() const override {
+        return "ServerPort";
+    }
+    std::string GetName() const override {
+        return name;
+    }
 
     static const HandleType HANDLE_TYPE = HandleType::ServerPort;
-    HandleType GetHandleType() const override { return HANDLE_TYPE; }
+    HandleType GetHandleType() const override {
+        return HANDLE_TYPE;
+    }
 
     std::string name;                           ///< Name of port (optional)
 

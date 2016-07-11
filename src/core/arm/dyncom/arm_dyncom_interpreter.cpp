@@ -82,10 +82,11 @@ static unsigned int DPO(Immediate)(ARMul_State* cpu, unsigned int sht_oper) {
     unsigned int immed_8 = BITS(sht_oper, 0, 7);
     unsigned int rotate_imm = BITS(sht_oper, 8, 11);
     unsigned int shifter_operand = ROTATE_RIGHT_32(immed_8, rotate_imm * 2);
-    if (rotate_imm == 0)
+    if (rotate_imm == 0) {
         cpu->shifter_carry_out = cpu->CFlag;
-    else
+    } else {
         cpu->shifter_carry_out = BIT(shifter_operand, 31);
+    }
     return shifter_operand;
 }
 
@@ -169,10 +170,11 @@ static unsigned int DPO(ArithmeticShiftRightByImmediate)(ARMul_State* cpu, unsig
     unsigned int shifter_operand;
     int shift_imm = BITS(sht_oper, 7, 11);
     if (shift_imm == 0) {
-        if (BIT(rm, 31) == 0)
+        if (BIT(rm, 31) == 0) {
             shifter_operand = 0;
-        else
+        } else {
             shifter_operand = 0xFFFFFFFF;
+        }
         cpu->shifter_carry_out = BIT(rm, 31);
     } else {
         shifter_operand = static_cast<int>(rm) >> shift_imm;
@@ -192,10 +194,11 @@ static unsigned int DPO(ArithmeticShiftRightByRegister)(ARMul_State* cpu, unsign
         shifter_operand = static_cast<int>(rm) >> BITS(rs, 0, 7);
         cpu->shifter_carry_out = BIT(rm, BITS(rs, 0, 7) - 1);
     } else {
-        if (BIT(rm, 31) == 0)
+        if (BIT(rm, 31) == 0) {
             shifter_operand = 0;
-        else
+        } else {
             shifter_operand = 0xffffffff;
+        }
         cpu->shifter_carry_out = BIT(rm, 31);
     }
     return shifter_operand;
@@ -248,10 +251,11 @@ static void LnSWoUB(ImmediateOffset)(ARMul_State* cpu, unsigned int inst, unsign
     unsigned int Rn = BITS(inst, 16, 19);
     unsigned int addr;
 
-    if (U_BIT)
+    if (U_BIT) {
         addr = CHECK_READ_REG15_WA(cpu, Rn) + OFFSET_12;
-    else
+    } else {
         addr = CHECK_READ_REG15_WA(cpu, Rn) - OFFSET_12;
+    }
 
     virt_addr = addr;
 }
@@ -263,10 +267,11 @@ static void LnSWoUB(RegisterOffset)(ARMul_State* cpu, unsigned int inst, unsigne
     unsigned int rm = CHECK_READ_REG15_WA(cpu, Rm);
     unsigned int addr;
 
-    if (U_BIT)
+    if (U_BIT) {
         addr = rn + rm;
-    else
+    } else {
         addr = rn - rm;
+    }
 
     virt_addr = addr;
 }
@@ -275,10 +280,11 @@ static void LnSWoUB(ImmediatePostIndexed)(ARMul_State* cpu, unsigned int inst, u
     unsigned int Rn = BITS(inst, 16, 19);
     unsigned int addr = CHECK_READ_REG15_WA(cpu, Rn);
 
-    if (U_BIT)
+    if (U_BIT) {
         cpu->Reg[Rn] += OFFSET_12;
-    else
+    } else {
         cpu->Reg[Rn] -= OFFSET_12;
+    }
 
     virt_addr = addr;
 }
@@ -287,15 +293,17 @@ static void LnSWoUB(ImmediatePreIndexed)(ARMul_State* cpu, unsigned int inst, un
     unsigned int Rn = BITS(inst, 16, 19);
     unsigned int addr;
 
-    if (U_BIT)
+    if (U_BIT) {
         addr = CHECK_READ_REG15_WA(cpu, Rn) + OFFSET_12;
-    else
+    } else {
         addr = CHECK_READ_REG15_WA(cpu, Rn) - OFFSET_12;
+    }
 
     virt_addr = addr;
 
-    if (CondPassed(cpu, BITS(inst, 28, 31)))
+    if (CondPassed(cpu, BITS(inst, 28, 31))) {
         cpu->Reg[Rn] = addr;
+    }
 }
 
 static void MLnS(RegisterPreIndexed)(ARMul_State* cpu, unsigned int inst, unsigned int& virt_addr) {
@@ -305,15 +313,17 @@ static void MLnS(RegisterPreIndexed)(ARMul_State* cpu, unsigned int inst, unsign
     unsigned int rn = CHECK_READ_REG15_WA(cpu, Rn);
     unsigned int rm = CHECK_READ_REG15_WA(cpu, Rm);
 
-    if (U_BIT)
+    if (U_BIT) {
         addr = rn + rm;
-    else
+    } else {
         addr = rn - rm;
+    }
 
     virt_addr = addr;
 
-    if (CondPassed(cpu, BITS(inst, 28, 31)))
+    if (CondPassed(cpu, BITS(inst, 28, 31))) {
         cpu->Reg[Rn] = addr;
+    }
 }
 
 static void LnSWoUB(RegisterPreIndexed)(ARMul_State* cpu, unsigned int inst, unsigned int& virt_addr) {
@@ -323,10 +333,11 @@ static void LnSWoUB(RegisterPreIndexed)(ARMul_State* cpu, unsigned int inst, uns
     unsigned int rm = CHECK_READ_REG15_WA(cpu, Rm);
     unsigned int addr;
 
-    if (U_BIT)
+    if (U_BIT) {
         addr = rn + rm;
-    else
+    } else {
         addr = rn - rm;
+    }
 
     virt_addr = addr;
 
@@ -358,10 +369,11 @@ static void LnSWoUB(ScaledRegisterPreIndexed)(ARMul_State* cpu, unsigned int ins
         break;
     case 2:
         if (shift_imm == 0) { // ASR #32
-            if (BIT(rm, 31) == 1)
+            if (BIT(rm, 31) == 1) {
                 index = 0xFFFFFFFF;
-            else
+            } else {
                 index = 0;
+            }
         } else {
             index = static_cast<int>(rm) >> shift_imm;
         }
@@ -375,15 +387,17 @@ static void LnSWoUB(ScaledRegisterPreIndexed)(ARMul_State* cpu, unsigned int ins
         break;
     }
 
-    if (U_BIT)
+    if (U_BIT) {
         addr = rn + index;
-    else
+    } else {
         addr = rn - index;
+    }
 
     virt_addr = addr;
 
-    if (CondPassed(cpu, BITS(inst, 28, 31)))
+    if (CondPassed(cpu, BITS(inst, 28, 31))) {
         cpu->Reg[Rn] = addr;
+    }
 }
 
 static void LnSWoUB(ScaledRegisterPostIndexed)(ARMul_State* cpu, unsigned int inst, unsigned int& virt_addr) {
@@ -408,10 +422,11 @@ static void LnSWoUB(ScaledRegisterPostIndexed)(ARMul_State* cpu, unsigned int in
         break;
     case 2:
         if (shift_imm == 0) { // ASR #32
-            if (BIT(rm, 31) == 1)
+            if (BIT(rm, 31) == 1) {
                 index = 0xFFFFFFFF;
-            else
+            } else {
                 index = 0;
+            }
         } else {
             index = static_cast<int>(rm) >> shift_imm;
         }
@@ -428,10 +443,11 @@ static void LnSWoUB(ScaledRegisterPostIndexed)(ARMul_State* cpu, unsigned int in
     virt_addr = addr;
 
     if (CondPassed(cpu, BITS(inst, 28, 31))) {
-        if (U_BIT)
+        if (U_BIT) {
             cpu->Reg[Rn] += index;
-        else
+        } else {
             cpu->Reg[Rn] -= index;
+        }
     }
 }
 
@@ -459,10 +475,11 @@ static void MLnS(ImmediateOffset)(ARMul_State* cpu, unsigned int inst, unsigned 
 
     unsigned int offset_8 = (immedH << 4) | immedL;
 
-    if (U_BIT)
+    if (U_BIT) {
         addr = CHECK_READ_REG15_WA(cpu, Rn) + offset_8;
-    else
+    } else {
         addr = CHECK_READ_REG15_WA(cpu, Rn) - offset_8;
+    }
 
     virt_addr = addr;
 }
@@ -474,10 +491,11 @@ static void MLnS(RegisterOffset)(ARMul_State* cpu, unsigned int inst, unsigned i
     unsigned int rn = CHECK_READ_REG15_WA(cpu, Rn);
     unsigned int rm = CHECK_READ_REG15_WA(cpu, Rm);
 
-    if (U_BIT)
+    if (U_BIT) {
         addr = rn + rm;
-    else
+    } else {
         addr = rn - rm;
+    }
 
     virt_addr = addr;
 }
@@ -490,15 +508,17 @@ static void MLnS(ImmediatePreIndexed)(ARMul_State* cpu, unsigned int inst, unsig
     unsigned int rn = CHECK_READ_REG15_WA(cpu, Rn);
     unsigned int offset_8 = (immedH << 4) | immedL;
 
-    if (U_BIT)
+    if (U_BIT) {
         addr = rn + offset_8;
-    else
+    } else {
         addr = rn - offset_8;
+    }
 
     virt_addr = addr;
 
-    if (CondPassed(cpu, BITS(inst, 28, 31)))
+    if (CondPassed(cpu, BITS(inst, 28, 31))) {
         cpu->Reg[Rn] = addr;
+    }
 }
 
 static void MLnS(ImmediatePostIndexed)(ARMul_State* cpu, unsigned int inst, unsigned int& virt_addr) {
@@ -511,10 +531,11 @@ static void MLnS(ImmediatePostIndexed)(ARMul_State* cpu, unsigned int inst, unsi
 
     if (CondPassed(cpu, BITS(inst, 28, 31))) {
         unsigned int offset_8 = (immedH << 4) | immedL;
-        if (U_BIT)
+        if (U_BIT) {
             rn += offset_8;
-        else
+        } else {
             rn -= offset_8;
+        }
 
         cpu->Reg[Rn] = rn;
     }
@@ -528,10 +549,11 @@ static void MLnS(RegisterPostIndexed)(ARMul_State* cpu, unsigned int inst, unsig
     virt_addr = CHECK_READ_REG15_WA(cpu, Rn);
 
     if (CondPassed(cpu, BITS(inst, 28, 31))) {
-        if (U_BIT)
+        if (U_BIT) {
             cpu->Reg[Rn] += rm;
-        else
+        } else {
             cpu->Reg[Rn] -= rm;
+        }
     }
 }
 
@@ -541,14 +563,17 @@ static void LdnStM(DecrementBefore)(ARMul_State* cpu, unsigned int inst, unsigne
     int count = 0;
 
     while (i) {
-        if (i & 1) count++;
+        if (i & 1) {
+            count++;
+        }
         i = i >> 1;
     }
 
     virt_addr = CHECK_READ_REG15_WA(cpu, Rn) - count * 4;
 
-    if (CondPassed(cpu, BITS(inst, 28, 31)) && BIT(inst, 21))
+    if (CondPassed(cpu, BITS(inst, 28, 31)) && BIT(inst, 21)) {
         cpu->Reg[Rn] -= count * 4;
+    }
 }
 
 static void LdnStM(IncrementBefore)(ARMul_State* cpu, unsigned int inst, unsigned int& virt_addr) {
@@ -557,14 +582,17 @@ static void LdnStM(IncrementBefore)(ARMul_State* cpu, unsigned int inst, unsigne
     int count = 0;
 
     while (i) {
-        if (i & 1) count++;
+        if (i & 1) {
+            count++;
+        }
         i = i >> 1;
     }
 
     virt_addr = CHECK_READ_REG15_WA(cpu, Rn) + 4;
 
-    if (CondPassed(cpu, BITS(inst, 28, 31)) && BIT(inst, 21))
+    if (CondPassed(cpu, BITS(inst, 28, 31)) && BIT(inst, 21)) {
         cpu->Reg[Rn] += count * 4;
+    }
 }
 
 static void LdnStM(IncrementAfter)(ARMul_State* cpu, unsigned int inst, unsigned int& virt_addr) {
@@ -573,14 +601,17 @@ static void LdnStM(IncrementAfter)(ARMul_State* cpu, unsigned int inst, unsigned
     int count = 0;
 
     while(i) {
-        if (i & 1) count++;
+        if (i & 1) {
+            count++;
+        }
         i = i >> 1;
     }
 
     virt_addr = CHECK_READ_REG15_WA(cpu, Rn);
 
-    if (CondPassed(cpu, BITS(inst, 28, 31)) && BIT(inst, 21))
+    if (CondPassed(cpu, BITS(inst, 28, 31)) && BIT(inst, 21)) {
         cpu->Reg[Rn] += count * 4;
+    }
 }
 
 static void LdnStM(DecrementAfter)(ARMul_State* cpu, unsigned int inst, unsigned int& virt_addr) {
@@ -588,7 +619,9 @@ static void LdnStM(DecrementAfter)(ARMul_State* cpu, unsigned int inst, unsigned
     unsigned int i = BITS(inst, 0, 15);
     int count = 0;
     while(i) {
-        if(i & 1) count++;
+        if(i & 1) {
+            count++;
+        }
         i = i >> 1;
     }
     unsigned int rn = CHECK_READ_REG15_WA(cpu, Rn);
@@ -624,10 +657,11 @@ static void LnSWoUB(ScaledRegisterOffset)(ARMul_State* cpu, unsigned int inst, u
         break;
     case 2:
         if (shift_imm == 0) { // ASR #32
-            if (BIT(rm, 31) == 1)
+            if (BIT(rm, 31) == 1) {
                 index = 0xFFFFFFFF;
-            else
+            } else {
                 index = 0;
+            }
         } else {
             index = static_cast<int>(rm) >> shift_imm;
         }
@@ -643,8 +677,9 @@ static void LnSWoUB(ScaledRegisterOffset)(ARMul_State* cpu, unsigned int inst, u
 
     if (U_BIT) {
         addr = rn + index;
-    } else
+    } else {
         addr = rn - index;
+    }
 
     virt_addr = addr;
 }
@@ -748,11 +783,15 @@ static ThumbDecodeStatus DecodeThumbInstruction(u32 inst, u32 addr, u32* arm_ins
         switch ((tinstr & 0xF800) >> 11) {
         case 26:
         case 27:
-            if (((tinstr & 0x0F00) != 0x0E00) && ((tinstr & 0x0F00) != 0x0F00)){
+            if (((tinstr & 0x0F00) != 0x0E00) && ((tinstr & 0x0F00) != 0x0F00)) {
                 inst_index = table_length - 4;
                 *ptr_inst_base = arm_instruction_trans[inst_index](tinstr, inst_index);
             } else {
-                LOG_ERROR(Core_ARM11, "thumb decoder error");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+                LOG_ERROR(Core_ARM11, "thumb decoder error"));
+#endif
+
             }
             break;
         case 28:
@@ -811,8 +850,16 @@ static unsigned int InterpreterTranslateInstruction(const ARMul_State* cpu, cons
     int idx;
     if (DecodeARMInstruction(inst, &idx) == ARMDecodeStatus::FAILURE) {
         std::string disasm = ARM_Disasm::Disassemble(phys_addr, inst);
-        LOG_ERROR(Core_ARM11, "Decode failure.\tPC : [0x%x]\tInstruction : %s [%x]", phys_addr, disasm.c_str(), inst);
-        LOG_ERROR(Core_ARM11, "cpsr=0x%x, cpu->TFlag=%d, r15=0x%x", cpu->Cpsr, cpu->TFlag, cpu->Reg[15]);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_ERROR(Core_ARM11, "Decode failure.\tPC : [0x%x]\tInstruction : %s [%x]", phys_addr, disasm.c_str(), inst));
+#endif
+
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_ERROR(Core_ARM11, "cpsr=0x%x, cpu->TFlag=%d, r15=0x%x", cpu->Cpsr, cpu->TFlag, cpu->Reg[15]));
+#endif
+
         CITRA_IGNORE_EXIT(-1);
     }
     inst_base = arm_instruction_trans[idx](inst, idx);
@@ -875,12 +922,26 @@ static int InterpreterTranslateSingle(ARMul_State* cpu, int& bb_start, u32 addr)
 
 static int clz(unsigned int x) {
     int n;
-    if (x == 0) return (32);
+    if (x == 0) {
+        return (32);
+    }
     n = 1;
-    if ((x >> 16) == 0) { n = n + 16; x = x << 16;}
-    if ((x >> 24) == 0) { n = n +  8; x = x <<  8;}
-    if ((x >> 28) == 0) { n = n +  4; x = x <<  4;}
-    if ((x >> 30) == 0) { n = n +  2; x = x <<  2;}
+    if ((x >> 16) == 0) {
+        n = n + 16;
+        x = x << 16;
+    }
+    if ((x >> 24) == 0) {
+        n = n +  8;
+        x = x <<  8;
+    }
+    if ((x >> 28) == 0) {
+        n = n +  4;
+        x = x <<  4;
+    }
+    if ((x >> 30) == 0) {
+        n = n +  2;
+        x = x <<  2;
+    }
     n = n - (x >> 31);
     return n;
 }
@@ -892,29 +953,29 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
 
     GDBStub::BreakpointAddress breakpoint_data;
 
-    #undef RM
-    #undef RS
+#undef RM
+#undef RS
 
-    #define CRn             inst_cream->crn
-    #define OPCODE_1        inst_cream->opcode_1
-    #define OPCODE_2        inst_cream->opcode_2
-    #define CRm             inst_cream->crm
-    #define RD              cpu->Reg[inst_cream->Rd]
-    #define RD2             cpu->Reg[inst_cream->Rd + 1]
-    #define RN              cpu->Reg[inst_cream->Rn]
-    #define RM              cpu->Reg[inst_cream->Rm]
-    #define RS              cpu->Reg[inst_cream->Rs]
-    #define RDHI            cpu->Reg[inst_cream->RdHi]
-    #define RDLO            cpu->Reg[inst_cream->RdLo]
-    #define LINK_RTN_ADDR   (cpu->Reg[14] = cpu->Reg[15] + 4)
-    #define SET_PC          (cpu->Reg[15] = cpu->Reg[15] + 8 + inst_cream->signed_immed_24)
-    #define SHIFTER_OPERAND inst_cream->shtop_func(cpu, inst_cream->shifter_operand)
+#define CRn             inst_cream->crn
+#define OPCODE_1        inst_cream->opcode_1
+#define OPCODE_2        inst_cream->opcode_2
+#define CRm             inst_cream->crm
+#define RD              cpu->Reg[inst_cream->Rd]
+#define RD2             cpu->Reg[inst_cream->Rd + 1]
+#define RN              cpu->Reg[inst_cream->Rn]
+#define RM              cpu->Reg[inst_cream->Rm]
+#define RS              cpu->Reg[inst_cream->Rs]
+#define RDHI            cpu->Reg[inst_cream->RdHi]
+#define RDLO            cpu->Reg[inst_cream->RdLo]
+#define LINK_RTN_ADDR   (cpu->Reg[14] = cpu->Reg[15] + 4)
+#define SET_PC          (cpu->Reg[15] = cpu->Reg[15] + 8 + inst_cream->signed_immed_24)
+#define SHIFTER_OPERAND inst_cream->shtop_func(cpu, inst_cream->shifter_operand)
 
-    #define FETCH_INST if (inst_base->br != TransExtData::NON_BRANCH) goto DISPATCH; \
+#define FETCH_INST if (inst_base->br != TransExtData::NON_BRANCH) goto DISPATCH; \
                        inst_base = (arm_inst *)&trans_cache_buf[ptr]
 
-    #define INC_PC(l)   ptr += sizeof(arm_inst) + l
-    #define INC_PC_STUB ptr += sizeof(arm_inst)
+#define INC_PC(l)   ptr += sizeof(arm_inst) + l
+#define INC_PC_STUB ptr += sizeof(arm_inst)
 
 #define GDB_BP_CHECK \
     cpu->Cpsr &= ~(1 << 5); \
@@ -1148,24 +1209,24 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
     }
 #endif
 
-    #define UPDATE_NFLAG(dst)    (cpu->NFlag = BIT(dst, 31) ? 1 : 0)
-    #define UPDATE_ZFLAG(dst)    (cpu->ZFlag = dst ? 0 : 1)
-    #define UPDATE_CFLAG_WITH_SC (cpu->CFlag = cpu->shifter_carry_out)
+#define UPDATE_NFLAG(dst)    (cpu->NFlag = BIT(dst, 31) ? 1 : 0)
+#define UPDATE_ZFLAG(dst)    (cpu->ZFlag = dst ? 0 : 1)
+#define UPDATE_CFLAG_WITH_SC (cpu->CFlag = cpu->shifter_carry_out)
 
-    #define SAVE_NZCVT cpu->Cpsr = (cpu->Cpsr & 0x0fffffdf) | \
+#define SAVE_NZCVT cpu->Cpsr = (cpu->Cpsr & 0x0fffffdf) | \
                       (cpu->NFlag << 31) | \
                       (cpu->ZFlag << 30) | \
                       (cpu->CFlag << 29) | \
                       (cpu->VFlag << 28) | \
                       (cpu->TFlag << 5)
-    #define LOAD_NZCVT cpu->NFlag = (cpu->Cpsr >> 31);     \
+#define LOAD_NZCVT cpu->NFlag = (cpu->Cpsr >> 31);     \
                        cpu->ZFlag = (cpu->Cpsr >> 30) & 1; \
                        cpu->CFlag = (cpu->Cpsr >> 29) & 1; \
                        cpu->VFlag = (cpu->Cpsr >> 28) & 1; \
                        cpu->TFlag = (cpu->Cpsr >> 5) & 1;
 
-    #define CurrentModeHasSPSR (cpu->Mode != SYSTEM32MODE) && (cpu->Mode != USER32MODE)
-    #define PC (cpu->Reg[15])
+#define CurrentModeHasSPSR (cpu->Mode != SYSTEM32MODE) && (cpu->Mode != USER32MODE)
+#define PC (cpu->Reg[15])
 
     // GCC and Clang have a C++ extension to support a lookup table of labels. Otherwise, fallback
     // to a clunky switch statement.
@@ -1195,7 +1256,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         &&STREXD_INST,&&LDREXH_INST,&&STREXH_INST, &&NOP_INST, &&YIELD_INST, &&WFE_INST, &&WFI_INST, &&SEV_INST, &&SWI_INST,&&BBL_INST,
         &&B_2_THUMB, &&B_COND_THUMB,&&BL_1_THUMB, &&BL_2_THUMB, &&BLX_1_THUMB, &&DISPATCH,
         &&INIT_INST_LENGTH,&&END
-        };
+    };
 #endif
     arm_inst* inst_base;
     unsigned int addr;
@@ -1204,29 +1265,31 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
     int ptr;
 
     LOAD_NZCVT;
-    DISPATCH:
-    {
+DISPATCH: {
         if (!cpu->NirqSig) {
             if (!(cpu->Cpsr & 0x80)) {
                 goto END;
             }
         }
 
-        if (cpu->TFlag)
+        if (cpu->TFlag) {
             cpu->Reg[15] &= 0xfffffffe;
-        else
+        } else {
             cpu->Reg[15] &= 0xfffffffc;
+        }
 
         // Find the cached instruction cream, otherwise translate it...
         auto itr = cpu->instruction_cache.find(cpu->Reg[15]);
         if (itr != cpu->instruction_cache.end()) {
             ptr = itr->second;
         } else if (cpu->NumInstrsToExecute != 1) {
-            if (InterpreterTranslateBlock(cpu, ptr, cpu->Reg[15]) == FETCH_EXCEPTION)
+            if (InterpreterTranslateBlock(cpu, ptr, cpu->Reg[15]) == FETCH_EXCEPTION) {
                 goto END;
+            }
         } else {
-            if (InterpreterTranslateSingle(cpu, ptr, cpu->Reg[15]) == FETCH_EXCEPTION)
+            if (InterpreterTranslateSingle(cpu, ptr, cpu->Reg[15]) == FETCH_EXCEPTION) {
                 goto END;
+            }
         }
 
         // Find breakpoint if one exists within the block
@@ -1237,14 +1300,14 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         inst_base = (arm_inst *)&trans_cache_buf[ptr];
         GOTO_NEXT_INST;
     }
-    ADC_INST:
-    {
+ADC_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             adc_inst* const inst_cream = (adc_inst*)inst_base->component;
 
             u32 rn_val = RN;
-            if (inst_cream->Rn == 15)
+            if (inst_cream->Rn == 15) {
                 rn_val += 2 * cpu->GetInstructionSize();
+            }
 
             bool carry;
             bool overflow;
@@ -1272,8 +1335,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    ADD_INST:
-    {
+ADD_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             add_inst* const inst_cream = (add_inst*)inst_base->component;
 
@@ -1305,16 +1367,16 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    AND_INST:
-    {
+AND_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             and_inst* const inst_cream = (and_inst*)inst_base->component;
 
             u32 lop = RN;
             u32 rop = SHIFTER_OPERAND;
 
-            if (inst_cream->Rn == 15)
+            if (inst_cream->Rn == 15) {
                 lop += 2 * cpu->GetInstructionSize();
+            }
 
             RD = lop & rop;
 
@@ -1339,8 +1401,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    BBL_INST:
-    {
+BBL_INST: {
         if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
             bbl_inst *inst_cream = (bbl_inst *)inst_base->component;
             if (inst_cream->L) {
@@ -1354,8 +1415,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         INC_PC(sizeof(bbl_inst));
         goto DISPATCH;
     }
-    BIC_INST:
-    {
+BIC_INST: {
         bic_inst *inst_cream = (bic_inst *)inst_base->component;
         if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
             u32 lop = RN;
@@ -1385,27 +1445,30 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    BKPT_INST:
-    {
+BKPT_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             bkpt_inst* const inst_cream = (bkpt_inst*)inst_base->component;
-            LOG_DEBUG(Core_ARM11, "Breakpoint instruction hit. Immediate: 0x%08X", inst_cream->imm);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+            LOG_DEBUG(Core_ARM11, "Breakpoint instruction hit. Immediate: 0x%08X", inst_cream->imm));
+#endif
+
         }
         cpu->Reg[15] += cpu->GetInstructionSize();
         INC_PC(sizeof(bkpt_inst));
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    BLX_INST:
-    {
+BLX_INST: {
         blx_inst *inst_cream = (blx_inst *)inst_base->component;
         if ((inst_base->cond == ConditionCode::AL) || CondPassed(cpu, inst_base->cond)) {
             unsigned int inst = inst_cream->inst;
             if (BITS(inst, 20, 27) == 0x12 && BITS(inst, 4, 7) == 0x3) {
                 const u32 jump_address = cpu->Reg[inst_cream->val.Rm];
                 cpu->Reg[14] = (cpu->Reg[15] + cpu->GetInstructionSize());
-                if(cpu->TFlag)
+                if(cpu->TFlag) {
                     cpu->Reg[14] |= 0x1;
+                }
                 cpu->Reg[15] = jump_address & 0xfffffffe;
                 cpu->TFlag = jump_address & 0x1;
             } else {
@@ -1424,9 +1487,8 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         goto DISPATCH;
     }
 
-    BX_INST:
-    BXJ_INST:
-    {
+BX_INST:
+BXJ_INST: {
         // Note that only the 'fail' case of BXJ is emulated. This is because
         // the facilities for Jazelle emulation are not implemented.
         //
@@ -1440,8 +1502,9 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
 
             u32 address = RM;
 
-            if (inst_cream->Rm == 15)
+            if (inst_cream->Rm == 15) {
                 address += 2 * cpu->GetInstructionSize();
+            }
 
             cpu->TFlag   = address & 1;
             cpu->Reg[15] = address & 0xfffffffe;
@@ -1454,8 +1517,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         goto DISPATCH;
     }
 
-    CDP_INST:
-    {
+CDP_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             // Undefined instruction here
             cpu->NumInstrsToExecute = 0;
@@ -1467,16 +1529,14 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    CLREX_INST:
-    {
+CLREX_INST: {
         cpu->UnsetExclusiveMemoryAddress();
         cpu->Reg[15] += cpu->GetInstructionSize();
         INC_PC(sizeof(clrex_inst));
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    CLZ_INST:
-    {
+CLZ_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             clz_inst* inst_cream = (clz_inst*)inst_base->component;
             RD = clz(RM);
@@ -1486,14 +1546,14 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    CMN_INST:
-    {
+CMN_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             cmn_inst* const inst_cream = (cmn_inst*)inst_base->component;
 
             u32 rn_val = RN;
-            if (inst_cream->Rn == 15)
+            if (inst_cream->Rn == 15) {
                 rn_val += 2 * cpu->GetInstructionSize();
+            }
 
             bool carry;
             bool overflow;
@@ -1509,14 +1569,14 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    CMP_INST:
-    {
+CMP_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             cmp_inst* const inst_cream = (cmp_inst*)inst_base->component;
 
             u32 rn_val = RN;
-            if (inst_cream->Rn == 15)
+            if (inst_cream->Rn == 15) {
                 rn_val += 2 * cpu->GetInstructionSize();
+            }
 
             bool carry;
             bool overflow;
@@ -1532,8 +1592,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    CPS_INST:
-    {
+CPS_INST: {
         cps_inst *inst_cream = (cps_inst *)inst_base->component;
         u32 aif_val = 0;
         u32 aif_mask = 0;
@@ -1564,8 +1623,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    CPY_INST:
-    {
+CPY_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             mov_inst* inst_cream = (mov_inst*)inst_base->component;
 
@@ -1580,8 +1638,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    EOR_INST:
-    {
+EOR_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             eor_inst* inst_cream = (eor_inst*)inst_base->component;
 
@@ -1612,8 +1669,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    LDC_INST:
-    {
+LDC_INST: {
         // Instruction not implemented
         //LOG_CRITICAL(Core_ARM11, "unimplemented instruction");
         cpu->Reg[15] += cpu->GetInstructionSize();
@@ -1621,8 +1677,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    LDM_INST:
-    {
+LDM_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
             inst_cream->get_addr(cpu, inst_cream->inst, addr);
@@ -1630,7 +1685,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
             unsigned int inst = inst_cream->inst;
 
             if (BIT(inst, 22) && !BIT(inst, 15)) {
-#pragma omp for
+                #pragma omp for
                 for (int i = 0; i < 13; i++) {
                     if(BIT(inst, i)) {
                         cpu->Reg[i] = cpu->ReadMemory32(addr);
@@ -1638,29 +1693,31 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
                     }
                 }
                 if (BIT(inst, 13)) {
-                    if (cpu->Mode == USER32MODE)
+                    if (cpu->Mode == USER32MODE) {
                         cpu->Reg[13] = cpu->ReadMemory32(addr);
-                    else
+                    } else {
                         cpu->Reg_usr[0] = cpu->ReadMemory32(addr);
+                    }
 
                     addr += 4;
                 }
                 if (BIT(inst, 14)) {
-                    if (cpu->Mode == USER32MODE)
+                    if (cpu->Mode == USER32MODE) {
                         cpu->Reg[14] = cpu->ReadMemory32(addr);
-                    else
+                    } else {
                         cpu->Reg_usr[1] = cpu->ReadMemory32(addr);
+                    }
 
                     addr += 4;
                 }
             } else if (!BIT(inst, 22)) {
-#pragma omp for
-                for(int i = 0; i < 16; i++ ){
-                    if(BIT(inst, i)){
+                #pragma omp for
+                for(int i = 0; i < 16; i++ ) {
+                    if(BIT(inst, i)) {
                         unsigned int ret = cpu->ReadMemory32(addr);
 
                         // For armv5t, should enter thumb when bits[0] is non-zero.
-                        if(i == 15){
+                        if(i == 15) {
                             cpu->TFlag = ret & 0x1;
                             ret &= 0xFFFFFFFE;
                         }
@@ -1670,13 +1727,13 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
                     }
                 }
             } else if (BIT(inst, 22) && BIT(inst, 15)) {
-#pragma omp for
-                for(int i = 0; i < 15; i++ ){
-                    if(BIT(inst, i)){
+                #pragma omp for
+                for(int i = 0; i < 15; i++ ) {
+                    if(BIT(inst, i)) {
                         cpu->Reg[i] = cpu->ReadMemory32(addr);
                         addr += 4;
-                     }
-                 }
+                    }
+                }
 
                 if (CurrentModeHasSPSR) {
                     cpu->Cpsr = cpu->Spsr_copy;
@@ -1697,8 +1754,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    SXTH_INST:
-    {
+SXTH_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             sxth_inst* inst_cream = (sxth_inst*)inst_base->component;
 
@@ -1715,8 +1771,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    LDR_INST:
-    {
+LDR_INST: {
         ldst_inst *inst_cream = (ldst_inst *)inst_base->component;
         inst_cream->get_addr(cpu, inst_cream->inst, addr);
 
@@ -1736,8 +1791,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    LDRCOND_INST:
-    {
+LDRCOND_INST: {
         if (CondPassed(cpu, inst_base->cond)) {
             ldst_inst *inst_cream = (ldst_inst *)inst_base->component;
             inst_cream->get_addr(cpu, inst_cream->inst, addr);
@@ -1758,8 +1812,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    UXTH_INST:
-    {
+UXTH_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             uxth_inst* inst_cream = (uxth_inst*)inst_base->component;
             RD = ROTATE_RIGHT_32(RM, 8 * inst_cream->rotate) & 0xffff;
@@ -1769,8 +1822,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    UXTAH_INST:
-    {
+UXTAH_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             uxtah_inst* inst_cream = (uxtah_inst*)inst_base->component;
             unsigned int operand2 = ROTATE_RIGHT_32(RM, 8 * inst_cream->rotate) & 0xffff;
@@ -1782,8 +1834,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    LDRB_INST:
-    {
+LDRB_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
             inst_cream->get_addr(cpu, inst_cream->inst, addr);
@@ -1795,8 +1846,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    LDRBT_INST:
-    {
+LDRBT_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
             inst_cream->get_addr(cpu, inst_cream->inst, addr);
@@ -1815,8 +1865,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    LDRD_INST:
-    {
+LDRD_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
             // Should check if RD is even-numbered, Rd != 14, addr[0:1] == 0, (CP15_reg1_U == 1 || addr[2] == 0)
@@ -1835,8 +1884,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    LDREX_INST:
-    {
+LDREX_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             generic_arm_inst* inst_cream = (generic_arm_inst*)inst_base->component;
             unsigned int read_addr = RN;
@@ -1850,8 +1898,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    LDREXB_INST:
-    {
+LDREXB_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             generic_arm_inst* inst_cream = (generic_arm_inst*)inst_base->component;
             unsigned int read_addr = RN;
@@ -1865,8 +1912,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    LDREXH_INST:
-    {
+LDREXH_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             generic_arm_inst* inst_cream = (generic_arm_inst*)inst_base->component;
             unsigned int read_addr = RN;
@@ -1880,8 +1926,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    LDREXD_INST:
-    {
+LDREXD_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             generic_arm_inst* inst_cream = (generic_arm_inst*)inst_base->component;
             unsigned int read_addr = RN;
@@ -1896,8 +1941,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    LDRH_INST:
-    {
+LDRH_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
             inst_cream->get_addr(cpu, inst_cream->inst, addr);
@@ -1909,8 +1953,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    LDRSB_INST:
-    {
+LDRSB_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
             inst_cream->get_addr(cpu, inst_cream->inst, addr);
@@ -1925,8 +1968,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    LDRSH_INST:
-    {
+LDRSH_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
             inst_cream->get_addr(cpu, inst_cream->inst, addr);
@@ -1942,8 +1984,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    LDRT_INST:
-    {
+LDRT_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
             inst_cream->get_addr(cpu, inst_cream->inst, addr);
@@ -1962,8 +2003,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    MCR_INST:
-    {
+MCR_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             mcr_inst* inst_cream = (mcr_inst*)inst_base->component;
 
@@ -1971,8 +2011,9 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
             if (inst_cream->Rd == 15) {
                 DEBUG_MSG;
             } else {
-                if (inst_cream->cp_num == 15)
+                if (inst_cream->cp_num == 15) {
                     cpu->WriteCP15Register(RD, CRn, OPCODE_1, CRm, OPCODE_2);
+                }
             }
         }
         cpu->Reg[15] += cpu->GetInstructionSize();
@@ -1981,15 +2022,18 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    MCRR_INST:
-    {
+MCRR_INST: {
         // Stubbed, as the MPCore doesn't have any registers that are accessible
         // through this instruction.
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             mcrr_inst* const inst_cream = (mcrr_inst*)inst_base->component;
 
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
             LOG_ERROR(Core_ARM11, "MCRR executed | Coprocessor: %u, CRm %u, opc1: %u, Rt: %u, Rt2: %u",
-                      inst_cream->cp_num, inst_cream->crm, inst_cream->opcode_1, inst_cream->rt, inst_cream->rt2);
+                      inst_cream->cp_num, inst_cream->crm, inst_cream->opcode_1, inst_cream->rt, inst_cream->rt2));
+#endif
+
         }
 
         cpu->Reg[15] += cpu->GetInstructionSize();
@@ -1998,8 +2042,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    MLA_INST:
-    {
+MLA_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             mla_inst* inst_cream = (mla_inst*)inst_base->component;
 
@@ -2018,8 +2061,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    MOV_INST:
-    {
+MOV_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             mov_inst* inst_cream = (mov_inst*)inst_base->component;
 
@@ -2045,8 +2087,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    MRC_INST:
-    {
+MRC_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             mrc_inst* inst_cream = (mrc_inst*)inst_base->component;
 
@@ -2067,15 +2108,18 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    MRRC_INST:
-    {
+MRRC_INST: {
         // Stubbed, as the MPCore doesn't have any registers that are accessible
         // through this instruction.
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             mcrr_inst* const inst_cream = (mcrr_inst*)inst_base->component;
 
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
             LOG_ERROR(Core_ARM11, "MRRC executed | Coprocessor: %u, CRm %u, opc1: %u, Rt: %u, Rt2: %u",
-                      inst_cream->cp_num, inst_cream->crm, inst_cream->opcode_1, inst_cream->rt, inst_cream->rt2);
+                      inst_cream->cp_num, inst_cream->crm, inst_cream->opcode_1, inst_cream->rt, inst_cream->rt2));
+#endif
+
         }
 
         cpu->Reg[15] += cpu->GetInstructionSize();
@@ -2084,8 +2128,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    MRS_INST:
-    {
+MRS_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             mrs_inst* inst_cream = (mrs_inst*)inst_base->component;
 
@@ -2101,8 +2144,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    MSR_INST:
-    {
+MSR_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             msr_inst* inst_cream = (msr_inst*)inst_base->component;
             const u32 UserMask = 0xf80f0200, PrivMask = 0x000001df, StateMask = 0x01000020;
@@ -2116,15 +2158,16 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
                 operand = cpu->Reg[BITS(inst, 0, 3)];
             }
             u32 byte_mask = (BIT(inst, 16) ? 0xff : 0) | (BIT(inst, 17) ? 0xff00 : 0)
-                        | (BIT(inst, 18) ? 0xff0000 : 0) | (BIT(inst, 19) ? 0xff000000 : 0);
+                            | (BIT(inst, 18) ? 0xff0000 : 0) | (BIT(inst, 19) ? 0xff000000 : 0);
             u32 mask = 0;
             if (!inst_cream->R) {
                 if (cpu->InAPrivilegedMode()) {
                     if ((operand & StateMask) != 0) {
                         /// UNPREDICTABLE
                         DEBUG_MSG;
-                    } else
+                    } else {
                         mask = byte_mask & (UserMask | PrivMask);
+                    }
                 } else {
                     mask = byte_mask & UserMask;
                 }
@@ -2145,8 +2188,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    MUL_INST:
-    {
+MUL_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             mul_inst* inst_cream = (mul_inst*)inst_base->component;
 
@@ -2163,8 +2205,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    MVN_INST:
-    {
+MVN_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             mvn_inst* const inst_cream = (mvn_inst*)inst_base->component;
 
@@ -2191,16 +2232,16 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    ORR_INST:
-    {
+ORR_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             orr_inst* const inst_cream = (orr_inst*)inst_base->component;
 
             u32 lop = RN;
             u32 rop = SHIFTER_OPERAND;
 
-            if (inst_cream->Rn == 15)
+            if (inst_cream->Rn == 15) {
                 lop += 2 * cpu->GetInstructionSize();
+            }
 
             RD = lop | rop;
 
@@ -2226,16 +2267,14 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    NOP_INST:
-    {
+NOP_INST: {
         cpu->Reg[15] += cpu->GetInstructionSize();
         INC_PC_STUB;
         FETCH_INST;
         GOTO_NEXT_INST;
     }
 
-    PKHBT_INST:
-    {
+PKHBT_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             pkh_inst *inst_cream = (pkh_inst *)inst_base->component;
             RD = (RN & 0xFFFF) | ((RM << inst_cream->imm) & 0xFFFF0000);
@@ -2246,8 +2285,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    PKHTB_INST:
-    {
+PKHTB_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             pkh_inst *inst_cream = (pkh_inst *)inst_base->component;
             int shift_imm = inst_cream->imm ? inst_cream->imm : 31;
@@ -2259,8 +2297,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    PLD_INST:
-    {
+PLD_INST: {
         // Not implemented. PLD is a hint instruction, so it's optional.
 
         cpu->Reg[15] += cpu->GetInstructionSize();
@@ -2269,11 +2306,10 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    QADD_INST:
-    QDADD_INST:
-    QDSUB_INST:
-    QSUB_INST:
-    {
+QADD_INST:
+QDADD_INST:
+QDSUB_INST:
+QSUB_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             generic_arm_inst* const inst_cream = (generic_arm_inst*)inst_base->component;
             const u8 op1 = inst_cream->op1;
@@ -2342,13 +2378,12 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    QADD8_INST:
-    QADD16_INST:
-    QADDSUBX_INST:
-    QSUB8_INST:
-    QSUB16_INST:
-    QSUBADDX_INST:
-    {
+QADD8_INST:
+QADD16_INST:
+QADDSUBX_INST:
+QSUB8_INST:
+QSUB16_INST:
+QSUBADDX_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             generic_arm_inst* const inst_cream = (generic_arm_inst*)inst_base->component;
             const u16 rm_lo = (RM & 0xFFFF);
@@ -2404,10 +2439,9 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    REV_INST:
-    REV16_INST:
-    REVSH_INST:
-    {
+REV_INST:
+REV16_INST:
+REVSH_INST: {
 
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             rev_inst* const inst_cream = (rev_inst*)inst_base->component;
@@ -2426,8 +2460,9 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
             // REVSH
             else if (op1 == 0x07 && op2 == 0x05) {
                 RD = ((RM & 0xFF) << 8) | ((RM & 0xFF00) >> 8);
-                if (RD & 0x8000)
+                if (RD & 0x8000) {
                     RD |= 0xffff0000;
+                }
             }
         }
 
@@ -2437,8 +2472,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    RFE_INST:
-    {
+RFE_INST: {
         // RFE is unconditional
         ldst_inst* const inst_cream = (ldst_inst*)inst_base->component;
 
@@ -2452,14 +2486,14 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         goto DISPATCH;
     }
 
-    RSB_INST:
-    {
+RSB_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             rsb_inst* const inst_cream = (rsb_inst*)inst_base->component;
 
             u32 rn_val = RN;
-            if (inst_cream->Rn == 15)
+            if (inst_cream->Rn == 15) {
                 rn_val += 2 * cpu->GetInstructionSize();
+            }
 
             bool carry;
             bool overflow;
@@ -2487,14 +2521,14 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    RSC_INST:
-    {
+RSC_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             rsc_inst* const inst_cream = (rsc_inst*)inst_base->component;
 
             u32 rn_val = RN;
-            if (inst_cream->Rn == 15)
+            if (inst_cream->Rn == 15) {
                 rn_val += 2 * cpu->GetInstructionSize();
+            }
 
             bool carry;
             bool overflow;
@@ -2523,13 +2557,12 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    SADD8_INST:
-    SSUB8_INST:
-    SADD16_INST:
-    SADDSUBX_INST:
-    SSUBADDX_INST:
-    SSUB16_INST:
-    {
+SADD8_INST:
+SSUB8_INST:
+SADD16_INST:
+SADDSUBX_INST:
+SSUBADDX_INST:
+SSUB16_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             generic_arm_inst* const inst_cream = (generic_arm_inst*)inst_base->component;
             const u8 op2 = inst_cream->op2;
@@ -2581,8 +2614,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
                     cpu->Cpsr &= ~(1 << 18);
                     cpu->Cpsr &= ~(1 << 19);
                 }
-            }
-            else if (op2 == 0x04 || op2 == 0x07) {
+            } else if (op2 == 0x04 || op2 == 0x07) {
                 s32 lo_val1, lo_val2;
                 s32 hi_val1, hi_val2;
 
@@ -2603,25 +2635,29 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
 
                 RD =  ((lo_val1 & 0xFF) | ((lo_val2 & 0xFF) << 8) | ((hi_val1 & 0xFF) << 16) | ((hi_val2 & 0xFF) << 24));
 
-                if (lo_val1 >= 0)
+                if (lo_val1 >= 0) {
                     cpu->Cpsr |= (1 << 16);
-                else
+                } else {
                     cpu->Cpsr &= ~(1 << 16);
+                }
 
-                if (lo_val2 >= 0)
+                if (lo_val2 >= 0) {
                     cpu->Cpsr |= (1 << 17);
-                else
+                } else {
                     cpu->Cpsr &= ~(1 << 17);
+                }
 
-                if (hi_val1 >= 0)
+                if (hi_val1 >= 0) {
                     cpu->Cpsr |= (1 << 18);
-                else
+                } else {
                     cpu->Cpsr &= ~(1 << 18);
+                }
 
-                if (hi_val2 >= 0)
+                if (hi_val2 >= 0) {
                     cpu->Cpsr |= (1 << 19);
-                else
+                } else {
                     cpu->Cpsr &= ~(1 << 19);
+                }
             }
         }
 
@@ -2631,14 +2667,14 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    SBC_INST:
-    {
+SBC_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             sbc_inst* const inst_cream = (sbc_inst*)inst_base->component;
 
             u32 rn_val = RN;
-            if (inst_cream->Rn == 15)
+            if (inst_cream->Rn == 15) {
                 rn_val += 2 * cpu->GetInstructionSize();
+            }
 
             bool carry;
             bool overflow;
@@ -2667,8 +2703,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    SEL_INST:
-    {
+SEL_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             generic_arm_inst* const inst_cream = (generic_arm_inst*)inst_base->component;
 
@@ -2677,25 +2712,29 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
             const u32 cpsr = cpu->Cpsr;
 
             u32 result;
-            if (cpsr & (1 << 16))
+            if (cpsr & (1 << 16)) {
                 result = from & 0xff;
-            else
+            } else {
                 result = to & 0xff;
+            }
 
-            if (cpsr & (1 << 17))
+            if (cpsr & (1 << 17)) {
                 result |= from & 0x0000ff00;
-            else
+            } else {
                 result |= to & 0x0000ff00;
+            }
 
-            if (cpsr & (1 << 18))
+            if (cpsr & (1 << 18)) {
                 result |= from & 0x00ff0000;
-            else
+            } else {
                 result |= to & 0x00ff0000;
+            }
 
-            if (cpsr & (1 << 19))
+            if (cpsr & (1 << 19)) {
                 result |= from & 0xff000000;
-            else
+            } else {
                 result |= to & 0xff000000;
+            }
 
             RD = result;
         }
@@ -2706,18 +2745,22 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    SETEND_INST:
-    {
+SETEND_INST: {
         // SETEND is unconditional
         setend_inst* const inst_cream = (setend_inst*)inst_base->component;
         const bool big_endian = (inst_cream->set_bigend == 1);
 
-        if (big_endian)
+        if (big_endian) {
             cpu->Cpsr |= (1 << 9);
-        else
+        } else {
             cpu->Cpsr &= ~(1 << 9);
+        }
 
-        LOG_WARNING(Core_ARM11, "SETEND %s executed", big_endian ? "BE" : "LE");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_WARNING(Core_ARM11, "SETEND %s executed", big_endian ? "BE" : "LE"));
+#endif
+
 
         cpu->Reg[15] += cpu->GetInstructionSize();
         INC_PC(sizeof(setend_inst));
@@ -2725,11 +2768,14 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    SEV_INST:
-    {
+SEV_INST: {
         // Stubbed, as SEV is a hint instruction.
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
-            LOG_TRACE(Core_ARM11, "SEV executed.");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+            LOG_TRACE(Core_ARM11, "SEV executed."));
+#endif
+
         }
 
         cpu->Reg[15] += cpu->GetInstructionSize();
@@ -2738,13 +2784,12 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    SHADD8_INST:
-    SHADD16_INST:
-    SHADDSUBX_INST:
-    SHSUB8_INST:
-    SHSUB16_INST:
-    SHSUBADDX_INST:
-    {
+SHADD8_INST:
+SHADD16_INST:
+SHADDSUBX_INST:
+SHSUB8_INST:
+SHSUB16_INST:
+SHSUBADDX_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             generic_arm_inst* const inst_cream = (generic_arm_inst*)inst_base->component;
 
@@ -2778,8 +2823,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
                 }
 
                 RD = ((lo_result & 0xFFFF) | ((hi_result & 0xFFFF) << 16));
-            }
-            else if (op2 == 0x04 || op2 == 0x07) {
+            } else if (op2 == 0x04 || op2 == 0x07) {
                 s16 lo_val1, lo_val2;
                 s16 hi_val1, hi_val2;
 
@@ -2810,24 +2854,26 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    SMLA_INST:
-    {
+SMLA_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             smla_inst* inst_cream = (smla_inst*)inst_base->component;
             s32 operand1, operand2;
-            if (inst_cream->x == 0)
+            if (inst_cream->x == 0) {
                 operand1 = (BIT(RM, 15)) ? (BITS(RM, 0, 15) | 0xffff0000) : BITS(RM, 0, 15);
-            else
+            } else {
                 operand1 = (BIT(RM, 31)) ? (BITS(RM, 16, 31) | 0xffff0000) : BITS(RM, 16, 31);
+            }
 
-            if (inst_cream->y == 0)
+            if (inst_cream->y == 0) {
                 operand2 = (BIT(RS, 15)) ? (BITS(RS, 0, 15) | 0xffff0000) : BITS(RS, 0, 15);
-            else
+            } else {
                 operand2 = (BIT(RS, 31)) ? (BITS(RS, 16, 31) | 0xffff0000) : BITS(RS, 16, 31);
+            }
             RD = operand1 * operand2 + RN;
 
-            if (AddOverflow(operand1 * operand2, RN, RD))
+            if (AddOverflow(operand1 * operand2, RN, RD)) {
                 cpu->Cpsr |= (1 << 27);
+            }
         }
         cpu->Reg[15] += cpu->GetInstructionSize();
         INC_PC(sizeof(smla_inst));
@@ -2835,11 +2881,10 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    SMLAD_INST:
-    SMLSD_INST:
-    SMUAD_INST:
-    SMUSD_INST:
-    {
+SMLAD_INST:
+SMLSD_INST:
+SMUAD_INST:
+SMUSD_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             smlad_inst* const inst_cream = (smlad_inst*)inst_base->component;
             const u8 op2 = inst_cream->op2;
@@ -2847,8 +2892,9 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
             u32 rm_val = cpu->Reg[inst_cream->Rm];
             const u32 rn_val = cpu->Reg[inst_cream->Rn];
 
-            if (inst_cream->m)
+            if (inst_cream->m) {
                 rm_val = (((rm_val & 0xFFFF) << 16) | (rm_val >> 16));
+            }
 
             const s16 rm_lo = (rm_val & 0xFFFF);
             const s16 rm_hi = ((rm_val >> 16) & 0xFFFF);
@@ -2865,14 +2911,16 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
                 if (inst_cream->Ra != 15) {
                     rd_val += cpu->Reg[inst_cream->Ra];
 
-                    if (ARMul_AddOverflowQ(product1 + product2, cpu->Reg[inst_cream->Ra]))
+                    if (ARMul_AddOverflowQ(product1 + product2, cpu->Reg[inst_cream->Ra])) {
                         cpu->Cpsr |= (1 << 27);
+                    }
                 }
 
                 RD = rd_val;
 
-                if (ARMul_AddOverflowQ(product1, product2))
+                if (ARMul_AddOverflowQ(product1, product2)) {
                     cpu->Cpsr |= (1 << 27);
+                }
             }
             // SMUSD and SMLSD
             else {
@@ -2881,8 +2929,9 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
                 if (inst_cream->Ra != 15) {
                     rd_val += cpu->Reg[inst_cream->Ra];
 
-                    if (ARMul_AddOverflowQ(product1 - product2, cpu->Reg[inst_cream->Ra]))
+                    if (ARMul_AddOverflowQ(product1 - product2, cpu->Reg[inst_cream->Ra])) {
                         cpu->Cpsr |= (1 << 27);
+                    }
                 }
 
                 RD = rd_val;
@@ -2895,8 +2944,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    SMLAL_INST:
-    {
+SMLAL_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             umlal_inst* inst_cream = (umlal_inst*)inst_base->component;
             long long int rm = RM;
@@ -2924,24 +2972,27 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    SMLALXY_INST:
-    {
+SMLALXY_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             smlalxy_inst* const inst_cream = (smlalxy_inst*)inst_base->component;
 
             u64 operand1 = RN;
             u64 operand2 = RM;
 
-            if (inst_cream->x != 0)
+            if (inst_cream->x != 0) {
                 operand1 >>= 16;
-            if (inst_cream->y != 0)
+            }
+            if (inst_cream->y != 0) {
                 operand2 >>= 16;
+            }
             operand1 &= 0xFFFF;
-            if (operand1 & 0x8000)
+            if (operand1 & 0x8000) {
                 operand1 -= 65536;
+            }
             operand2 &= 0xFFFF;
-            if (operand2 & 0x8000)
+            if (operand2 & 0x8000) {
                 operand2 -= 65536;
+            }
 
             u64 dest = ((u64)RDHI << 32 | RDLO) + (operand1 * operand2);
             RDLO = (dest & 0xFFFFFFFF);
@@ -2954,8 +3005,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    SMLAW_INST:
-    {
+SMLAW_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             smlad_inst* const inst_cream = (smlad_inst*)inst_base->component;
 
@@ -2969,8 +3019,9 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
 
             RD = BITS(result, 16, 47);
 
-            if ((result >> 16) != (s32)RD)
+            if ((result >> 16) != (s32)RD) {
                 cpu->Cpsr |= (1 << 27);
+            }
         }
 
         cpu->Reg[15] += cpu->GetInstructionSize();
@@ -2979,9 +3030,8 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    SMLALD_INST:
-    SMLSLD_INST:
-    {
+SMLALD_INST:
+SMLSLD_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             smlald_inst* const inst_cream = (smlald_inst*)inst_base->component;
 
@@ -2991,8 +3041,9 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
             const u32 rn_val   = RN;
             u32 rm_val         = RM;
 
-            if (do_swap)
+            if (do_swap) {
                 rm_val = (((rm_val & 0xFFFF) << 16) | (rm_val >> 16));
+            }
 
             const s32 product1 = (s16)(rn_val & 0xFFFF) * (s16)(rm_val & 0xFFFF);
             const s32 product2 = (s16)((rn_val >> 16) & 0xFFFF) * (s16)((rm_val >> 16) & 0xFFFF);
@@ -3017,10 +3068,9 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    SMMLA_INST:
-    SMMLS_INST:
-    SMMUL_INST:
-    {
+SMMLA_INST:
+SMMLS_INST:
+SMMUL_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             smlad_inst* const inst_cream = (smlad_inst*)inst_base->component;
 
@@ -3035,14 +3085,16 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
                 const u32 ra_val = cpu->Reg[inst_cream->Ra];
 
                 // SMMLA, otherwise SMMLS
-                if (BIT(inst_cream->op2, 1) == 0)
+                if (BIT(inst_cream->op2, 1) == 0) {
                     result += ((s64)ra_val << 32);
-                else
+                } else {
                     result = ((s64)ra_val << 32) - result;
+                }
             }
 
-            if (do_round)
+            if (do_round) {
                 result += 0x80000000;
+            }
 
             RD = ((result >> 32) & 0xFFFFFFFF);
         }
@@ -3053,20 +3105,21 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    SMUL_INST:
-    {
+SMUL_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             smul_inst* inst_cream = (smul_inst*)inst_base->component;
             u32 operand1, operand2;
-            if (inst_cream->x == 0)
+            if (inst_cream->x == 0) {
                 operand1 = (BIT(RM, 15)) ? (BITS(RM, 0, 15) | 0xffff0000) : BITS(RM, 0, 15);
-            else
+            } else {
                 operand1 = (BIT(RM, 31)) ? (BITS(RM, 16, 31) | 0xffff0000) : BITS(RM, 16, 31);
+            }
 
-            if (inst_cream->y == 0)
+            if (inst_cream->y == 0) {
                 operand2 = (BIT(RS, 15)) ? (BITS(RS, 0, 15) | 0xffff0000) : BITS(RS, 0, 15);
-            else
+            } else {
                 operand2 = (BIT(RS, 31)) ? (BITS(RS, 16, 31) | 0xffff0000) : BITS(RS, 16, 31);
+            }
             RD = operand1 * operand2;
         }
         cpu->Reg[15] += cpu->GetInstructionSize();
@@ -3074,8 +3127,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    SMULL_INST:
-    {
+SMULL_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             umull_inst* inst_cream = (umull_inst*)inst_base->component;
             s64 rm = RM;
@@ -3101,8 +3153,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    SMULW_INST:
-    {
+SMULW_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             smlad_inst* const inst_cream = (smlad_inst*)inst_base->component;
 
@@ -3117,8 +3168,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    SRS_INST:
-    {
+SRS_INST: {
         // SRS is unconditional
         ldst_inst* const inst_cream = (ldst_inst*)inst_base->component;
 
@@ -3134,8 +3184,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    SSAT_INST:
-    {
+SSAT_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             ssat_inst* const inst_cream = (ssat_inst*)inst_base->component;
 
@@ -3144,19 +3193,22 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
             u32 rn_val = RN;
 
             // 32-bit ASR is encoded as an amount of 0.
-            if (shift_type == 1 && shift_amount == 0)
+            if (shift_type == 1 && shift_amount == 0) {
                 shift_amount = 31;
+            }
 
-            if (shift_type == 0)
+            if (shift_type == 0) {
                 rn_val <<= shift_amount;
-            else if (shift_type == 1)
+            } else if (shift_type == 1) {
                 rn_val = ((s32)rn_val >> shift_amount);
+            }
 
             bool saturated = false;
             rn_val = ARMul_SignedSatQ(rn_val, inst_cream->sat_imm, &saturated);
 
-            if (saturated)
+            if (saturated) {
                 cpu->Cpsr |= (1 << 27);
+            }
 
             RD = rn_val;
         }
@@ -3167,8 +3219,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    SSAT16_INST:
-    {
+SSAT16_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             ssat_inst* const inst_cream = (ssat_inst*)inst_base->component;
             const u8 saturate_to = inst_cream->sat_imm;
@@ -3179,8 +3230,9 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
             RD = (ARMul_SignedSatQ((s16)RN, saturate_to, &sat1) & 0xFFFF) |
                  ARMul_SignedSatQ((s32)RN >> 16, saturate_to, &sat2) << 16;
 
-            if (sat1 || sat2)
+            if (sat1 || sat2) {
                 cpu->Cpsr |= (1 << 27);
+            }
         }
 
         cpu->Reg[15] += cpu->GetInstructionSize();
@@ -3189,8 +3241,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    STC_INST:
-    {
+STC_INST: {
         // Instruction not implemented
         //LOG_CRITICAL(Core_ARM11, "unimplemented instruction");
         cpu->Reg[15] += cpu->GetInstructionSize();
@@ -3198,8 +3249,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    STM_INST:
-    {
+STM_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
             unsigned int inst = inst_cream->inst;
@@ -3209,7 +3259,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
 
             inst_cream->get_addr(cpu, inst_cream->inst, addr);
             if (BIT(inst_cream->inst, 22) == 1) {
-#pragma omp for
+                #pragma omp for
                 for (int i = 0; i < 13; i++) {
                     if (BIT(inst_cream->inst, i)) {
                         cpu->WriteMemory32(addr, cpu->Reg[i]);
@@ -3217,18 +3267,20 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
                     }
                 }
                 if (BIT(inst_cream->inst, 13)) {
-                    if (cpu->Mode == USER32MODE)
+                    if (cpu->Mode == USER32MODE) {
                         cpu->WriteMemory32(addr, cpu->Reg[13]);
-                    else
+                    } else {
                         cpu->WriteMemory32(addr, cpu->Reg_usr[0]);
+                    }
 
                     addr += 4;
                 }
                 if (BIT(inst_cream->inst, 14)) {
-                    if (cpu->Mode == USER32MODE)
+                    if (cpu->Mode == USER32MODE) {
                         cpu->WriteMemory32(addr, cpu->Reg[14]);
-                    else
+                    } else {
                         cpu->WriteMemory32(addr, cpu->Reg_usr[1]);
+                    }
 
                     addr += 4;
                 }
@@ -3236,21 +3288,23 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
                     cpu->WriteMemory32(addr, cpu->Reg_usr[1] + 8);
                 }
             } else {
-#pragma omp for
+                #pragma omp for
                 for (int i = 0; i < 15; i++) {
                     if (BIT(inst_cream->inst, i)) {
-                        if (i == Rn)
+                        if (i == Rn) {
                             cpu->WriteMemory32(addr, old_RN);
-                        else
+                        } else {
                             cpu->WriteMemory32(addr, cpu->Reg[i]);
+                        }
 
                         addr += 4;
                     }
                 }
 
                 // Check PC reg
-                if (BIT(inst_cream->inst, 15))
+                if (BIT(inst_cream->inst, 15)) {
                     cpu->WriteMemory32(addr, cpu->Reg_usr[1] + 8);
+                }
             }
         }
         cpu->Reg[15] += cpu->GetInstructionSize();
@@ -3258,8 +3312,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    SXTB_INST:
-    {
+SXTB_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             sxtb_inst* inst_cream = (sxtb_inst*)inst_base->component;
 
@@ -3276,8 +3329,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    STR_INST:
-    {
+STR_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
             inst_cream->get_addr(cpu, inst_cream->inst, addr);
@@ -3285,8 +3337,9 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
             unsigned int reg = BITS(inst_cream->inst, 12, 15);
             unsigned int value = cpu->Reg[reg];
 
-            if (reg == 15)
+            if (reg == 15) {
                 value += 2 * cpu->GetInstructionSize();
+            }
 
             cpu->WriteMemory32(addr, value);
         }
@@ -3295,8 +3348,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    UXTB_INST:
-    {
+UXTB_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             uxtb_inst* inst_cream = (uxtb_inst*)inst_base->component;
             RD = ROTATE_RIGHT_32(RM, 8 * inst_cream->rotate) & 0xff;
@@ -3306,8 +3358,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    UXTAB_INST:
-    {
+UXTAB_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             uxtab_inst* inst_cream = (uxtab_inst*)inst_base->component;
 
@@ -3319,8 +3370,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    STRB_INST:
-    {
+STRB_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
             inst_cream->get_addr(cpu, inst_cream->inst, addr);
@@ -3332,8 +3382,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    STRBT_INST:
-    {
+STRBT_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
             inst_cream->get_addr(cpu, inst_cream->inst, addr);
@@ -3350,8 +3399,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    STRD_INST:
-    {
+STRD_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
             inst_cream->get_addr(cpu, inst_cream->inst, addr);
@@ -3366,8 +3414,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    STREX_INST:
-    {
+STREX_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             generic_arm_inst* inst_cream = (generic_arm_inst*)inst_base->component;
             unsigned int write_addr = cpu->Reg[inst_cream->Rn];
@@ -3386,8 +3433,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    STREXB_INST:
-    {
+STREXB_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             generic_arm_inst* inst_cream = (generic_arm_inst*)inst_base->component;
             unsigned int write_addr = cpu->Reg[inst_cream->Rn];
@@ -3406,8 +3452,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    STREXD_INST:
-    {
+STREXD_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             generic_arm_inst* inst_cream = (generic_arm_inst*)inst_base->component;
             unsigned int write_addr = cpu->Reg[inst_cream->Rn];
@@ -3419,15 +3464,15 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
                 const u32 rt2 = cpu->Reg[inst_cream->Rm + 1];
                 u64 value;
 
-                if (cpu->InBigEndianMode())
+                if (cpu->InBigEndianMode()) {
                     value = (((u64)rt << 32) | rt2);
-                else
+                } else {
                     value = (((u64)rt2 << 32) | rt);
+                }
 
                 cpu->WriteMemory64(write_addr, value);
                 RD = 0;
-            }
-            else {
+            } else {
                 // Failed to write due to mutex access
                 RD = 1;
             }
@@ -3437,8 +3482,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    STREXH_INST:
-    {
+STREXH_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             generic_arm_inst* inst_cream = (generic_arm_inst*)inst_base->component;
             unsigned int write_addr = cpu->Reg[inst_cream->Rn];
@@ -3457,8 +3501,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    STRH_INST:
-    {
+STRH_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
             inst_cream->get_addr(cpu, inst_cream->inst, addr);
@@ -3471,8 +3514,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    STRT_INST:
-    {
+STRT_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             ldst_inst* inst_cream = (ldst_inst*)inst_base->component;
             inst_cream->get_addr(cpu, inst_cream->inst, addr);
@@ -3481,8 +3523,9 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
             const u32 rt_index = BITS(inst_cream->inst, 12, 15);
 
             u32 value = cpu->Reg[rt_index];
-            if (rt_index == 15)
+            if (rt_index == 15) {
                 value += 2 * cpu->GetInstructionSize();
+            }
 
             cpu->ChangePrivilegeMode(USER32MODE);
             cpu->WriteMemory32(addr, value);
@@ -3493,8 +3536,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    SUB_INST:
-    {
+SUB_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             sub_inst* const inst_cream = (sub_inst*)inst_base->component;
 
@@ -3526,8 +3568,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    SWI_INST:
-    {
+SWI_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             swi_inst* const inst_cream = (swi_inst*)inst_base->component;
             SVC::CallSVC(inst_cream->num & 0xFFFF);
@@ -3538,8 +3579,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    SWP_INST:
-    {
+SWP_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             swp_inst* inst_cream = (swp_inst*)inst_base->component;
 
@@ -3554,8 +3594,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    SWPB_INST:
-    {
+SWPB_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             swp_inst* inst_cream = (swp_inst*)inst_base->component;
             addr = RN;
@@ -3568,8 +3607,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    SXTAB_INST:
-    {
+SXTAB_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             sxtab_inst* inst_cream = (sxtab_inst*)inst_base->component;
 
@@ -3585,9 +3623,8 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    SXTAB16_INST:
-    SXTB16_INST:
-    {
+SXTAB16_INST:
+SXTB16_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             sxtab_inst* const inst_cream = (sxtab_inst*)inst_base->component;
 
@@ -3595,8 +3632,9 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
             u32 rm_val = RM;
             u32 rn_val = RN;
 
-            if (rotation)
+            if (rotation) {
                 rm_val = ((rm_val << (32 - rotation)) | (rm_val >> rotation));
+            }
 
             // SXTB16
             if (inst_cream->Rn == 15) {
@@ -3618,8 +3656,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    SXTAH_INST:
-    {
+SXTAH_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             sxtah_inst* inst_cream = (sxtah_inst*)inst_base->component;
 
@@ -3634,16 +3671,16 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    TEQ_INST:
-    {
+TEQ_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             teq_inst* const inst_cream = (teq_inst*)inst_base->component;
 
             u32 lop = RN;
             u32 rop = SHIFTER_OPERAND;
 
-            if (inst_cream->Rn == 15)
+            if (inst_cream->Rn == 15) {
                 lop += cpu->GetInstructionSize() * 2;
+            }
 
             u32 result = lop ^ rop;
 
@@ -3656,16 +3693,16 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    TST_INST:
-    {
+TST_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             tst_inst* const inst_cream = (tst_inst*)inst_base->component;
 
             u32 lop = RN;
             u32 rop = SHIFTER_OPERAND;
 
-            if (inst_cream->Rn == 15)
+            if (inst_cream->Rn == 15) {
                 lop += cpu->GetInstructionSize() * 2;
+            }
 
             u32 result = lop & rop;
 
@@ -3679,13 +3716,12 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    UADD8_INST:
-    UADD16_INST:
-    UADDSUBX_INST:
-    USUB8_INST:
-    USUB16_INST:
-    USUBADDX_INST:
-    {
+UADD8_INST:
+UADD16_INST:
+UADDSUBX_INST:
+USUB8_INST:
+USUB16_INST:
+USUBADDX_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             generic_arm_inst* const inst_cream = (generic_arm_inst*)inst_base->component;
 
@@ -3787,25 +3823,29 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
                 s16 sum3 = ((rn_val >> 16) & 0xFF) + ((rm_val >> 16) & 0xFF);
                 s16 sum4 = ((rn_val >> 24) & 0xFF) + ((rm_val >> 24) & 0xFF);
 
-                if (sum1 >= 0x100)
+                if (sum1 >= 0x100) {
                     cpu->Cpsr |= (1 << 16);
-                else
+                } else {
                     cpu->Cpsr &= ~(1 << 16);
+                }
 
-                if (sum2 >= 0x100)
+                if (sum2 >= 0x100) {
                     cpu->Cpsr |= (1 << 17);
-                else
+                } else {
                     cpu->Cpsr &= ~(1 << 17);
+                }
 
-                if (sum3 >= 0x100)
+                if (sum3 >= 0x100) {
                     cpu->Cpsr |= (1 << 18);
-                else
+                } else {
                     cpu->Cpsr &= ~(1 << 18);
+                }
 
-                if (sum4 >= 0x100)
+                if (sum4 >= 0x100) {
                     cpu->Cpsr |= (1 << 19);
-                else
+                } else {
                     cpu->Cpsr &= ~(1 << 19);
+                }
 
                 lo_result = ((sum1 & 0xFF) | (sum2 & 0xFF) << 8);
                 hi_result = ((sum3 & 0xFF) | (sum4 & 0xFF) << 8);
@@ -3817,25 +3857,29 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
                 s16 diff3 = ((rn_val >> 16) & 0xFF) - ((rm_val >> 16) & 0xFF);
                 s16 diff4 = ((rn_val >> 24) & 0xFF) - ((rm_val >> 24) & 0xFF);
 
-                if (diff1 >= 0)
+                if (diff1 >= 0) {
                     cpu->Cpsr |= (1 << 16);
-                else
+                } else {
                     cpu->Cpsr &= ~(1 << 16);
+                }
 
-                if (diff2 >= 0)
+                if (diff2 >= 0) {
                     cpu->Cpsr |= (1 << 17);
-                else
+                } else {
                     cpu->Cpsr &= ~(1 << 17);
+                }
 
-                if (diff3 >= 0)
+                if (diff3 >= 0) {
                     cpu->Cpsr |= (1 << 18);
-                else
+                } else {
                     cpu->Cpsr &= ~(1 << 18);
+                }
 
-                if (diff4 >= 0)
+                if (diff4 >= 0) {
                     cpu->Cpsr |= (1 << 19);
-                else
+                } else {
                     cpu->Cpsr &= ~(1 << 19);
+                }
 
                 lo_result = (diff1 & 0xFF) | ((diff2 & 0xFF) << 8);
                 hi_result = (diff3 & 0xFF) | ((diff4 & 0xFF) << 8);
@@ -3850,21 +3894,19 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    UHADD8_INST:
-    UHADD16_INST:
-    UHADDSUBX_INST:
-    UHSUBADDX_INST:
-    UHSUB8_INST:
-    UHSUB16_INST:
-    {
+UHADD8_INST:
+UHADD16_INST:
+UHADDSUBX_INST:
+UHSUBADDX_INST:
+UHSUB8_INST:
+UHSUB16_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             generic_arm_inst* const inst_cream = (generic_arm_inst*)inst_base->component;
             const u32 rm_val = RM;
             const u32 rn_val = RN;
             const u8 op2 = inst_cream->op2;
 
-            if (op2 == 0x00 || op2 == 0x01 || op2 == 0x02 || op2 == 0x03)
-            {
+            if (op2 == 0x00 || op2 == 0x01 || op2 == 0x02 || op2 == 0x03) {
                 u32 lo_val = 0;
                 u32 hi_val = 0;
 
@@ -3893,8 +3935,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
                 hi_val >>= 1;
 
                 RD = (lo_val & 0xFFFF) | ((hi_val & 0xFFFF) << 16);
-            }
-            else if (op2 == 0x04 || op2 == 0x07) {
+            } else if (op2 == 0x04 || op2 == 0x07) {
                 u32 sum1;
                 u32 sum2;
                 u32 sum3;
@@ -3930,8 +3971,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    UMAAL_INST:
-    {
+UMAAL_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             umaal_inst* const inst_cream = (umaal_inst*)inst_base->component;
             const u64 rm = RM;
@@ -3948,8 +3988,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    UMLAL_INST:
-    {
+UMLAL_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             umlal_inst* inst_cream = (umlal_inst*)inst_base->component;
             unsigned long long int rm = RM;
@@ -3971,8 +4010,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    UMULL_INST:
-    {
+UMULL_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             umull_inst* inst_cream = (umull_inst*)inst_base->component;
             unsigned long long int rm = RM;
@@ -3991,27 +4029,25 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    B_2_THUMB:
-    {
+B_2_THUMB: {
         b_2_thumb* inst_cream = (b_2_thumb*)inst_base->component;
         cpu->Reg[15] = cpu->Reg[15] + 4 + inst_cream->imm;
         INC_PC(sizeof(b_2_thumb));
         goto DISPATCH;
     }
-    B_COND_THUMB:
-    {
+B_COND_THUMB: {
         b_cond_thumb* inst_cream = (b_cond_thumb*)inst_base->component;
 
-        if(CondPassed(cpu, inst_cream->cond))
+        if(CondPassed(cpu, inst_cream->cond)) {
             cpu->Reg[15] = cpu->Reg[15] + 4 + inst_cream->imm;
-        else
+        } else {
             cpu->Reg[15] += 2;
+        }
 
         INC_PC(sizeof(b_cond_thumb));
         goto DISPATCH;
     }
-    BL_1_THUMB:
-    {
+BL_1_THUMB: {
         bl_1_thumb* inst_cream = (bl_1_thumb*)inst_base->component;
         cpu->Reg[14] = cpu->Reg[15] + 4 + inst_cream->imm;
         cpu->Reg[15] += cpu->GetInstructionSize();
@@ -4019,8 +4055,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         FETCH_INST;
         GOTO_NEXT_INST;
     }
-    BL_2_THUMB:
-    {
+BL_2_THUMB: {
         bl_2_thumb* inst_cream = (bl_2_thumb*)inst_base->component;
         int tmp = ((cpu->Reg[15] + 2) | 1);
         cpu->Reg[15] = (cpu->Reg[14] + inst_cream->imm);
@@ -4028,8 +4063,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         INC_PC(sizeof(bl_2_thumb));
         goto DISPATCH;
     }
-    BLX_1_THUMB:
-    {
+BLX_1_THUMB: {
         // BLX 1 for armv5t and above
         u32 tmp = cpu->Reg[15];
         blx_1_thumb* inst_cream = (blx_1_thumb*)inst_base->component;
@@ -4040,13 +4074,12 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         goto DISPATCH;
     }
 
-    UQADD8_INST:
-    UQADD16_INST:
-    UQADDSUBX_INST:
-    UQSUB8_INST:
-    UQSUB16_INST:
-    UQSUBADDX_INST:
-    {
+UQADD8_INST:
+UQADD16_INST:
+UQADDSUBX_INST:
+UQSUB8_INST:
+UQSUB16_INST:
+UQSUBADDX_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             generic_arm_inst* const inst_cream = (generic_arm_inst*)inst_base->component;
 
@@ -4101,9 +4134,8 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    USAD8_INST:
-    USADA8_INST:
-    {
+USAD8_INST:
+USADA8_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             generic_arm_inst* inst_cream = (generic_arm_inst*)inst_base->component;
 
@@ -4119,8 +4151,9 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
             u32 finalDif = (diff1 + diff2 + diff3 + diff4);
 
             // Op is USADA8 if true.
-            if (ra_idx != 15)
+            if (ra_idx != 15) {
                 finalDif += cpu->Reg[ra_idx];
+            }
 
             RD = finalDif;
         }
@@ -4131,8 +4164,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    USAT_INST:
-    {
+USAT_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             ssat_inst* const inst_cream = (ssat_inst*)inst_base->component;
 
@@ -4141,19 +4173,22 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
             u32 rn_val = RN;
 
             // 32-bit ASR is encoded as an amount of 0.
-            if (shift_type == 1 && shift_amount == 0)
+            if (shift_type == 1 && shift_amount == 0) {
                 shift_amount = 31;
+            }
 
-            if (shift_type == 0)
+            if (shift_type == 0) {
                 rn_val <<= shift_amount;
-            else if (shift_type == 1)
+            } else if (shift_type == 1) {
                 rn_val = ((s32)rn_val >> shift_amount);
+            }
 
             bool saturated = false;
             rn_val = ARMul_UnsignedSatQ(rn_val, inst_cream->sat_imm, &saturated);
 
-            if (saturated)
+            if (saturated) {
                 cpu->Cpsr |= (1 << 27);
+            }
 
             RD = rn_val;
         }
@@ -4164,8 +4199,7 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    USAT16_INST:
-    {
+USAT16_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             ssat_inst* const inst_cream = (ssat_inst*)inst_base->component;
             const u8 saturate_to = inst_cream->sat_imm;
@@ -4176,8 +4210,9 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
             RD = (ARMul_UnsignedSatQ((s16)RN, saturate_to, &sat1) & 0xFFFF) |
                  ARMul_UnsignedSatQ((s32)RN >> 16, saturate_to, &sat2) << 16;
 
-            if (sat1 || sat2)
+            if (sat1 || sat2) {
                 cpu->Cpsr |= (1 << 27);
+            }
         }
 
         cpu->Reg[15] += cpu->GetInstructionSize();
@@ -4186,9 +4221,8 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    UXTAB16_INST:
-    UXTB16_INST:
-    {
+UXTAB16_INST:
+UXTB16_INST: {
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
             uxtab_inst* const inst_cream = (uxtab_inst*)inst_base->component;
 
@@ -4217,11 +4251,14 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    WFE_INST:
-    {
+WFE_INST: {
         // Stubbed, as WFE is a hint instruction.
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
-            LOG_TRACE(Core_ARM11, "WFE executed.");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+            LOG_TRACE(Core_ARM11, "WFE executed."));
+#endif
+
         }
 
         cpu->Reg[15] += cpu->GetInstructionSize();
@@ -4230,11 +4267,14 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    WFI_INST:
-    {
+WFI_INST: {
         // Stubbed, as WFI is a hint instruction.
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
-            LOG_TRACE(Core_ARM11, "WFI executed.");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+            LOG_TRACE(Core_ARM11, "WFI executed."));
+#endif
+
         }
 
         cpu->Reg[15] += cpu->GetInstructionSize();
@@ -4243,11 +4283,14 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    YIELD_INST:
-    {
+YIELD_INST: {
         // Stubbed, as YIELD is a hint instruction.
         if (inst_base->cond == ConditionCode::AL || CondPassed(cpu, inst_base->cond)) {
-            LOG_TRACE(Core_ARM11, "YIELD executed.");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+            LOG_TRACE(Core_ARM11, "YIELD executed."));
+#endif
+
         }
 
         cpu->Reg[15] += cpu->GetInstructionSize();
@@ -4256,18 +4299,16 @@ unsigned InterpreterMainLoop(ARMul_State* cpu) {
         GOTO_NEXT_INST;
     }
 
-    #define VFP_INTERPRETER_IMPL
-    #include "core/arm/skyeye_common/vfp/vfpinstr.cpp"
-    #undef VFP_INTERPRETER_IMPL
+#define VFP_INTERPRETER_IMPL
+#include "core/arm/skyeye_common/vfp/vfpinstr.cpp"
+#undef VFP_INTERPRETER_IMPL
 
-    END:
-    {
+END: {
         SAVE_NZCVT;
         cpu->NumInstrsToExecute = 0;
         return num_instrs;
     }
-    INIT_INST_LENGTH:
-    {
+INIT_INST_LENGTH: {
         cpu->NumInstrsToExecute = 0;
         return num_instrs;
     }

@@ -12,8 +12,7 @@
 ConfigureDialog::ConfigureDialog(QWidget *parent, bool running) :
     QDialog(parent),
     ui(new Ui::ConfigureDialog),
-    emulation_running(running)
-{
+    emulation_running(running) {
     ui->setupUi(this);
     this->setConfiguration();
 }

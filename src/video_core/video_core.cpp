@@ -31,9 +31,17 @@ bool Init(EmuWindow* emu_window) {
     g_renderer = std::make_unique<RendererOpenGL>();
     g_renderer->SetWindow(g_emu_window);
     if (g_renderer->Init()) {
-        LOG_DEBUG(Render, "initialized OK");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_DEBUG(Render, "initialized OK"));
+#endif
+
     } else {
-        LOG_ERROR(Render, "initialization failed !");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_ERROR(Render, "initialization failed !"));
+#endif
+
         return false;
     }
     return true;
@@ -45,7 +53,11 @@ void Shutdown() {
 
     g_renderer.reset();
 
-    LOG_DEBUG(Render, "shutdown OK");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_DEBUG(Render, "shutdown OK"));
+#endif
+
 }
 
 } // namespace

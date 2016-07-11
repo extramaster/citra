@@ -63,8 +63,9 @@ int GPUCommandListModel::columnCount(const QModelIndex& parent) const {
 }
 
 QVariant GPUCommandListModel::data(const QModelIndex& index, int role) const {
-    if (!index.isValid())
+    if (!index.isValid()) {
         return QVariant();
+    }
 
     const auto& write = pica_trace.writes[index.row()];
 
@@ -89,8 +90,7 @@ QVariant GPUCommandListModel::data(const QModelIndex& index, int role) const {
 
 QVariant GPUCommandListModel::headerData(int section, Qt::Orientation orientation, int role) const {
     switch(role) {
-    case Qt::DisplayRole:
-    {
+    case Qt::DisplayRole: {
         switch (section) {
         case 0:
             return tr("Command Name");
@@ -124,8 +124,8 @@ void GPUCommandListModel::OnPicaTraceFinished(const Pica::DebugUtils::PicaTrace&
 void GPUCommandListWidget::OnCommandDoubleClicked(const QModelIndex& index) {
     const unsigned int command_id = list_widget->model()->data(index, GPUCommandListModel::CommandIdRole).toUInt();
     if (COMMAND_IN_RANGE(command_id, texture0) ||
-        COMMAND_IN_RANGE(command_id, texture1) ||
-        COMMAND_IN_RANGE(command_id, texture2)) {
+            COMMAND_IN_RANGE(command_id, texture1) ||
+            COMMAND_IN_RANGE(command_id, texture2)) {
 
         unsigned index;
         if (COMMAND_IN_RANGE(command_id, texture0)) {
@@ -150,8 +150,8 @@ void GPUCommandListWidget::SetCommandInfo(const QModelIndex& index) {
 
     const unsigned int command_id = list_widget->model()->data(index, GPUCommandListModel::CommandIdRole).toUInt();
     if (COMMAND_IN_RANGE(command_id, texture0) ||
-        COMMAND_IN_RANGE(command_id, texture1) ||
-        COMMAND_IN_RANGE(command_id, texture2)) {
+            COMMAND_IN_RANGE(command_id, texture1) ||
+            COMMAND_IN_RANGE(command_id, texture2)) {
 
         unsigned index;
         if (COMMAND_IN_RANGE(command_id, texture0)) {

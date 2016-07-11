@@ -169,14 +169,14 @@ enum class ErrorSummary : u32 {
     NothingHappened = 1,
     WouldBlock = 2,
     OutOfResource = 3,      ///< There are no more kernel resources (memory, table slots) to
-                            ///< execute the operation.
+    ///< execute the operation.
     NotFound = 4,           ///< A file or resource was not found.
     InvalidState = 5,
     NotSupported = 6,       ///< The operation is not supported or not implemented.
     InvalidArgument = 7,    ///< Returned when a passed argument is invalid in the current runtime
-                            ///< context. (Invalid handle, out-of-bounds pointer or size, etc.)
+    ///< context. (Invalid handle, out-of-bounds pointer or size, etc.)
     WrongArgument = 8,      ///< Returned when a passed argument is in an incorrect format for use
-                            ///< with the function. (E.g. Invalid enum value)
+    ///< with the function. (E.g. Invalid enum value)
     Canceled = 9,
     StatusChanged = 10,
     Internal = 11,
@@ -213,14 +213,17 @@ union ResultCode {
 
     explicit ResultCode(u32 raw) : raw(raw) {}
     ResultCode(ErrorDescription description_, ErrorModule module_,
-            ErrorSummary summary_, ErrorLevel level_) : raw(0) {
+               ErrorSummary summary_, ErrorLevel level_) : raw(0) {
         description.Assign(description_);
         module.Assign(module_);
         summary.Assign(summary_);
         level.Assign(level_);
     }
 
-    ResultCode& operator=(const ResultCode& o) { raw = o.raw; return *this; }
+    ResultCode& operator=(const ResultCode& o) {
+        raw = o.raw;
+        return *this;
+    }
 
     bool IsSuccess() const {
         return is_error == 0;
@@ -247,7 +250,7 @@ const ResultCode RESULT_SUCCESS(0);
 /// Might be returned instead of a dummy success for unimplemented APIs.
 inline ResultCode UnimplementedFunction(ErrorModule module) {
     return ResultCode(ErrorDescription::NotImplemented, module,
-            ErrorSummary::NotSupported, ErrorLevel::Permanent);
+                      ErrorSummary::NotSupported, ErrorLevel::Permanent);
 }
 
 /**
@@ -287,8 +290,7 @@ class ResultVal {
 public:
     /// Constructs an empty `ResultVal` with the given error code. The code must not be a success code.
     ResultVal(ResultCode error_code = ResultCode(-1))
-        : result_code(error_code)
-    {
+        : result_code(error_code) {
         ASSERT(error_code.IsError());
     }
 
@@ -304,16 +306,14 @@ public:
     }
 
     ResultVal(const ResultVal& o)
-        : result_code(o.result_code)
-    {
+        : result_code(o.result_code) {
         if (!o.empty()) {
             new (&object) T(o.object);
         }
     }
 
     ResultVal(ResultVal&& o)
-        : result_code(o.result_code)
-    {
+        : result_code(o.result_code) {
         if (!o.empty()) {
             new (&object) T(std::move(o.object));
         }
@@ -357,19 +357,35 @@ public:
     }
 
     /// Returns true if the `ResultVal` contains an error code and no value.
-    bool empty() const { return result_code.IsError(); }
+    bool empty() const {
+        return result_code.IsError();
+    }
 
     /// Returns true if the `ResultVal` contains a return value.
-    bool Succeeded() const { return result_code.IsSuccess(); }
+    bool Succeeded() const {
+        return result_code.IsSuccess();
+    }
     /// Returns true if the `ResultVal` contains an error code and no value.
-    bool Failed() const { return empty(); }
+    bool Failed() const {
+        return empty();
+    }
 
-    ResultCode Code() const { return result_code; }
+    ResultCode Code() const {
+        return result_code;
+    }
 
-    const T& operator* () const { return object; }
-          T& operator* ()       { return object; }
-    const T* operator->() const { return &object; }
-          T* operator->()       { return &object; }
+    const T& operator* () const {
+        return object;
+    }
+    T& operator* ()       {
+        return object;
+    }
+    const T* operator->() const {
+        return &object;
+    }
+    T* operator->()       {
+        return &object;
+    }
 
     /// Returns the value contained in this `ResultVal`, or the supplied default if it is missing.
     template <typename U>
@@ -390,7 +406,9 @@ public:
 private:
     // A union is used to allocate the storage for the value, while allowing us to construct and
     // destruct it at will.
-    union { T object; };
+    union {
+        T object;
+    };
     ResultCode result_code;
 };
 

@@ -57,7 +57,11 @@ std::vector<s16> TimeStretcher::Process(size_t samples_in_queue) {
     std::vector<s16> samples = GetSamples();
     if (samples_in_queue >= DROP_FRAMES_SAMPLE_DELAY) {
         samples.clear();
-        LOG_DEBUG(Audio, "Dropping frames!");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_DEBUG(Audio, "Dropping frames!"));
+#endif
+
     }
     return samples;
 }

@@ -24,35 +24,59 @@ ResultVal<std::unique_ptr<FileBackend>> IVFCArchive::OpenFile(const Path& path, 
 }
 
 ResultCode IVFCArchive::DeleteFile(const Path& path) const {
-    LOG_CRITICAL(Service_FS, "Attempted to delete a file from an IVFC archive (%s).", GetName().c_str());
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_CRITICAL(Service_FS, "Attempted to delete a file from an IVFC archive (%s).", GetName().c_str()));
+#endif
+
     // TODO(Subv): Verify error code
     return ResultCode(ErrorDescription::NoData, ErrorModule::FS,
                       ErrorSummary::Canceled, ErrorLevel::Status);
 }
 
 bool IVFCArchive::RenameFile(const Path& src_path, const Path& dest_path) const {
-    LOG_CRITICAL(Service_FS, "Attempted to rename a file within an IVFC archive (%s).", GetName().c_str());
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_CRITICAL(Service_FS, "Attempted to rename a file within an IVFC archive (%s).", GetName().c_str()));
+#endif
+
     return false;
 }
 
 bool IVFCArchive::DeleteDirectory(const Path& path) const {
-    LOG_CRITICAL(Service_FS, "Attempted to delete a directory from an IVFC archive (%s).", GetName().c_str());
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_CRITICAL(Service_FS, "Attempted to delete a directory from an IVFC archive (%s).", GetName().c_str()));
+#endif
+
     return false;
 }
 
 ResultCode IVFCArchive::CreateFile(const Path& path, u64 size) const {
-    LOG_CRITICAL(Service_FS, "Attempted to create a file in an IVFC archive (%s).", GetName().c_str());
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_CRITICAL(Service_FS, "Attempted to create a file in an IVFC archive (%s).", GetName().c_str()));
+#endif
+
     // TODO: Verify error code
     return ResultCode(ErrorDescription::NotAuthorized, ErrorModule::FS, ErrorSummary::NotSupported, ErrorLevel::Permanent);
 }
 
 bool IVFCArchive::CreateDirectory(const Path& path) const {
-    LOG_CRITICAL(Service_FS, "Attempted to create a directory in an IVFC archive (%s).", GetName().c_str());
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_CRITICAL(Service_FS, "Attempted to create a directory in an IVFC archive (%s).", GetName().c_str()));
+#endif
+
     return false;
 }
 
 bool IVFCArchive::RenameDirectory(const Path& src_path, const Path& dest_path) const {
-    LOG_CRITICAL(Service_FS, "Attempted to rename a file within an IVFC archive (%s).", GetName().c_str());
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_CRITICAL(Service_FS, "Attempted to rename a file within an IVFC archive (%s).", GetName().c_str()));
+#endif
+
     return false;
 }
 
@@ -61,14 +85,22 @@ std::unique_ptr<DirectoryBackend> IVFCArchive::OpenDirectory(const Path& path) c
 }
 
 u64 IVFCArchive::GetFreeBytes() const {
-    LOG_WARNING(Service_FS, "Attempted to get the free space in an IVFC archive");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_WARNING(Service_FS, "Attempted to get the free space in an IVFC archive"));
+#endif
+
     return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ResultVal<size_t> IVFCFile::Read(const u64 offset, const size_t length, u8* buffer) const {
-    LOG_TRACE(Service_FS, "called offset=%llu, length=%zu", offset, length);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_TRACE(Service_FS, "called offset=%llu, length=%zu", offset, length));
+#endif
+
     romfs_file->Seek(data_offset + offset, SEEK_SET);
     size_t read_length = (size_t)std::min((u64)length, data_size - offset);
 
@@ -76,7 +108,11 @@ ResultVal<size_t> IVFCFile::Read(const u64 offset, const size_t length, u8* buff
 }
 
 ResultVal<size_t> IVFCFile::Write(const u64 offset, const size_t length, const bool flush, const u8* buffer) const {
-    LOG_ERROR(Service_FS, "Attempted to write to IVFC file");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_ERROR(Service_FS, "Attempted to write to IVFC file"));
+#endif
+
     // TODO(Subv): Find error code
     return MakeResult<size_t>(0);
 }
@@ -86,7 +122,11 @@ u64 IVFCFile::GetSize() const {
 }
 
 bool IVFCFile::SetSize(const u64 size) const {
-    LOG_ERROR(Service_FS, "Attempted to set the size of an IVFC file");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_ERROR(Service_FS, "Attempted to set the size of an IVFC file"));
+#endif
+
     return false;
 }
 

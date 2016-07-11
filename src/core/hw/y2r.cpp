@@ -28,8 +28,8 @@ using ImageTile = std::array<u32, TILE_SIZE>;
 
 /// Converts a image strip from the source YUV format into individual 8x8 RGB32 tiles.
 static void ConvertYUVToRGB(InputFormat input_format,
-        const u8* input_Y, const u8* input_U, const u8* input_V, ImageTile output[],
-        unsigned int width, unsigned int height, const CoefficientSet& coefficients) {
+                            const u8* input_Y, const u8* input_U, const u8* input_V, ImageTile output[],
+                            unsigned int width, unsigned int height, const CoefficientSet& coefficients) {
 
     for (unsigned int y = 0; y < height; ++y) {
         for (unsigned int x = 0; x < width; ++x) {
@@ -105,7 +105,7 @@ static void ReceiveData(u8* output, ConversionBuffer& buf, size_t amount_of_data
 
 /// Convert intermediate RGB32 format to the final output format while simulating an outgoing CDMA transfer.
 static void SendData(const u32* input, ConversionBuffer& buf, int amount_of_data,
-        OutputFormat output_format, u8 alpha) {
+                     OutputFormat output_format, u8 alpha) {
 
     u8* output = Memory::GetPointer(buf.address);
 
@@ -146,8 +146,8 @@ static void SendData(const u32* input, ConversionBuffer& buf, int amount_of_data
 }
 
 static const u8 linear_lut[64] = {
-     0,  1,  2,  3,  4,  5,  6,  7,
-     8,  9, 10, 11, 12, 13, 14, 15,
+    0,  1,  2,  3,  4,  5,  6,  7,
+    8,  9, 10, 11, 12, 13, 14, 15,
     16, 17, 18, 19, 20, 21, 22, 23,
     24, 25, 26, 27, 28, 29, 30, 31,
     32, 33, 34, 35, 36, 37, 38, 39,
@@ -157,9 +157,9 @@ static const u8 linear_lut[64] = {
 };
 
 static const u8 morton_lut[64] = {
-     0,  1,  4,  5, 16, 17, 20, 21,
-     2,  3,  6,  7, 18, 19, 22, 23,
-     8,  9, 12, 13, 24, 25, 28, 29,
+    0,  1,  4,  5, 16, 17, 20, 21,
+    2,  3,  6,  7, 18, 19, 22, 23,
+    8,  9, 12, 13, 24, 25, 28, 29,
     10, 11, 14, 15, 26, 27, 30, 31,
     32, 33, 36, 37, 48, 49, 52, 53,
     34, 35, 38, 39, 50, 51, 54, 55,
@@ -274,9 +274,11 @@ void PerformConversion(ConversionConfiguration& cvt) {
     const u8* tile_remap = nullptr;
     switch (cvt.block_alignment) {
     case BlockAlignment::Linear:
-        tile_remap = linear_lut; break;
+        tile_remap = linear_lut;
+        break;
     case BlockAlignment::Block8x8:
-        tile_remap = morton_lut; break;
+        tile_remap = morton_lut;
+        break;
     }
 
     for (unsigned int y = 0; y < cvt.input_lines; y += 8) {
@@ -320,7 +322,7 @@ void PerformConversion(ConversionConfiguration& cvt) {
         // Note(yuriks): If additional optimization is required, input_format can be moved to a
         // template parameter, so that its dispatch can be moved to outside the inner loop.
         ConvertYUVToRGB(cvt.input_format, input_Y, input_U, input_V, tiles.get(),
-                cvt.input_line_width, row_height, cvt.coefficients);
+                        cvt.input_line_width, row_height, cvt.coefficients);
 
         u32* output_buffer = reinterpret_cast<u32*>(data_buffer.get());
 

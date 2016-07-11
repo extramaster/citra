@@ -33,7 +33,7 @@ static bool IsPassThroughTevStage(const TevStageConfig& stage) {
 
 /// Writes the specified TEV stage source component(s)
 static void AppendSource(std::string& out, const PicaShaderConfig& config, TevStageConfig::Source source,
-        const std::string& index_name) {
+                         const std::string& index_name) {
     const auto& state = config.state;
     using Source = TevStageConfig::Source;
     switch (source) {
@@ -57,7 +57,11 @@ static void AppendSource(std::string& out, const PicaShaderConfig& config, TevSt
             break;
         default:
             out += "texture(tex[0], texcoord[0])";
-            LOG_CRITICAL(HW_GPU, "Unhandled texture type %x", static_cast<int>(state.texture0_type));
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+            LOG_CRITICAL(HW_GPU, "Unhandled texture type %x", static_cast<int>(state.texture0_type)));
+#endif
+
             UNIMPLEMENTED();
             break;
         }
@@ -79,14 +83,18 @@ static void AppendSource(std::string& out, const PicaShaderConfig& config, TevSt
         break;
     default:
         out += "vec4(0.0)";
-        LOG_CRITICAL(Render_OpenGL, "Unknown source op %u", source);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_CRITICAL(Render_OpenGL, "Unknown source op %u", source));
+#endif
+
         break;
     }
 }
 
 /// Writes the color components to use for the specified TEV stage color modifier
 static void AppendColorModifier(std::string& out, const PicaShaderConfig& config, TevStageConfig::ColorModifier modifier,
-        TevStageConfig::Source source, const std::string& index_name) {
+                                TevStageConfig::Source source, const std::string& index_name) {
     using ColorModifier = TevStageConfig::ColorModifier;
     switch (modifier) {
     case ColorModifier::SourceColor:
@@ -136,14 +144,18 @@ static void AppendColorModifier(std::string& out, const PicaShaderConfig& config
         break;
     default:
         out += "vec3(0.0)";
-        LOG_CRITICAL(Render_OpenGL, "Unknown color modifier op %u", modifier);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_CRITICAL(Render_OpenGL, "Unknown color modifier op %u", modifier));
+#endif
+
         break;
     }
 }
 
 /// Writes the alpha component to use for the specified TEV stage alpha modifier
 static void AppendAlphaModifier(std::string& out, const PicaShaderConfig& config, TevStageConfig::AlphaModifier modifier,
-        TevStageConfig::Source source, const std::string& index_name) {
+                                TevStageConfig::Source source, const std::string& index_name) {
     using AlphaModifier = TevStageConfig::AlphaModifier;
     switch (modifier) {
     case AlphaModifier::SourceAlpha:
@@ -184,14 +196,18 @@ static void AppendAlphaModifier(std::string& out, const PicaShaderConfig& config
         break;
     default:
         out += "0.0";
-        LOG_CRITICAL(Render_OpenGL, "Unknown alpha modifier op %u", modifier);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_CRITICAL(Render_OpenGL, "Unknown alpha modifier op %u", modifier));
+#endif
+
         break;
     }
 }
 
 /// Writes the combiner function for the color components for the specified TEV stage operation
 static void AppendColorCombiner(std::string& out, TevStageConfig::Operation operation,
-        const std::string& variable_name) {
+                                const std::string& variable_name) {
     out += "clamp(";
     using Operation = TevStageConfig::Operation;
     switch (operation) {
@@ -225,7 +241,11 @@ static void AppendColorCombiner(std::string& out, TevStageConfig::Operation oper
         break;
     default:
         out += "vec3(0.0)";
-        LOG_CRITICAL(Render_OpenGL, "Unknown color combiner operation: %u", operation);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_CRITICAL(Render_OpenGL, "Unknown color combiner operation: %u", operation));
+#endif
+
         break;
     }
     out += ", vec3(0.0), vec3(1.0))"; // Clamp result to 0.0, 1.0
@@ -233,7 +253,7 @@ static void AppendColorCombiner(std::string& out, TevStageConfig::Operation oper
 
 /// Writes the combiner function for the alpha component for the specified TEV stage operation
 static void AppendAlphaCombiner(std::string& out, TevStageConfig::Operation operation,
-        const std::string& variable_name) {
+                                const std::string& variable_name) {
     out += "clamp(";
     using Operation = TevStageConfig::Operation;
     switch (operation) {
@@ -263,7 +283,11 @@ static void AppendAlphaCombiner(std::string& out, TevStageConfig::Operation oper
         break;
     default:
         out += "0.0";
-        LOG_CRITICAL(Render_OpenGL, "Unknown alpha combiner operation: %u", operation);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_CRITICAL(Render_OpenGL, "Unknown alpha combiner operation: %u", operation));
+#endif
+
         break;
     }
     out += ", 0.0, 1.0)";
@@ -284,8 +308,7 @@ static void AppendAlphaTestCondition(std::string& out, Regs::CompareFunc func) {
     case CompareFunc::LessThan:
     case CompareFunc::LessThanOrEqual:
     case CompareFunc::GreaterThan:
-    case CompareFunc::GreaterThanOrEqual:
-    {
+    case CompareFunc::GreaterThanOrEqual: {
         static const char* op[] = { "!=", "==", ">=", ">", "<=", "<", };
         unsigned index = (unsigned)func - (unsigned)CompareFunc::Equal;
         out += "int(last_tex_env_out.a * 255.0f) " + std::string(op[index]) + " alphatest_ref";
@@ -294,7 +317,11 @@ static void AppendAlphaTestCondition(std::string& out, Regs::CompareFunc func) {
 
     default:
         out += "false";
-        LOG_CRITICAL(Render_OpenGL, "Unknown alpha test condition %u", func);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_CRITICAL(Render_OpenGL, "Unknown alpha test condition %u", func));
+#endif
+
         break;
     }
 }
@@ -330,17 +357,19 @@ static void WriteTevStage(std::string& out, const PicaShaderConfig& config, unsi
         out += ";\n";
 
         out += "last_tex_env_out = vec4("
-            "clamp(color_output_" + index_name + " * " + std::to_string(stage.GetColorMultiplier()) + ".0, vec3(0.0), vec3(1.0)),"
-            "clamp(alpha_output_" + index_name + " * " + std::to_string(stage.GetAlphaMultiplier()) + ".0, 0.0, 1.0));\n";
+               "clamp(color_output_" + index_name + " * " + std::to_string(stage.GetColorMultiplier()) + ".0, vec3(0.0), vec3(1.0)),"
+               "clamp(alpha_output_" + index_name + " * " + std::to_string(stage.GetAlphaMultiplier()) + ".0, 0.0, 1.0));\n";
     }
 
     out += "combiner_buffer = next_combiner_buffer;\n";
 
-    if (config.TevStageUpdatesCombinerBufferColor(index))
+    if (config.TevStageUpdatesCombinerBufferColor(index)) {
         out += "next_combiner_buffer.rgb = last_tex_env_out.rgb;\n";
+    }
 
-    if (config.TevStageUpdatesCombinerBufferAlpha(index))
+    if (config.TevStageUpdatesCombinerBufferAlpha(index)) {
         out += "next_combiner_buffer.a = last_tex_env_out.a;\n";
+    }
 }
 
 /// Writes the code to emulate fragment lighting
@@ -366,7 +395,11 @@ static void WriteLighting(std::string& out, const PicaShaderConfig& config) {
         }
     } else if (lighting.bump_mode == Pica::Regs::LightingBumpMode::TangentMap) {
         // Bump mapping is enabled using a tangent map
-        LOG_CRITICAL(HW_GPU, "unimplemented bump mapping mode (tangent mapping)");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_CRITICAL(HW_GPU, "unimplemented bump mapping mode (tangent mapping)"));
+#endif
+
         UNIMPLEMENTED();
     } else {
         // No bump mapping - surface local normal is just a unit normal
@@ -398,7 +431,11 @@ static void WriteLighting(std::string& out, const PicaShaderConfig& config) {
             break;
 
         default:
-            LOG_CRITICAL(HW_GPU, "Unknown lighting LUT input %d\n", (int)input);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+            LOG_CRITICAL(HW_GPU, "Unknown lighting LUT input %d\n", (int)input));
+#endif
+
             UNIMPLEMENTED();
             break;
         }
@@ -428,10 +465,11 @@ static void WriteLighting(std::string& out, const PicaShaderConfig& config) {
         std::string light_src = "light_src[" + std::to_string(light_config.num) + "]";
 
         // Compute light vector (directional or positional)
-        if (light_config.directional)
+        if (light_config.directional) {
             out += "light_vector = normalize(" + light_src + ".position);\n";
-        else
+        } else {
             out += "light_vector = normalize(" + light_src + ".position + view);\n";
+        }
 
         // Compute dot product of light_vector and normal, adjust if lighting is one-sided or two-sided
         std::string dot_product = light_config.two_sided_diffuse ? "abs(dot(light_vector, normal))" : "max(dot(light_vector, normal), 0.0)";
@@ -501,13 +539,15 @@ static void WriteLighting(std::string& out, const PicaShaderConfig& config) {
 
             // Enabled for difffuse lighting alpha component
             if (lighting.fresnel_selector == Pica::Regs::LightingFresnelSelector::PrimaryAlpha ||
-                lighting.fresnel_selector == Pica::Regs::LightingFresnelSelector::Both)
+                    lighting.fresnel_selector == Pica::Regs::LightingFresnelSelector::Both) {
                 out += "diffuse_sum.a  *= " + value + ";\n";
+            }
 
             // Enabled for the specular lighting alpha component
             if (lighting.fresnel_selector == Pica::Regs::LightingFresnelSelector::SecondaryAlpha ||
-                lighting.fresnel_selector == Pica::Regs::LightingFresnelSelector::Both)
+                    lighting.fresnel_selector == Pica::Regs::LightingFresnelSelector::Both) {
                 out += "specular_sum.a *= " + value + ";\n";
+            }
         }
 
         // Compute primary fragment color (diffuse lighting) function

@@ -17,11 +17,10 @@ class QString;
 class QTimer;
 
 namespace Ui {
-    class ConfigureInput;
+class ConfigureInput;
 }
 
-class ConfigureInput : public QWidget
-{
+class ConfigureInput : public QWidget {
     Q_OBJECT
 
 public:

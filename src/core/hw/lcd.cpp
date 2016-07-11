@@ -24,7 +24,11 @@ inline void Read(T &var, const u32 raw_addr) {
 
     // Reads other than u32 are untested, so I'd rather have them abort than silently fail
     if (index >= 0x400 || !std::is_same<T, u32>::value) {
-        LOG_ERROR(HW_LCD, "unknown Read%lu @ 0x%08X", sizeof(var) * 8, addr);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_ERROR(HW_LCD, "unknown Read%lu @ 0x%08X", sizeof(var) * 8, addr));
+#endif
+
         return;
     }
 
@@ -38,7 +42,11 @@ inline void Write(u32 addr, const T data) {
 
     // Writes other than u32 are untested, so I'd rather have them abort than silently fail
     if (index >= 0x400 || !std::is_same<T, u32>::value) {
-        LOG_ERROR(HW_LCD, "unknown Write%lu 0x%08X @ 0x%08X", sizeof(data) * 8, (u32)data, addr);
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+        LOG_ERROR(HW_LCD, "unknown Write%lu 0x%08X @ 0x%08X", sizeof(data) * 8, (u32)data, addr));
+#endif
+
         return;
     }
 
@@ -67,12 +75,20 @@ template void Write<u8>(u32 addr, const u8 data);
 /// Initialize hardware
 void Init() {
     memset(&g_regs, 0, sizeof(g_regs));
-    LOG_DEBUG(HW_LCD, "initialized OK");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_DEBUG(HW_LCD, "initialized OK"));
+#endif
+
 }
 
 /// Shutdown hardware
 void Shutdown() {
-    LOG_DEBUG(HW_LCD, "shutdown OK");
+
+#if !defined(ABSOLUTELY_NO_DEBUG) && true
+    LOG_DEBUG(HW_LCD, "shutdown OK"));
+#endif
+
 }
 
 } // namespace
