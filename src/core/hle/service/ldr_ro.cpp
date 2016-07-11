@@ -17,6 +17,19 @@
 
 namespace LDR_RO {
 
+// GCC versions < 5.0 do not implement std::is_trivially_copyable.
+// Excluding MSVC because it has weird behaviour for std::is_trivially_copyable.
+#if (__GNUC__ >= 5) || defined(__clang__)
+    #define ASSERT_CRO_STRUCT(name, size) \
+        static_assert(std::is_standard_layout<name>::value, "CRO structure " #name " doesn't use standard layout"); \
+        static_assert(std::is_trivially_copyable<name>::value, "CRO structure " #name " isn't trivially copyable"); \
+        static_assert(sizeof(name) == (size), "Unexpected struct size for CRO structure " #name)
+#else
+    #define ASSERT_CRO_STRUCT(name, size) \
+        static_assert(std::is_standard_layout<name>::value, "CRO structure " #name " doesn't use standard layout"); \
+        static_assert(sizeof(name) == (size), "Unexpected struct size for CRO structure " #name)
+#endif
+
 static VAddr loaded_crs; ///< the virtual address of the static module
 
 static const u32 CRO_HEADER_SIZE = 0x138;
@@ -124,20 +137,20 @@ class CROHelper {
         SegmentType type;
         static constexpr HeaderField TABLE_OFFSET_FIELD = SegmentTableOffset;
     };
-    static_assert(sizeof(SegmentEntry) == 12, "SegmentEntry has wrong size");
+    ASSERT_CRO_STRUCT(SegmentEntry, 12);
 
     struct ExportNamedSymbolEntry {
         u32 name_offset;            // pointing to a substring in ExportStrings
         SegmentTag symbol_position; // to self's segment
         static constexpr HeaderField TABLE_OFFSET_FIELD = ExportNamedSymbolTableOffset;
     };
-    static_assert(sizeof(ExportNamedSymbolEntry) == 8, "ExportNamedSymbolEntry has wrong size");
+    ASSERT_CRO_STRUCT(ExportNamedSymbolEntry, 8);
 
     struct ExportIndexedSymbolEntry {
         SegmentTag symbol_position; // to self's segment
         static constexpr HeaderField TABLE_OFFSET_FIELD = ExportIndexedSymbolTableOffset;
     };
-    static_assert(sizeof(ExportIndexedSymbolEntry) == 4, "ExportIndexedSymbolEntry has wrong size");
+    ASSERT_CRO_STRUCT(ExportIndexedSymbolEntry, 4);
 
     struct ExportTreeEntry {
         u16 test_bit; // bit sddress into the name to test
@@ -149,28 +162,28 @@ class CROHelper {
         u16 export_table_index; // index of an ExportNamedSymbolEntry
         static constexpr HeaderField TABLE_OFFSET_FIELD = ExportTreeTableOffset;
     };
-    static_assert(sizeof(ExportTreeEntry) == 8, "ExportTreeEntry has wrong size");
+    ASSERT_CRO_STRUCT(ExportTreeEntry, 8);
 
     struct ImportNamedSymbolEntry {
         u32 name_offset;        // pointing to a substring in ImportStrings
         u32 patch_batch_offset; // pointing to a batch in ExternalPatchTable
         static constexpr HeaderField TABLE_OFFSET_FIELD = ImportNamedSymbolTableOffset;
     };
-    static_assert(sizeof(ImportNamedSymbolEntry) == 8, "ImportNamedSymbolEntry has wrong size");
+    ASSERT_CRO_STRUCT(ImportNamedSymbolEntry, 8);
 
     struct ImportIndexedSymbolEntry {
         u32 index;              // index of an opponent's ExportIndexedSymbolEntry
         u32 patch_batch_offset; // pointing to a batch in ExternalPatchTable
         static constexpr HeaderField TABLE_OFFSET_FIELD = ImportIndexedSymbolTableOffset;
     };
-    static_assert(sizeof(ImportIndexedSymbolEntry) == 8, "ImportIndexedSymbolEntry has wrong size");
+    ASSERT_CRO_STRUCT(ImportIndexedSymbolEntry, 8);
 
     struct ImportAnonymousSymbolEntry {
         SegmentTag symbol_position; // to the opponent's segment
         u32 patch_batch_offset;     // pointing to a batch in ExternalPatchTable
         static constexpr HeaderField TABLE_OFFSET_FIELD = ImportAnonymousSymbolTableOffset;
     };
-    static_assert(sizeof(ImportAnonymousSymbolEntry) == 8, "ImportAnonymousSymbolEntry has wrong size");
+    ASSERT_CRO_STRUCT(ImportAnonymousSymbolEntry, 8);
 
     struct ImportModuleEntry {
         u32 name_offset;                          // pointing to a substring in ImporStrings
@@ -190,7 +203,7 @@ class CROHelper {
                 &entry, sizeof(ImportAnonymousSymbolEntry));
         }
     };
-    static_assert(sizeof(ImportModuleEntry) == 20, "ImportModuleEntry has wrong size");
+    ASSERT_CRO_STRUCT(ImportModuleEntry, 20);
 
     enum class PatchType : u8 {
         Nothing                = 0,
@@ -211,7 +224,7 @@ class CROHelper {
         INSERT_PADDING_BYTES(1);
         u32 shift;
     };
-    static_assert(sizeof(PatchEntry) == 12, "PatchEntry has wrong size");
+    ASSERT_CRO_STRUCT(PatchEntry, 12);
 
     struct ExternalPatchEntry : PatchEntry {
         static constexpr HeaderField TABLE_OFFSET_FIELD = ExternalPatchTableOffset;
@@ -229,41 +242,17 @@ class CROHelper {
         u32 shift;
         static constexpr HeaderField TABLE_OFFSET_FIELD = InternalPatchTableOffset;
     };
-    static_assert(sizeof(InternalPatchEntry) == 12, "InternalPatchEntry has wrong size");
+    ASSERT_CRO_STRUCT(InternalPatchEntry, 12);
 
     struct StaticAnonymousSymbolEntry {
         SegmentTag symbol_position; // to self's segment
         u32 patch_batch_offset;     // pointing to a batch in StaticPatchTable
         static constexpr HeaderField TABLE_OFFSET_FIELD = StaticAnonymousSymbolTableOffset;
     };
-    static_assert(sizeof(StaticAnonymousSymbolEntry) == 8, "StaticAnonymousSymbolEntry has wrong size");
+    ASSERT_CRO_STRUCT(StaticAnonymousSymbolEntry, 8);
 
-    static constexpr std::array<int, 17> ENTRY_SIZE {{
-        1, // code
-        1, // data
-        1, // module name
-        sizeof(SegmentEntry),
-        sizeof(ExportNamedSymbolEntry),
-        sizeof(ExportIndexedSymbolEntry),
-        1, // export strings
-        sizeof(ExportTreeEntry),
-        sizeof(ImportModuleEntry),
-        sizeof(ExternalPatchEntry),
-        sizeof(ImportNamedSymbolEntry),
-        sizeof(ImportIndexedSymbolEntry),
-        sizeof(ImportAnonymousSymbolEntry),
-        1, // import strings
-        sizeof(StaticAnonymousSymbolEntry),
-        sizeof(InternalPatchEntry),
-        sizeof(StaticPatchEntry)
-    }};
-
-    static constexpr std::array<HeaderField, 4> FIX_BARRIERS {{
-        Fix0Barrier,
-        Fix1Barrier,
-        Fix2Barrier,
-        Fix3Barrier
-    }};
+    static std::array<int, 17> ENTRY_SIZE;
+    static std::array<HeaderField, 4> FIX_BARRIERS;
 
     static constexpr u32 MAGIC_CRO0 = 0x304F5243;
     static constexpr u32 MAGIC_FIXD = 0x44584946;
@@ -327,7 +316,6 @@ class CROHelper {
      */
     template <typename T>
     void GetEntry(int index, T& data) {
-        static_assert(std::is_trivially_copyable<T>::value, "The entry type must be trivially copyable!");
         Memory::ReadBlock(GetField(T::TABLE_OFFSET_FIELD) + index * sizeof(T), &data, sizeof(T));
     }
 
@@ -340,7 +328,6 @@ class CROHelper {
      */
     template <typename T>
     void SetEntry(int index, const T& data) {
-        static_assert(std::is_trivially_copyable<T>::value, "The entry type must be trivially copyable!");
         Memory::WriteBlock(GetField(T::TABLE_OFFSET_FIELD) + index * sizeof(T), &data, sizeof(T));
     }
 
@@ -1831,10 +1818,32 @@ public:
     }
 };
 
-constexpr std::array<int, 17> CROHelper::ENTRY_SIZE;
-constexpr std::array<CROHelper::HeaderField, 4> CROHelper::FIX_BARRIERS;
-constexpr u32 CROHelper::MAGIC_CRO0;
-constexpr u32 CROHelper::MAGIC_FIXD;
+std::array<int, 17> CROHelper::ENTRY_SIZE {{
+    1, // code
+    1, // data
+    1, // module name
+    sizeof(SegmentEntry),
+    sizeof(ExportNamedSymbolEntry),
+    sizeof(ExportIndexedSymbolEntry),
+    1, // export strings
+    sizeof(ExportTreeEntry),
+    sizeof(ImportModuleEntry),
+    sizeof(ExternalPatchEntry),
+    sizeof(ImportNamedSymbolEntry),
+    sizeof(ImportIndexedSymbolEntry),
+    sizeof(ImportAnonymousSymbolEntry),
+    1, // import strings
+    sizeof(StaticAnonymousSymbolEntry),
+    sizeof(InternalPatchEntry),
+    sizeof(StaticPatchEntry)
+}};
+
+std::array<CROHelper::HeaderField, 4> CROHelper::FIX_BARRIERS {{
+    Fix0Barrier,
+    Fix1Barrier,
+    Fix2Barrier,
+    Fix3Barrier
+}};
 
 // This is a work-around before we implement memory aliasing.
 // CRS and CRO are mapped (aliased) to another memory when loading,
