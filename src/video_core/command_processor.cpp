@@ -260,14 +260,17 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
                     bool abort = false;
                     #pragma omp parallel for schedule(static)
                     for (unsigned int i = 0; i < VERTEX_CACHE_SIZE; ++i) {
+
                         #pragma omp flush (abort)
                         if (!abort) {
+
                             if (vertex == vertex_cache_ids[i]) {
                                 output_registers = vertex_cache[i];
                                 vertex_cache_hit = true;
                                 abort = true;
                                 #pragma omp flush (abort)
                             }
+
                         }
                     }
                 }
@@ -356,6 +359,7 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
             }
 
             break;
+
         }
 
         case PICA_REG_INDEX(gs.bool_uniforms):

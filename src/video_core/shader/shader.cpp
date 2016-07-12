@@ -26,6 +26,7 @@
 
 #include "video_core/video_core.h"
 
+
 namespace Pica {
 
 namespace Shader {
@@ -35,16 +36,22 @@ OutputVertex OutputRegisters::ToVertex(const Regs::ShaderConfig& config) {
     OutputVertex ret;
     // TODO(neobrain): Under some circumstances, up to 16 attributes may be output. We need to
     // figure out what those circumstances are and enable the remaining outputs then.
-    unsigned index = 0;
-    for (unsigned i = 0; i < 7; ++i) {
+    unsigned loopAmount = std::min(7, (int) g_state.regs.vs_output_total);
 
+    // 45/600 seconds
+    #pragma omp parallel for schedule(static)
+    for (unsigned i = 0; i < loopAmount; ++i) {
+    // for (unsigned i = 0; i < 7; ++i) {
+
+        /*
         if (index >= g_state.regs.vs_output_total)
             break;
+        */
 
         if ((config.output_mask & (1 << i)) == 0)
             continue;
 
-        const auto& output_register_map = g_state.regs.vs_output_attributes[index];
+        const auto& output_register_map = g_state.regs.vs_output_attributes[i];
 
         u32 semantics[4] = {
             output_register_map.map_x, output_register_map.map_y,
@@ -62,7 +69,7 @@ OutputVertex OutputRegisters::ToVertex(const Regs::ShaderConfig& config) {
             }
         }
 
-        index++;
+        // index++;
     }
 
     // The hardware takes the absolute and saturates vertex colors like this, *before* doing interpolation
@@ -125,6 +132,8 @@ void ShaderSetup::Run(UnitState<false>& state, const InputVertex& input, int num
     // Setup input register table
     const auto& attribute_register_map = config.input_register_map;
 
+    // 45/600 dependency. cannot use SIMD...
+    #pragma omp parallel for schedule(auto)
     for (unsigned i = 0; i < num_attributes; i++)
          state.registers.input[attribute_register_map.GetRegisterForAttribute(i)] = input.attr[i];
 
