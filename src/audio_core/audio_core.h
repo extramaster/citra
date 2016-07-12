@@ -23,6 +23,9 @@ void AddAddressSpace(Kernel::VMManager& vm_manager);
 /// Select the sink to use based on sink id.
 void SelectSink(std::string sink_id);
 
+/// Select the device to use based on device id.
+void SelectDevice(std::string device_id);
+
 /// Shutdown Audio Core
 void Shutdown();
 

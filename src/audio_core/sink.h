@@ -5,6 +5,7 @@
 #pragma once
 
 #include <vector>
+#include <map>
 
 #include "common/common_types.h"
 
@@ -29,6 +30,9 @@ public:
 
     /// Samples enqueued that have not been played yet.
     virtual std::size_t SamplesInQueue() const = 0;
+
+    virtual void SetDevice(int device_id) = 0;
+    virtual std::map<int, std::string>* GetDeviceMap() = 0;
 };
 
 } // namespace
