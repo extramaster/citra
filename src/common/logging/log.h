@@ -103,8 +103,8 @@ void LogMessage(Class log_class, Level log_level,
 #define LOG_GENERIC(log_class, log_level, ...) \
     ::Log::LogMessage(log_class, log_level, __FILE__, __LINE__, __func__, __VA_ARGS__)
 
-#ifdef _DEBUG
-#define LOG_TRACE(   log_class, ...) LOG_GENERIC(::Log::Class::log_class, ::Log::Level::Trace,    __VA_ARGS__)
+#if !defined(DISABLE_LOG)
+#define LOG_TRACE(   log_class, ...) (void(0))
 #define LOG_DEBUG(   log_class, ...) LOG_GENERIC(::Log::Class::log_class, ::Log::Level::Debug,    __VA_ARGS__)
 #define LOG_INFO(    log_class, ...) LOG_GENERIC(::Log::Class::log_class, ::Log::Level::Info,     __VA_ARGS__)
 #define LOG_WARNING( log_class, ...) LOG_GENERIC(::Log::Class::log_class, ::Log::Level::Warning,  __VA_ARGS__)

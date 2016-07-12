@@ -238,6 +238,7 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
             auto& gs_unit_state = Shader::GetShaderUnit(true);
             g_state.gs.Setup();
 
+#pragma omp parallel for ordered schedule(static)
             for (unsigned int index = 0; index < regs.num_vertices; ++index)
             {
                 // Indexed rendering doesn't use the start offset
@@ -256,15 +257,23 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
                         memory_accesses.AddAccess(base_address + index_info.offset + size * index, size);
                     }
 
+                    bool abort = false;
+                    #pragma omp parallel for schedule(static)
                     for (unsigned int i = 0; i < VERTEX_CACHE_SIZE; ++i) {
-                        if (vertex == vertex_cache_ids[i]) {
-                            output_registers = vertex_cache[i];
-                            vertex_cache_hit = true;
-                            break;
+                        #pragma omp flush (abort)
+                        if (!abort) {
+                            if (vertex == vertex_cache_ids[i]) {
+                                output_registers = vertex_cache[i];
+                                vertex_cache_hit = true;
+                                abort = true;
+                                #pragma omp flush (abort)
+                            }
                         }
                     }
                 }
 
+#pragma omp ordered
+{
                 if (!vertex_cache_hit) {
                     // Initialize data for the current vertex
                     Shader::InputVertex input;
@@ -282,7 +291,6 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
                         vertex_cache_pos = (vertex_cache_pos + 1) % VERTEX_CACHE_SIZE;
                     }
                 }
-
                 // Helper to send triangle to renderer
                 using Pica::Shader::OutputVertex;
                 auto AddTriangle = [](
@@ -333,6 +341,7 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
                     primitive_assembler.SubmitVertex(output_vertex, AddTriangle);
                 }
 
+            }
             }
 
             for (auto& range : memory_accesses.ranges) {

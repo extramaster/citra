@@ -69,6 +69,9 @@ void VertexLoader::Setup(const Pica::Regs& regs) {
 void VertexLoader::LoadVertex(u32 base_address, int index, int vertex, Shader::InputVertex& input, DebugUtils::MemoryAccessTracker& memory_accesses) {
     ASSERT_MSG(is_setup, "A VertexLoader needs to be setup before loading vertices.");
 
+    // 37/600 seconds
+    // This function is called within command_processor.cpp, parallelization started there.
+    // #pragma omp parallel private(input)
     for (int i = 0; i < num_total_attributes; ++i) {
         if (vertex_attribute_elements[i] != 0) {
             // Load per-vertex data from the loader arrays
