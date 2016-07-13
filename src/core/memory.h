@@ -131,7 +131,7 @@ void CopyBlock(VAddr dest_addr, VAddr src_addr, size_t size);
 
 u8* GetPointer(VAddr virtual_address);
 
-std::string GetString(VAddr virtual_address, u32 max_length);
+std::string GetString(VAddr virtual_address, std::size_t max_length);
 
 
 /**
