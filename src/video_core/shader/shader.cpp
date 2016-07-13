@@ -39,7 +39,9 @@ OutputVertex OutputRegisters::ToVertex(const Regs::ShaderConfig& config) {
     unsigned loopAmount = std::min(7, (int) g_state.regs.vs_output_total);
 
     // 45/600 seconds
+#if CARE_FOR_OPENMP
     #pragma omp parallel for schedule(static)
+#endif
     for (unsigned i = 0; i < loopAmount; ++i) {
     // for (unsigned i = 0; i < 7; ++i) {
 
