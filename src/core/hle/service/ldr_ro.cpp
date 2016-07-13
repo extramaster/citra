@@ -6,6 +6,8 @@
 #include "common/common_types.h"
 #include "common/logging/log.h"
 #include "common/scope_exit.h"
+#include "common/swap.h"
+
 
 #include "core/arm/arm_interface.h"
 #include "core/hle/kernel/process.h"
@@ -30,7 +32,6 @@ namespace LDR_RO {
         static_assert(sizeof(name) == (size), "Unexpected struct size for CRO structure " #name)
 #endif
 
-static VAddr loaded_crs; ///< the virtual address of the static module
 
 static const u32 CRO_HEADER_SIZE = 0x138;
 static const u32 CRO_HASH_SIZE = 0x80;
@@ -47,6 +48,9 @@ static const ResultCode ERROR_MISALIGNED_SIZE =
     ResultCode(ErrorDescription::MisalignedSize,     ErrorModule::RO, ErrorSummary::WrongArgument,   ErrorLevel::Permanent);
 static const ResultCode ERROR_ILLEGAL_ADDRESS =
     ResultCode(static_cast<ErrorDescription>(15),    ErrorModule::RO, ErrorSummary::Internal,        ErrorLevel::Usage);
+static const ResultCode ERROR_INVALID_MEMORY_STATE =
+    ResultCode(static_cast<ErrorDescription>(8),     ErrorModule::RO, ErrorSummary::InvalidState,    ErrorLevel::Permanent);
+
 static const ResultCode ERROR_NOT_LOADED =
     ResultCode(static_cast<ErrorDescription>(13),    ErrorModule::RO, ErrorSummary::InvalidState,    ErrorLevel::Permanent);
 
@@ -117,30 +121,34 @@ class CROHelper {
     static_assert(Fix0Barrier == (CRO_HEADER_SIZE - CRO_HASH_SIZE) / 4, "CRO Header fields are wrong!");
 
     enum class SegmentType : u32 {
-        Text   = 0,
+        Code   = 0,
+
         ROData = 1,
         Data   = 2,
         BSS    = 3,
     };
 
     union SegmentTag {
-        u32 raw;
-        BitField<0, 4, u32> segment_index;
-        BitField<4, 28, u32> offset_into_segment;
+        u32_le raw;
+        BitField<0, 4, u32_le> segment_index;
+        BitField<4, 28, u32_le> offset_into_segment;
+
         SegmentTag() = default;
         SegmentTag(u32 raw_) : raw(raw_) {}
     };
 
     struct SegmentEntry {
-        u32 offset;
-        u32 size;
+        u32_le offset;
+        u32_le size;
+
         SegmentType type;
         static constexpr HeaderField TABLE_OFFSET_FIELD = SegmentTableOffset;
     };
     ASSERT_CRO_STRUCT(SegmentEntry, 12);
 
     struct ExportNamedSymbolEntry {
-        u32 name_offset;            // pointing to a substring in ExportStrings
+        u32_le name_offset;         // pointing to a substring in ExportStrings
+
         SegmentTag symbol_position; // to self's segment
         static constexpr HeaderField TABLE_OFFSET_FIELD = ExportNamedSymbolTableOffset;
     };
@@ -153,44 +161,49 @@ class CROHelper {
     ASSERT_CRO_STRUCT(ExportIndexedSymbolEntry, 4);
 
     struct ExportTreeEntry {
-        u16 test_bit; // bit sddress into the name to test
+        u16_le test_bit; // bit sddress into the name to test
         union Child{
-            u16 raw;
-            BitField<0, 15, u16> next_index;
-            BitField<15, 1, u16> is_end;
+            u16_le raw;
+            BitField<0, 15, u16_le> next_index;
+            BitField<15, 1, u16_le> is_end;
         } left, right;
-        u16 export_table_index; // index of an ExportNamedSymbolEntry
+        u16_le export_table_index; // index of an ExportNamedSymbolEntry
+
         static constexpr HeaderField TABLE_OFFSET_FIELD = ExportTreeTableOffset;
     };
     ASSERT_CRO_STRUCT(ExportTreeEntry, 8);
 
     struct ImportNamedSymbolEntry {
-        u32 name_offset;        // pointing to a substring in ImportStrings
-        u32 patch_batch_offset; // pointing to a batch in ExternalPatchTable
+        u32_le name_offset;        // pointing to a substring in ImportStrings
+        u32_le patch_batch_offset; // pointing to a patch batch in ExternalPatchTable
+
         static constexpr HeaderField TABLE_OFFSET_FIELD = ImportNamedSymbolTableOffset;
     };
     ASSERT_CRO_STRUCT(ImportNamedSymbolEntry, 8);
 
     struct ImportIndexedSymbolEntry {
-        u32 index;              // index of an opponent's ExportIndexedSymbolEntry
-        u32 patch_batch_offset; // pointing to a batch in ExternalPatchTable
+        u32_le index;              // index of an opponent's ExportIndexedSymbolEntry
+        u32_le patch_batch_offset; // pointing to a patch batch in ExternalPatchTable
+
         static constexpr HeaderField TABLE_OFFSET_FIELD = ImportIndexedSymbolTableOffset;
     };
     ASSERT_CRO_STRUCT(ImportIndexedSymbolEntry, 8);
 
     struct ImportAnonymousSymbolEntry {
         SegmentTag symbol_position; // to the opponent's segment
-        u32 patch_batch_offset;     // pointing to a batch in ExternalPatchTable
+        u32_le patch_batch_offset;  // pointing to a patch batch in ExternalPatchTable
+
         static constexpr HeaderField TABLE_OFFSET_FIELD = ImportAnonymousSymbolTableOffset;
     };
     ASSERT_CRO_STRUCT(ImportAnonymousSymbolEntry, 8);
 
     struct ImportModuleEntry {
-        u32 name_offset;                          // pointing to a substring in ImporStrings
-        u32 import_indexed_symbol_table_offset;   // pointing to a subtable in ImportIndexedSymbolTable
-        u32 import_indexed_symbol_num;
-        u32 import_anonymous_symbol_table_offset; // pointing to a subtable in ImportAnonymousSymbolTable
-        u32 import_anonymous_symbol_num;
+        u32_le name_offset;                          // pointing to a substring in ImporStrings
+        u32_le import_indexed_symbol_table_offset;   // pointing to a subtable in ImportIndexedSymbolTable
+        u32_le import_indexed_symbol_num;
+        u32_le import_anonymous_symbol_table_offset; // pointing to a subtable in ImportAnonymousSymbolTable
+        u32_le import_anonymous_symbol_num;
+
         static constexpr HeaderField TABLE_OFFSET_FIELD = ImportModuleTableOffset;
 
         void GetImportIndexedSymbolEntry(u32 index, ImportIndexedSymbolEntry& entry) {
@@ -222,31 +235,37 @@ class CROHelper {
         u8 is_batch_end;
         u8 is_batch_resolved;       // set at a batch beginning if the batch is resolved
         INSERT_PADDING_BYTES(1);
-        u32 shift;
+        u32_le shift;
     };
-    ASSERT_CRO_STRUCT(PatchEntry, 12);
+
 
     struct ExternalPatchEntry : PatchEntry {
         static constexpr HeaderField TABLE_OFFSET_FIELD = ExternalPatchTableOffset;
     };
+    ASSERT_CRO_STRUCT(ExternalPatchEntry, 12);
+
 
     struct StaticPatchEntry : PatchEntry {
         static constexpr HeaderField TABLE_OFFSET_FIELD = StaticPatchTableOffset;
     };
+    ASSERT_CRO_STRUCT(StaticPatchEntry, 12);
+
 
     struct InternalPatchEntry {
         SegmentTag target_position; // to self's segment
         PatchType type;
         u8 symbol_segment;
         INSERT_PADDING_BYTES(2);
-        u32 shift;
+        u32_le shift;
+
         static constexpr HeaderField TABLE_OFFSET_FIELD = InternalPatchTableOffset;
     };
     ASSERT_CRO_STRUCT(InternalPatchEntry, 12);
 
     struct StaticAnonymousSymbolEntry {
         SegmentTag symbol_position; // to self's segment
-        u32 patch_batch_offset;     // pointing to a batch in StaticPatchTable
+        u32_le patch_batch_offset;  // pointing to a patch batch in StaticPatchTable
+
         static constexpr HeaderField TABLE_OFFSET_FIELD = StaticAnonymousSymbolTableOffset;
     };
     ASSERT_CRO_STRUCT(StaticAnonymousSymbolEntry, 8);
@@ -286,8 +305,9 @@ class CROHelper {
     }
 
     /**
-     * Iterates over all registered auto-link modules, including the static module
-     * and do some operation.
+     * Iterates over all registered auto-link modules, including the static module.
+     * @param crs_address the virtual address of the static module
+
      * @param func a function object to operate on a module. It accepts one parameter
      *        CROHelper and returns ResultVal<bool>. It should return true to continue the iteration,
      *        false to stop the iteration, or an error code (which will also stop the iteration).
@@ -295,8 +315,9 @@ class CROHelper {
      *         otherwise error code of the last iteration.
      */
     template <typename T>
-    static ResultCode ForEachAutoLinkCRO(T func) {
-        VAddr current = loaded_crs;
+    static ResultCode ForEachAutoLinkCRO(VAddr crs_address, T func) {
+        VAddr current = crs_address;
+
         while (current) {
             CROHelper cro(current);
             CASCADE_RESULT(bool next, func(cro));
@@ -308,11 +329,12 @@ class CROHelper {
     }
 
     /**
-     * Read an entry in one of module tables
-     * @param index the index of the entry
-     * @param data where to put the read entry.
+     * Reads an entry in one of module tables.
+     * @param index index of the entry
+     * @param data where to put the read entry
      * @note the entry type must have the static member TABLE_OFFSET_FIELD
-     *       indicating which table the entry is in
+     *       indicating which table the entry is in.
+
      */
     template <typename T>
     void GetEntry(int index, T& data) {
@@ -320,18 +342,20 @@ class CROHelper {
     }
 
     /**
-     * Writes an entry to one of module tables
-     * @param index the index of the entry
+     * Writes an entry to one of module tables.
+     * @param index index of the entry
      * @param data the entry data to write
      * @note the entry type must have the static member TABLE_OFFSET_FIELD
-     *       indicating which table the entry is in
+     *       indicating which table the entry is in.
+
      */
     template <typename T>
     void SetEntry(int index, const T& data) {
         Memory::WriteBlock(GetField(T::TABLE_OFFSET_FIELD) + index * sizeof(T), &data, sizeof(T));
     }
 
-    /// Convert a segment tag to virtual address in this module. returns 0 if invalid
+    /// Converts a segment tag to virtual address in this module. Returns 0 if invalid.
+
     VAddr SegmentTagToAddress(SegmentTag segment_tag) {
         u32 segment_num = GetField(SegmentNum);
 
@@ -348,9 +372,10 @@ class CROHelper {
     }
 
     /**
-     * Find a exported named symbol in this module.
+     * Finds a exported named symbol in this module.
      * @param name the name of the symbol to find
-     * @return VAddr the virtual address of the symbol. 0 if not found
+     * @return VAddr the virtual address of the symbol. 0 if not found.
+
      */
     VAddr FindExportNamedSymbol(const std::string& name) {
         if (!GetField(ExportTreeNum))
@@ -491,7 +516,8 @@ class CROHelper {
      * @param data_segment_size the buffer size for .data segment
      * @param bss_segment_address the buffer address for .bss segment
      * @param bss_segment_size the buffer size for .bss segment
-     * @returns ResultVal<u32> with the previous data segment offset before rebasing
+     * @returns ResultVal<u32> with the previous data segment offset before rebasing.
+
      */
     ResultVal<u32> RebaseSegmentTable(u32 cro_size,
         VAddr data_segment_address, u32 data_segment_size,
@@ -708,6 +734,8 @@ class CROHelper {
             case PatchType::ArmBranch:
             case PatchType::ModifyArmBranch:
             case PatchType::AlignedRelativeAddress:
+                // TODO(wwylele): implement other types
+
                 UNIMPLEMENTED();
                 break;
             default:
@@ -735,6 +763,8 @@ class CROHelper {
             case PatchType::ArmBranch:
             case PatchType::ModifyArmBranch:
             case PatchType::AlignedRelativeAddress:
+                // TODO(wwylele): implement other types
+
                 UNIMPLEMENTED();
                 break;
             default:
@@ -749,7 +779,8 @@ class CROHelper {
         u32 external_patch_num = GetField(ExternalPatchNum);
         ExternalPatchEntry patch;
 
-        // verify that the last patch is the end of a batch
+        // Verifies that the last patch is the end of a batch
+
         GetEntry(external_patch_num - 1, patch);
         if (!patch.is_batch_end) {
             return CROFormatError(0x12);
@@ -771,11 +802,14 @@ class CROHelper {
             }
 
             if (batch_begin) {
-                patch.is_batch_resolved = 0; // reset to unresolved state
+                // resets to unresolved state
+                patch.is_batch_resolved = 0;
                 SetEntry(i, patch);
             }
 
-            batch_begin = patch.is_batch_end != 0; // current is end, next is begin
+            // if current is an end, then the next is a beginning
+            batch_begin = patch.is_batch_end != 0;
+
         }
 
         return RESULT_SUCCESS;
@@ -802,11 +836,14 @@ class CROHelper {
             }
 
             if (batch_begin) {
-                patch.is_batch_resolved = 0; // reset to unresolved state
+                // resets to unresolved state
+                patch.is_batch_resolved = 0;
                 SetEntry(i, patch);
             }
 
-            batch_begin = patch.is_batch_end != 0; // current is end, next is begin
+            // if current is an end, then the next is a beginning
+            batch_begin = patch.is_batch_end != 0;
+
         }
 
         return RESULT_SUCCESS;
@@ -816,7 +853,8 @@ class CROHelper {
      * Applies or resets a batch of patch
      * @param batch the virtual address of the first patch in the batch
      * @param symbol_address the symbol address to be patched with
-     * @param reset false to set the batch to resolved state, true to set the batch to unresolved state
+     * @param reset false to set the batch to resolved state, true to reset the batch to unresolved state
+
      * @returns ResultCode indicating the result of the operation, 0 on success
      */
     ResultCode ApplyPatchBatch(VAddr batch, u32 symbol_address, bool reset = false) {
@@ -853,11 +891,12 @@ class CROHelper {
     }
 
     /// Applies all static anonymous symbol to the static module
-    ResultCode ApplyStaticAnonymousSymbolToCRS() {
+    ResultCode ApplyStaticAnonymousSymbolToCRS(VAddr crs_address) {
         VAddr static_patch_table_offset = GetField(StaticPatchTableOffset);
         VAddr static_patch_table_end = static_patch_table_offset + GetField(StaticPatchNum) * sizeof(StaticPatchEntry);
 
-        CROHelper crs(loaded_crs);
+        CROHelper crs(crs_address);
+
         u32 offset_export_num = GetField(StaticAnonymousSymbolNum);
         LOG_INFO(Service_LDR, "CRO \"%s\" exports %d static anonymous symbols", ModuleName().data(), offset_export_num);
         for (u32 i = 0; i < offset_export_num; ++i) {
@@ -944,7 +983,8 @@ class CROHelper {
     /// Unrebases offsets in imported anonymous symbol table
     void UnrebaseImportAnonymousSymbolTable() {
         u32 num = GetField(ImportAnonymousSymbolNum);
-        for (u32 i = 0; i < num ; ++i) {
+        for (u32 i = 0; i < num; ++i) {
+
             ImportAnonymousSymbolEntry entry;
             GetEntry(i, entry);
 
@@ -959,7 +999,8 @@ class CROHelper {
     /// Unrebases offsets in imported indexed symbol table
     void UnrebaseImportIndexedSymbolTable() {
         u32 num = GetField(ImportIndexedSymbolNum);
-        for (u32 i = 0; i < num ; ++i) {
+        for (u32 i = 0; i < num; ++i) {
+
             ImportIndexedSymbolEntry entry;
             GetEntry(i, entry);
 
@@ -974,7 +1015,8 @@ class CROHelper {
     /// Unrebases offsets in imported named symbol table
     void UnrebaseImportNamedSymbolTable() {
         u32 num = GetField(ImportNamedSymbolNum);
-        for (u32 i = 0; i < num ; ++i) {
+        for (u32 i = 0; i < num; ++i) {
+
             ImportNamedSymbolEntry entry;
             GetEntry(i, entry);
 
@@ -1060,7 +1102,8 @@ class CROHelper {
     }
 
     /// Looks up all imported named symbols of this module in all registered auto-link modules, and resolves them if found
-    ResultCode ApplyImportNamedSymbol() {
+    ResultCode ApplyImportNamedSymbol(VAddr crs_address) {
+
         u32 import_strings_size = GetField(ImportStringsSize);
         u32 symbol_import_num = GetField(ImportNamedSymbolNum);
         for (u32 i = 0; i < symbol_import_num; ++i) {
@@ -1071,7 +1114,8 @@ class CROHelper {
             Memory::ReadBlock(patch_addr, &patch_entry, sizeof(ExternalPatchEntry));
 
             if (!patch_entry.is_batch_resolved) {
-                ResultCode result = ForEachAutoLinkCRO([&](CROHelper source) -> ResultVal<bool> {
+                ResultCode result = ForEachAutoLinkCRO(crs_address, [&](CROHelper source) -> ResultVal<bool> {
+
                     std::string symbol_name = Memory::GetString(entry.name_offset, import_strings_size);
                     u32 symbol_address = source.FindExportNamedSymbol(symbol_name);
 
@@ -1162,8 +1206,9 @@ class CROHelper {
         return RESULT_SUCCESS;
     }
 
-    /// Finds registered auto-link modules that this module imports, and resolve indexed and anonymous symbols exported by them
-    ResultCode ApplyModuleImport() {
+    /// Finds registered auto-link modules that this module imports, and resolves indexed and anonymous symbols exported by them
+    ResultCode ApplyModuleImport(VAddr crs_address) {
+
         u32 import_strings_size = GetField(ImportStringsSize);
 
         u32 import_module_num = GetField(ImportModuleNum);
@@ -1172,7 +1217,8 @@ class CROHelper {
             GetEntry(i, entry);
             std::string want_cro_name = Memory::GetString(entry.name_offset, import_strings_size);
 
-            ResultCode result = ForEachAutoLinkCRO([&](CROHelper source) -> ResultVal<bool> {
+            ResultCode result = ForEachAutoLinkCRO(crs_address, [&](CROHelper source) -> ResultVal<bool> {
+
                 if (want_cro_name == source.ModuleName()) {
                     LOG_INFO(Service_LDR, "CRO \"%s\" imports %d indexed symbols from \"%s\"",
                         ModuleName().data(), entry.import_indexed_symbol_num, source.ModuleName().data());
@@ -1242,7 +1288,8 @@ class CROHelper {
         return RESULT_SUCCESS;
     }
 
-    /// Reset target's named symbols imported from this module to unresolved state
+    /// Resetss target's named symbols imported from this module to unresolved state
+
     ResultCode ResetExportNamedSymbol(CROHelper target) {
         LOG_DEBUG(Service_LDR, "CRO \"%s\" unexports named symbols to \"%s\"",
             ModuleName().data(), target.ModuleName().data());
@@ -1272,7 +1319,8 @@ class CROHelper {
         return RESULT_SUCCESS;
     }
 
-    /// Resolves imported indexed and anonymous symbols in the target module which imported this module
+    /// Resolves imported indexed and anonymous symbols in the target module which imports this module
+
     ResultCode ApplyModuleExport(CROHelper target) {
         std::string module_name = ModuleName();
         u32 target_import_string_size = target.GetField(ImportStringsSize);
@@ -1318,7 +1366,8 @@ class CROHelper {
         return RESULT_SUCCESS;
     }
 
-    /// Reset target's indexed and anonymous symbol imported from this module to unresolved state
+    /// Resets target's indexed and anonymous symbol imported from this module to unresolved state
+
     ResultCode ResetModuleExport(CROHelper target) {
         u32 unresolved_symbol = target.SegmentTagToAddress(target.GetField(OnUnresolvedSegmentTag));
 
@@ -1360,8 +1409,9 @@ class CROHelper {
         return RESULT_SUCCESS;
     }
 
-    /// Resolve the exit function in this module
-    ResultCode ApplyExitPatches() {
+    /// Resolves the exit function in this module
+    ResultCode ApplyExitPatches(VAddr crs_address) {
+
         u32 import_strings_size = GetField(ImportStringsSize);
         u32 symbol_import_num = GetField(ImportNamedSymbolNum);
         for (u32 i = 0; i < symbol_import_num; ++i) {
@@ -1372,11 +1422,12 @@ class CROHelper {
             Memory::ReadBlock(patch_addr, &patch_entry, sizeof(ExternalPatchEntry));
 
             if (Memory::GetString(entry.name_offset, import_strings_size) == "__aeabi_atexit"){
-                ResultCode result = ForEachAutoLinkCRO([&](CROHelper source) -> ResultVal<bool> {
+                ResultCode result = ForEachAutoLinkCRO(crs_address, [&](CROHelper source) -> ResultVal<bool> {
                     u32 symbol_address = source.FindExportNamedSymbol("nnroAeabiAtexit_");
 
                     if (symbol_address) {
-                        LOG_DEBUG(Service_LDR, "CRP \"%s\" import exit function from \"%s\"",
+                        LOG_DEBUG(Service_LDR, "CRO \"%s\" import exit function from \"%s\"",
+
                             ModuleName().data(), source.ModuleName().data());
 
                         ResultCode result = ApplyPatchBatch(patch_addr, symbol_address);
@@ -1416,9 +1467,10 @@ public:
     }
 
     /// Rebases the module according to its address
-    ResultCode Rebase(u32 cro_size,
+    ResultCode Rebase(VAddr crs_address, u32 cro_size,
         VAddr data_segment_addresss, u32 data_segment_size,
-        VAddr bss_segment_address, u32 bss_segment_size, bool is_crs = false) {
+        VAddr bss_segment_address, u32 bss_segment_size, bool is_crs) {
+
         ResultCode result = RebaseHeader(cro_size);
         if (result.IsError()) {
             LOG_ERROR(Service_LDR, "Error rebasing header %08X", result.raw);
@@ -1499,7 +1551,8 @@ public:
         }
 
         if (!is_crs) {
-            result = ApplyStaticAnonymousSymbolToCRS();
+            result = ApplyStaticAnonymousSymbolToCRS(crs_address);
+
             if (result.IsError()) {
                 LOG_ERROR(Service_LDR, "Error applying offset export to CRS %08X", result.raw);
                 return result;
@@ -1513,7 +1566,8 @@ public:
         }
 
         if (!is_crs) {
-            result = ApplyExitPatches();
+            result = ApplyExitPatches(crs_address);
+
             if (result.IsError()) {
                 LOG_ERROR(Service_LDR, "Error applying exit patches %08X", result.raw);
                 return result;
@@ -1544,12 +1598,14 @@ public:
 
     /// Verifies module hash by CRR
     ResultCode VerifyHash(u32 cro_size, VAddr crr) {
-        // TODO
+        // TODO(wwylele): actually verify the hash
+
         return RESULT_SUCCESS;
     }
 
     /// Links this module with all registered auto-link module
-    ResultCode Link(bool link_on_load_bug_fix) {
+    ResultCode Link(VAddr crs_address, bool link_on_load_bug_fix) {
+
         ResultCode result = RESULT_SUCCESS;
 
         {
@@ -1576,7 +1632,8 @@ public:
                 }
             }
             SCOPE_EXIT({
-                // restore the new .data segment address after importing
+                // Restore the new .data segment address after importing
+
                 if (link_on_load_bug_fix) {
                     if (GetField(SegmentNum) >= 2) {
                         SegmentEntry entry;
@@ -1588,14 +1645,16 @@ public:
             });
 
             // Imports named symbols from other modules
-            result = ApplyImportNamedSymbol();
+            result = ApplyImportNamedSymbol(crs_address);
+
             if (result.IsError()) {
                 LOG_ERROR(Service_LDR, "Error applying symbol import %08X", result.raw);
                 return result;
             }
 
             // Imports indexed and anonymous symbols from other modules
-            result =  ApplyModuleImport();
+            result = ApplyModuleImport(crs_address);
+
             if (result.IsError()) {
                 LOG_ERROR(Service_LDR, "Error applying module import %08X", result.raw);
                 return result;
@@ -1603,7 +1662,8 @@ public:
         }
 
         // Exports symbols to other modules
-        result = ForEachAutoLinkCRO([this](CROHelper target) -> ResultVal<bool> {
+        result = ForEachAutoLinkCRO(crs_address, [this](CROHelper target) -> ResultVal<bool> {
+
             ResultCode result = ApplyExportNamedSymbol(target);
             if (result.IsError())
                 return result;
@@ -1623,7 +1683,8 @@ public:
     }
 
     /// Unlinks this module with other modules
-    ResultCode Unlink() {
+    ResultCode Unlink(VAddr crs_address) {
+
 
         // Resets all imported named symbols
         ResultCode result = ResetImportNamedSymbol();
@@ -1648,7 +1709,8 @@ public:
 
         // Resets all symbols in other modules imported from this module
         // Note: the RO service seems only searching in auto-link modules
-        result = ForEachAutoLinkCRO([this](CROHelper target) -> ResultVal<bool> {
+        result = ForEachAutoLinkCRO(crs_address, [this](CROHelper target) -> ResultVal<bool> {
+
             ResultCode result = ResetExportNamedSymbol(target);
             if (result.IsError())
                 return result;
@@ -1667,7 +1729,8 @@ public:
         return RESULT_SUCCESS;
     }
 
-    /// Clear all patches to zero
+    /// Clears all patches to zero
+
     ResultCode ClearPatches() {
         ResultCode result = ClearExternalPatches();
         if (result.IsError()) {
@@ -1689,8 +1752,9 @@ public:
     }
 
     /// Registers this module and adds to the module list
-    void Register(bool auto_link) {
-        CROHelper crs(loaded_crs);
+    void Register(VAddr crs_address, bool auto_link) {
+        CROHelper crs(crs_address);
+
         CROHelper head(auto_link ? crs.Next() : crs.Previous());
 
         if (head.address) {
@@ -1722,8 +1786,9 @@ public:
     }
 
     /// Unregisters this module and removes from the module list
-    void Unregister() {
-        CROHelper crs(loaded_crs);
+    void Unregister(VAddr crs_address) {
+        CROHelper crs(crs_address);
+
         CROHelper nhead(crs.Next()), phead(crs.Previous());
         CROHelper next(Next()), previous(Previous());
 
@@ -1765,6 +1830,8 @@ public:
         SetPrevious(0);
     }
 
+    /// Gets the end of reserved data according to the fix level
+
     u32 GetFixEnd(int fix_level) {
         u32 end = CRO_HEADER_SIZE;
         end = std::max<u32>(end, GetField(CodeOffset) + GetField(CodeSize));
@@ -1784,10 +1851,12 @@ public:
         }
     }
 
+    /// Zeros offsets to cropped data according to the fix level and marks as fixed
     u32 Fix(int fix_level) {
         u32 fix_end = GetFixEnd(fix_level);
 
-        if (fix_level) {
+        if (fix_level != 0) {
+
             SetField(Magic, MAGIC_FIXD);
 
             for (int field = FIX_BARRIERS[fix_level]; field < Fix0Barrier; field += 2) {
@@ -1808,7 +1877,8 @@ public:
         if (magic != MAGIC_CRO0 && magic != MAGIC_FIXD)
             return false;
 
-        // TODO verify memory permissions
+        // TODO(wwylele): verify memory state here after memory aliasing is implemented
+
 
         return true;
     }
@@ -1816,6 +1886,25 @@ public:
     bool IsFixed() {
         return GetField(Magic) == MAGIC_FIXD;
     }
+
+    /**
+     * Gets the page address of the code segment.
+     * @returns a tuple of (address, size); (0, 0) if the code segment doesn't exist.
+     */
+    std::tuple<VAddr, u32> GetExecutablePages() {
+        u32 segment_num = GetField(SegmentNum);
+        for (u32 i = 0; i < segment_num; ++i) {
+            SegmentEntry entry;
+            GetEntry(i, entry);
+            if (entry.type == SegmentType::Code && entry.size != 0) {
+                VAddr begin = Common::AlignDown(entry.offset, 0x1000);
+                VAddr end = Common::AlignUp(entry.offset + entry.size, 0x1000);
+                return std::make_tuple(begin, end - begin);
+            }
+        }
+        return std::make_tuple(0, 0);
+    }
+
 };
 
 std::array<int, 17> CROHelper::ENTRY_SIZE {{
@@ -1846,8 +1935,10 @@ std::array<CROHelper::HeaderField, 4> CROHelper::FIX_BARRIERS {{
 }};
 
 // This is a work-around before we implement memory aliasing.
-// CRS and CRO are mapped (aliased) to another memory when loading,
-// and game can read from both the original buffer or the mapped memory.
+// CRS and CRO are mapped (aliased) to another memory when loading.
+// Games can read from both the original buffer or the mapped memory,
+// and even write to the original buffer after CRO loading.
+
 // So we use this to synchronize all original buffer with mapped memory
 // after modifiying the content (rebasing, linking, etc.).
 class MemorySynchronizer {
@@ -1889,13 +1980,18 @@ public:
 
 static MemorySynchronizer memory_synchronizer;
 
+// TODO(wwylele): this should be in the per-client storage when we implement multi-process
+static VAddr loaded_crs; ///< the virtual address of the static module
+
+
 /**
  * LDR_RO::Initialize service function
  *  Inputs:
  *      1 : CRS buffer pointer
  *      2 : CRS Size
- *      3 : Process memory address where the CRS will be mapped
- *      4 : Copy handle descriptor (zero) // TODO copy or move???
+ *      3 : memory address where the CRS will be mapped
+ *      4 : handle translation descriptor (zero)
+
  *      5 : KProcess handle
  *  Outputs:
  *      0 : Return header
@@ -1951,7 +2047,15 @@ static void Initialize(Service::Interface* self) {
         return;
     }
 
-    // TODO check memory access
+    auto vma = Kernel::g_current_process->vm_manager.FindVMA(crs_buffer);
+    if (vma == Kernel::g_current_process->vm_manager.vma_map.end()
+        || vma->second.base + vma->second.size < crs_buffer + crs_size
+        || vma->second.permissions != Kernel::VMAPermission::ReadWrite
+        || vma->second.meminfo_state != Kernel::MemoryState::Private) {
+        LOG_ERROR(Service_LDR, "CRS original buffer is in invalid state");
+        cmd_buff[1] = ERROR_INVALID_MEMORY_STATE.raw;
+        return;
+    }
 
     if (crs_address < 0x00100000 || crs_address + crs_size > 0x04000000) {
         LOG_ERROR(Service_LDR, "CRS mapping address is illegal");
@@ -1961,7 +2065,7 @@ static void Initialize(Service::Interface* self) {
 
     ResultCode result(RESULT_SUCCESS.raw);
 
-    // TODO should be memory aliasing
+    // TODO(wwylele): should be memory aliasing
     std::shared_ptr<std::vector<u8>> crs_mem = std::make_shared<std::vector<u8>>(crs_size);
     Memory::ReadBlock(crs_buffer, crs_mem->data(), crs_size);
     result = Kernel::g_current_process->vm_manager.MapMemoryBlock(crs_address, crs_mem, 0, crs_size, Kernel::MemoryState::Code).Code();
@@ -1970,16 +2074,24 @@ static void Initialize(Service::Interface* self) {
         cmd_buff[1] = result.raw;
         return;
     }
+
+    result = Kernel::g_current_process->vm_manager.ReprotectRange(crs_address, crs_size, Kernel::VMAPermission::Read);
+    if (result.IsError()) {
+        LOG_ERROR(Service_LDR, "Error reprotecting memory block %08X", result.raw);
+        cmd_buff[1] = result.raw;
+        return;
+    }
+
     memory_synchronizer.AddMemoryBlock(crs_address, crs_buffer, crs_size);
 
     CROHelper crs(crs_address);
     crs.InitCRS();
 
-    result = crs.Rebase(crs_size, 0, 0, 0, 0, true);
+    result = crs.Rebase(0, crs_size, 0, 0, 0, 0, true);
     if (result.IsError()) {
-        LOG_ERROR(Service_LDR, "Error Loading CRS %08X", result.raw);
+        LOG_ERROR(Service_LDR, "Error rebasing CRS %08X", result.raw);
         cmd_buff[1] = result.raw;
-        UNREACHABLE();//Debug
+
         return;
     }
 
@@ -1995,7 +2107,8 @@ static void Initialize(Service::Interface* self) {
  *  Inputs:
  *      1 : CRR buffer pointer
  *      2 : CRR Size
- *      3 : Copy handle descriptor (zero)
+ *      3 : handle translation descriptor (zero)
+
  *      4 : KProcess handle
  *  Outputs:
  *      0 : Return header
@@ -2027,7 +2140,8 @@ static void LoadCRR(Service::Interface* self) {
  * LDR_RO::UnloadCRR service function
  *  Inputs:
  *      1 : CRR buffer pointer
- *      2 : Copy handle descriptor (zero)
+ *      2 : handle translation descriptor (zero)
+
  *      3 : KProcess handle
  *  Outputs:
  *      0 : Return header
@@ -2058,8 +2172,9 @@ static void UnloadCRR(Service::Interface* self) {
  * LDR_RO::LoadCRO service function
  *  Inputs:
  *      1 : CRO buffer pointer
- *      2 : CRO Size
- *      3 : Process memory address where the CRO will be mapped
+ *      2 : memory address where the CRO will be mapped
+ *      3 : CRO Size
+
  *      4 : .data segment buffer pointer
  *      5 : must be zero
  *      6 : .data segment buffer size
@@ -2068,7 +2183,8 @@ static void UnloadCRR(Service::Interface* self) {
  *      9 : (bool) register CRO as auto-link module
  *     10 : fix level
  *     11 : CRR address (zero if use loaded CRR)
- *     12 : Copy handle descriptor (zero)
+ *     12 : handle translation descriptor (zero)
+
  *     13 : KProcess handle
  *  Outputs:
  *      0 : Return header
@@ -2142,7 +2258,16 @@ static void LoadCRO(Service::Interface* self) {
         return;
     }
 
-    // TODO check memory access
+    auto vma = Kernel::g_current_process->vm_manager.FindVMA(cro_buffer);
+    if (vma == Kernel::g_current_process->vm_manager.vma_map.end()
+        || vma->second.base + vma->second.size < cro_buffer + cro_size
+        || vma->second.permissions != Kernel::VMAPermission::ReadWrite
+        || vma->second.meminfo_state != Kernel::MemoryState::Private) {
+        LOG_ERROR(Service_LDR, "CRO original buffer is in invalid state");
+        cmd_buff[1] = ERROR_INVALID_MEMORY_STATE.raw;
+        return;
+    }
+
 
     if (cro_address < 0x00100000 || cro_address + cro_size > 0x04000000) {
         LOG_ERROR(Service_LDR, "CRO mapping address is illegal");
@@ -2156,7 +2281,8 @@ static void LoadCRO(Service::Interface* self) {
         return;
     }
 
-    // TODO should be memory aliasing
+    // TODO(wwylele): should be memory aliasing
+
     std::shared_ptr<std::vector<u8>> cro_mem = std::make_shared<std::vector<u8>>(cro_size);
     Memory::ReadBlock(cro_buffer, cro_mem->data(), cro_size);
     ResultCode result = Kernel::g_current_process->vm_manager.MapMemoryBlock(cro_address, cro_mem, 0, cro_size, Kernel::MemoryState::Code).Code();
@@ -2165,6 +2291,16 @@ static void LoadCRO(Service::Interface* self) {
         cmd_buff[1] = result.raw;
         return;
     }
+
+    result = Kernel::g_current_process->vm_manager.ReprotectRange(cro_address, cro_size, Kernel::VMAPermission::Read);
+    if (result.IsError()) {
+        LOG_ERROR(Service_LDR, "Error reprotecting memory block %08X", result.raw);
+        Kernel::g_current_process->vm_manager.UnmapRange(cro_address, cro_size);
+        cmd_buff[1] = result.raw;
+        return;
+    }
+
+
     memory_synchronizer.AddMemoryBlock(cro_address, cro_buffer, cro_size);
 
     CROHelper cro(cro_address);
@@ -2172,49 +2308,62 @@ static void LoadCRO(Service::Interface* self) {
     result = cro.VerifyHash(cro_size, crr_address);
     if (result.IsError()) {
         LOG_ERROR(Service_LDR, "Error verifying CRO in CRR %08X", result.raw);
-        // TODO Unmap memory
+        Kernel::g_current_process->vm_manager.UnmapRange(cro_address, cro_size);
+
         cmd_buff[1] = result.raw;
         return;
     }
 
-    result = cro.Rebase(cro_size, data_segment_address, data_segment_size, bss_segment_address, bss_segment_size);
+    result = cro.Rebase(loaded_crs, cro_size, data_segment_address, data_segment_size, bss_segment_address, bss_segment_size, false);
     if (result.IsError()) {
         LOG_ERROR(Service_LDR, "Error rebasing CRO %08X", result.raw);
-        // TODO Unmap memory
+        Kernel::g_current_process->vm_manager.UnmapRange(cro_address, cro_size);
         cmd_buff[1] = result.raw;
-        UNREACHABLE();//Debug
         return;
     }
 
-    result = cro.Link(link_on_load_bug_fix);
+    result = cro.Link(loaded_crs, link_on_load_bug_fix);
     if (result.IsError()) {
         LOG_ERROR(Service_LDR, "Error linking CRO %08X", result.raw);
-        // TODO Unmap memory
+        Kernel::g_current_process->vm_manager.UnmapRange(cro_address, cro_size);
         cmd_buff[1] = result.raw;
-        UNREACHABLE();//Debug
         return;
     }
 
-    cro.Register(auto_link);
+    cro.Register(loaded_crs, auto_link);
+
 
     u32 fix_size = cro.Fix(fix_level);
 
     memory_synchronizer.SynchronizeOriginalMemory();
 
     if (fix_size != cro_size) {
-        std::shared_ptr<std::vector<u8>> fixed_cro_mem = std::make_shared<std::vector<u8>>(
-            cro_mem->data(), cro_mem->data() + fix_size);
-        Kernel::g_current_process->vm_manager.UnmapRange(cro_address, cro_size);
-        ResultCode result = Kernel::g_current_process->vm_manager.MapMemoryBlock(cro_address, fixed_cro_mem, 0, fix_size, Kernel::MemoryState::Code).Code();
+        result = Kernel::g_current_process->vm_manager.UnmapRange(cro_address + fix_size, cro_size - fix_size);
         if (result.IsError()) {
-            LOG_ERROR(Service_LDR, "Error remapping memory block %08X", result.raw);
+            LOG_ERROR(Service_LDR, "Error unmapping memory block %08X", result.raw);
+            Kernel::g_current_process->vm_manager.UnmapRange(cro_address, cro_size);
+
             cmd_buff[1] = result.raw;
             return;
         }
     }
+
+    // Changes the block size
     memory_synchronizer.AddMemoryBlock(cro_address, cro_buffer, fix_size);
 
-    // TODO reprotect .text page
+    VAddr exe_begin;
+    u32 exe_size;
+    std::tie(exe_begin, exe_size) = cro.GetExecutablePages();
+    if (exe_begin) {
+        result = Kernel::g_current_process->vm_manager.ReprotectRange(exe_begin,exe_size, Kernel::VMAPermission::ReadExecute);
+        if (result.IsError()) {
+            LOG_ERROR(Service_LDR, "Error reprotecting memory block %08X", result.raw);
+            Kernel::g_current_process->vm_manager.UnmapRange(cro_address, fix_size);
+            cmd_buff[1] = result.raw;
+            return;
+        }
+    }
+
 
     Core::g_app_core->ClearInstructionCache();
 
@@ -2230,8 +2379,9 @@ static void LoadCRO(Service::Interface* self) {
  *  Inputs:
  *      1 : mapped CRO pointer
  *      2 : zero? (RO service doesn't care)
- *      3 : Original CRO pointer
- *      4 : Copy handle descriptor (zero)
+ *      3 : original CRO pointer
+ *      4 : handle translation descriptor (zero)
+
  *      5 : KProcess handle
  *  Outputs:
  *      0 : Return header
@@ -2239,9 +2389,12 @@ static void LoadCRO(Service::Interface* self) {
  */
 static void UnloadCRO(Service::Interface* self) {
     u32* cmd_buff = Kernel::GetCommandBuffer();
-    u32 cro_address = cmd_buff[1];
-    u32 descriptor  = cmd_buff[4];
-    u32 process     = cmd_buff[5];
+    VAddr cro_address      = cmd_buff[1];
+    u32 zero               = cmd_buff[2];
+    VAddr original_buffer  = cmd_buff[3];
+    u32 descriptor         = cmd_buff[4];
+    u32 process            = cmd_buff[5];
+
 
     if (descriptor != 0) {
         LOG_ERROR(Service_LDR, "IPC handle descriptor failed validation (0x%X).", descriptor);
@@ -2252,7 +2405,11 @@ static void UnloadCRO(Service::Interface* self) {
 
     CROHelper cro(cro_address);
 
-    LOG_WARNING(Service_LDR, "Unloading CRO \"%s\" at 0x%08X. Process = 0x%08X", cro.ModuleName().data(), cro_address, process);
+    LOG_WARNING(Service_LDR, "Unloading CRO \"%s\" at 0x%08X, "
+        "zero = %d, original_buffer = 0x%08X, process = 0x%08X",
+        cro.ModuleName().data(), cro_address,
+        zero, original_buffer, process);
+
 
     memory_synchronizer.SynchronizeMappingMemory();
 
@@ -2276,9 +2433,6 @@ static void UnloadCRO(Service::Interface* self) {
         return;
     }
 
-    // TODO unprotect .text page
-
-    u32 fixed_size = cro.GetFixedSize();
 
     // Note that if the CRO is not fixed (loaded with fix_level = 0),
     // games will modify the .data section entry, making it pointing to the orignal data in CRO buffer
@@ -2286,17 +2440,19 @@ static void UnloadCRO(Service::Interface* self) {
     // any modification to the .data section (Unlink and ClearPatches) below.
     // will actually do in CRO buffer.
 
-    cro.Unregister();
+    u32 fixed_size = cro.GetFixedSize();
 
-    ResultCode result = cro.Unlink();
+    cro.Unregister(loaded_crs);
+
+    ResultCode result = cro.Unlink(loaded_crs);
     if (result.IsError()) {
         LOG_ERROR(Service_LDR, "Error unlinking CRO %08X", result.raw);
         cmd_buff[1] = result.raw;
-        UNREACHABLE();//Debug
         return;
     }
 
-    // if the module is not fixed, clears all external/internal patches
+    // If the module is not fixed, clears all external/internal patches
+
     // to restore the state before loading, so that it can be loaded again(?)
     if (!cro.IsFixed()) {
         result = cro.ClearPatches();
@@ -2326,7 +2482,8 @@ static void UnloadCRO(Service::Interface* self) {
  * LDR_RO::LinkCRO service function
  *  Inputs:
  *      1 : mapped CRO pointer
- *      2 : Copy handle descriptor (zero)
+ *      2 : handle translation descriptor (zero)
+
  *      3 : KProcess handle
  *  Outputs:
  *      0 : Return header
@@ -2334,9 +2491,10 @@ static void UnloadCRO(Service::Interface* self) {
  */
 static void LinkCRO(Service::Interface* self) {
     u32* cmd_buff = Kernel::GetCommandBuffer();
-    u32 cro_address = cmd_buff[1];
-    u32 descriptor  = cmd_buff[2];
-    u32 process     = cmd_buff[3];
+    VAddr cro_address = cmd_buff[1];
+    u32 descriptor    = cmd_buff[2];
+    u32 process       = cmd_buff[3];
+
 
     if (descriptor != 0) {
         LOG_ERROR(Service_LDR, "IPC handle descriptor failed validation (0x%X).", descriptor);
@@ -2370,7 +2528,8 @@ static void LinkCRO(Service::Interface* self) {
         return;
     }
 
-    ResultCode result = cro.Link(false);
+    ResultCode result = cro.Link(loaded_crs, false);
+
     if (result.IsError()) {
         LOG_ERROR(Service_LDR, "Error linking CRO %08X", result.raw);
     }
@@ -2385,7 +2544,8 @@ static void LinkCRO(Service::Interface* self) {
  * LDR_RO::UnlinkCRO service function
  *  Inputs:
  *      1 : mapped CRO pointer
- *      2 : Copy handle descriptor (zero)
+ *      2 : handle translation descriptor (zero)
+
  *      3 : KProcess handle
  *  Outputs:
  *      0 : Return header
@@ -2393,9 +2553,10 @@ static void LinkCRO(Service::Interface* self) {
  */
 static void UnlinkCRO(Service::Interface* self) {
     u32* cmd_buff = Kernel::GetCommandBuffer();
-    u32 cro_address = cmd_buff[1];
-    u32 descriptor  = cmd_buff[2];
-    u32 process     = cmd_buff[3];
+    VAddr cro_address = cmd_buff[1];
+    u32 descriptor    = cmd_buff[2];
+    u32 process       = cmd_buff[3];
+
 
     if (descriptor != 0) {
         LOG_ERROR(Service_LDR, "IPC handle descriptor failed validation (0x%X).", descriptor);
@@ -2429,7 +2590,8 @@ static void UnlinkCRO(Service::Interface* self) {
         return;
     }
 
-    ResultCode result = cro.Unlink();
+    ResultCode result = cro.Unlink(loaded_crs);
+
     if (result.IsError()) {
         LOG_ERROR(Service_LDR, "Error unlinking CRO %08X", result.raw);
     }
@@ -2443,8 +2605,9 @@ static void UnlinkCRO(Service::Interface* self) {
 /**
  * LDR_RO::Shutdown service function
  *  Inputs:
- *      1 : CRS buffer pointer
- *      2 : Copy handle descriptor (zero)
+ *      1 : original CRS buffer pointer
+ *      2 : handle translation descriptor (zero)
+
  *      3 : KProcess handle
  *  Outputs:
  *      0 : Return header
@@ -2452,9 +2615,10 @@ static void UnlinkCRO(Service::Interface* self) {
  */
 static void Shutdown(Service::Interface* self) {
     u32* cmd_buff = Kernel::GetCommandBuffer();
-    u32 crs_buffer = cmd_buff[1];
-    u32 descriptor = cmd_buff[2];
-    u32 process    = cmd_buff[3];
+    VAddr crs_buffer = cmd_buff[1];
+    u32 descriptor   = cmd_buff[2];
+    u32 process      = cmd_buff[3];
+
 
     LOG_WARNING(Service_LDR, "called, CRS buffer = 0x%08X, process = 0x%08X", crs_buffer, process);
 

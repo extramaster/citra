@@ -133,14 +133,6 @@ u8* GetPointer(VAddr virtual_address);
 
 std::string GetString(VAddr virtual_address, u32 max_length);
 
-/**
- * Reads a fixed-size string of the specified size starting at
- * the specified address and returns a copy of it.
- * @param vaddr Starting address of the string.
- * @param size Size of the string.
- * @return A copy of the string that was read.
- */
-std::string GetString(const VAddr vaddr, const u32 size);
 
 /**
  * Converts a virtual address inside a region with 1:1 mapping to physical memory to a physical
