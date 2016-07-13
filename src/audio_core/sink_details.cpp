@@ -22,4 +22,11 @@ const std::vector<SinkDetails> g_sink_details = {
     { "null", []() { return std::make_unique<NullSink>(); } },
 };
 
+#ifdef HAVE_SDL2
+SDL2Sink sink;
+const std::map<int, std::string> g_device_map = *sink.GetDeviceMap();
+
+#else
+const std::map<int, std::string> g_device_map = {"null"}
+#endif
 } // namespace AudioCore

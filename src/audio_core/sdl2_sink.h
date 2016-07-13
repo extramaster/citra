@@ -33,6 +33,5 @@ private:
     std::map<int, std::string> device_map;
 };
 
-extern const std::map<int, std::string> g_device_map;
 
 } // namespace AudioCore
