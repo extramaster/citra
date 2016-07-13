@@ -29,4 +29,5 @@ const std::map<int, std::string> g_device_map = *sink.GetDeviceMap();
 #else
 const std::map<int, std::string> g_device_map = {"null"}
 #endif
+
 } // namespace AudioCore
