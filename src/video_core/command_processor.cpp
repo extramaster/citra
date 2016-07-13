@@ -238,7 +238,7 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
             auto& gs_unit_state = Shader::GetShaderUnit(true);
             g_state.gs.Setup();
 
-#pragma omp parallel for ordered schedule(static)
+// #pragma omp for ordered schedule(static)
             for (unsigned int index = 0; index < regs.num_vertices; ++index)
             {
                 // Indexed rendering doesn't use the start offset
@@ -257,25 +257,23 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
                         memory_accesses.AddAccess(base_address + index_info.offset + size * index, size);
                     }
 
-                    bool abort = false;
                     #pragma omp parallel for schedule(static)
                     for (unsigned int i = 0; i < VERTEX_CACHE_SIZE; ++i) {
 
-                        #pragma omp flush (abort)
-                        if (!abort) {
+                        #pragma omp flush (vertex_cache_hit)
+                        if (!vertex_cache_hit) {
 
                             if (vertex == vertex_cache_ids[i]) {
                                 output_registers = vertex_cache[i];
                                 vertex_cache_hit = true;
-                                abort = true;
-                                #pragma omp flush (abort)
+                                #pragma omp flush (vertex_cache_hit)
                             }
 
                         }
                     }
                 }
 
-#pragma omp ordered
+// #pragma omp ordered
 {
                 if (!vertex_cache_hit) {
                     // Initialize data for the current vertex
@@ -543,22 +541,24 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
 void ProcessCommandList(const u32* list, u32 size) {
     g_state.cmd_list.head_ptr = g_state.cmd_list.current_ptr = list;
     g_state.cmd_list.length = size / sizeof(u32);
+    #pragma omp parallel
+    {
+        while (g_state.cmd_list.current_ptr < g_state.cmd_list.head_ptr + g_state.cmd_list.length) {
 
-    while (g_state.cmd_list.current_ptr < g_state.cmd_list.head_ptr + g_state.cmd_list.length) {
+            // Align read pointer to 8 bytes
+            if ((g_state.cmd_list.head_ptr - g_state.cmd_list.current_ptr) % 2 != 0)
+                ++g_state.cmd_list.current_ptr;
 
-        // Align read pointer to 8 bytes
-        if ((g_state.cmd_list.head_ptr - g_state.cmd_list.current_ptr) % 2 != 0)
-            ++g_state.cmd_list.current_ptr;
+            u32 value = *g_state.cmd_list.current_ptr++;
+            const CommandHeader header = { *g_state.cmd_list.current_ptr++ };
 
-        u32 value = *g_state.cmd_list.current_ptr++;
-        const CommandHeader header = { *g_state.cmd_list.current_ptr++ };
+            WritePicaReg(header.cmd_id, value, header.parameter_mask);
 
-        WritePicaReg(header.cmd_id, value, header.parameter_mask);
-
-        for (unsigned i = 0; i < header.extra_data_length; ++i) {
-            u32 cmd = header.cmd_id + (header.group_commands ? i + 1 : 0);
-            WritePicaReg(cmd, *g_state.cmd_list.current_ptr++, header.parameter_mask);
-         }
+            for (unsigned i = 0; i < header.extra_data_length; ++i) {
+                u32 cmd = header.cmd_id + (header.group_commands ? i + 1 : 0);
+                WritePicaReg(cmd, *g_state.cmd_list.current_ptr++, header.parameter_mask);
+             }
+        }
     }
 }
 

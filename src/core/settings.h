@@ -6,6 +6,7 @@
 
 #include <string>
 #include <array>
+#include <map>
 
 #include "common/common_types.h"
 
@@ -91,6 +92,7 @@ struct Values {
 
     // Audio
     std::string sink_id;
+    std::string audio_device_id;
 
     // Debugging
     bool use_gdbstub;

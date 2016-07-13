@@ -29,7 +29,7 @@
        <string>System</string>
       </attribute>
      </widget>
-     <widget class="ConfigureInput" name="inputTab">
+     <widget class="QWidget" name="inputTab">
       <attribute name="title">
        <string>Input</string>
       </attribute>
