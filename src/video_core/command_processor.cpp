@@ -258,12 +258,12 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
                     }
 
 #if CARE_FOR_OPENMP
-                    #pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(static)
 #endif
                     for (unsigned int i = 0; i < VERTEX_CACHE_SIZE; ++i) {
 
 #if CARE_FOR_OPENMP
-                        #pragma omp flush (vertex_cache_hit)
+#pragma omp flush (vertex_cache_hit)
 #endif
                         if (!vertex_cache_hit) {
 
@@ -271,7 +271,7 @@ static void WritePicaReg(u32 id, u32 value, u32 mask) {
                                 output_registers = vertex_cache[i];
                                 vertex_cache_hit = true;
 #if CARE_FOR_OPENMP
-                                #pragma omp flush (vertex_cache_hit)
+#pragma omp flush (vertex_cache_hit)
 #else
                                 break;
 #endif
@@ -550,7 +550,7 @@ void ProcessCommandList(const u32* list, u32 size) {
     g_state.cmd_list.head_ptr = g_state.cmd_list.current_ptr = list;
     g_state.cmd_list.length = size / sizeof(u32);
 #if CARE_FOR_OPENMP
-    #pragma omp parallel
+#pragma omp parallel
 #endif
     {
         while (g_state.cmd_list.current_ptr < g_state.cmd_list.head_ptr + g_state.cmd_list.length) {

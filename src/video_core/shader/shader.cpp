@@ -40,7 +40,7 @@ OutputVertex OutputRegisters::ToVertex(const Regs::ShaderConfig& config) {
 
     // 45/600 seconds
 #if CARE_FOR_OPENMP
-    #pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(static)
 #endif
     for (unsigned i = 0; i < loopAmount; ++i) {
     // for (unsigned i = 0; i < 7; ++i) {
@@ -135,7 +135,9 @@ void ShaderSetup::Run(UnitState<false>& state, const InputVertex& input, int num
     const auto& attribute_register_map = config.input_register_map;
 
     // 45/600 dependency. cannot use SIMD...
-    #pragma omp parallel for schedule(auto)
+#if CARE_FOR_OPENMP
+#pragma omp parallel for schedule(auto)
+#endif
     for (unsigned i = 0; i < num_attributes; i++)
          state.registers.input[attribute_register_map.GetRegisterForAttribute(i)] = input.attr[i];
 
