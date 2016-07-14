@@ -36,8 +36,8 @@ void EmuWindow_SDL2::OnMouseButton(u32 button, u8 state, s32 x, s32 y) {
         } else {
             TouchReleased();
         }
-    }
-    else if (button == SDL_BUTTON_RIGHT) {
+    } else if (button == SDL_BUTTON_RIGHT) {
+
         if (state == SDL_PRESSED) {
             MotionEmu::BeginTilt(x, y);
         } else {

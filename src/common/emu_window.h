@@ -100,6 +100,27 @@ public:
     void GyroscopeChanged(float x, float y, float z);
 
     /**
+     * Signal accelerometer state has changed.
+     * @param x X-axis accelerometer value
+     * @param y Y-axis accelerometer value
+     * @param z Z-axis accelerometer value
+     * @note all values are in unit of g (gravitational acceleration).
+     *    e.g. x = 1.0 means 9.8m/s^2 in x direction.
+     *    see GetAccelerometerState for axis explanation.
+     */
+    void AccelerometerChanged(float x, float y, float z);
+
+    /**
+     * Signal gyroscope state has changed.
+     * @param x X-axis accelerometer value
+     * @param y Y-axis accelerometer value
+     * @param z Z-axis accelerometer value
+     * @note all values are in deg/sec.
+     *    see GetGyroscopeState for axis explanation.
+     */
+    void GyroscopeChanged(float x, float y, float z);
+
+    /**
      * Gets the current pad state (which buttons are pressed).
      * @note This should be called by the core emu thread to get a state set by the window thread.
      * @note This doesn't include analog input like circle pad direction
@@ -218,6 +239,12 @@ protected:
         circle_pad_x = 0;
         circle_pad_y = 0;
         touch_pressed = false;
+        accel_x = 0;
+        accel_y = -512;
+        accel_z = 0;
+        gyro_x = 0;
+        gyro_y = 0;
+        gyro_z = 0;
     }
     virtual ~EmuWindow() {}
 
@@ -280,9 +307,14 @@ private:
     s16 circle_pad_x; ///< Circle pad X-position in native 3DS pixel coordinates (-156 - 156)
     s16 circle_pad_y; ///< Circle pad Y-position in native 3DS pixel coordinates (-156 - 156)
 
-    s16 accel_x = 0, accel_y = -512, accel_z = 0;
+    s16 accel_x; ///< Accelerometer X-axis value in native 3DS unit
+    s16 accel_y; ///< Accelerometer Y-axis value in native 3DS unit
+    s16 accel_z; ///< Accelerometer Z-axis value in native 3DS unit
 
-    s16 gyro_x = 0, gyro_y = 0, gyro_z = 0;
+    s16 gyro_x; ///< Gyroscope X-axis value in native 3DS unit
+    s16 gyro_y; ///< Gyroscope Y-axis value in native 3DS unit
+    s16 gyro_z; ///< Gyroscope Z-axis value in native 3DS unit
+
 
    /**
     * Clip the provided coordinates to be inside the touchscreen area.

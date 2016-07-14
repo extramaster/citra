@@ -14,11 +14,12 @@ struct Quaternion {
     Math::Vec3<float> xyz;
     float w;
 
-    inline Quaternion Inverse() {
+    Quaternion Inverse() {
         return Quaternion { -xyz, w };
     }
 
-    inline Quaternion operator- (const Quaternion&a) {
+    Quaternion operator- (const Quaternion& a) {
+
         return Quaternion { xyz - a.xyz, w - a.w };
     }
 };
@@ -30,14 +31,16 @@ inline Quaternion Product(const Quaternion& a, const Quaternion& b) {
     };
 }
 
-inline Quaternion MakeQuaternion(const Math::Vec3<float> axis, float angle) {
+inline Quaternion MakeQuaternion(const Math::Vec3<float>& axis, float angle) {
+
     return Quaternion {
         axis * std::sin(angle / 2),
         std::cos(angle / 2)
     };
 }
 
-inline const Math::Vec3<float> QuaternionRotate(const Quaternion& q, const Math::Vec3<float> v) {
+inline Math::Vec3<float> QuaternionRotate(const Quaternion& q, const Math::Vec3<float>& v) {
+
     return v + 2 * Cross(q.xyz, Cross(q.xyz, v) + v * q.w);
 }
 
@@ -45,8 +48,9 @@ static std::unique_ptr<std::thread> motion_emu_thread;
 static Common::Event shutdown_event;
 
 static constexpr int update_millisecond = 100;
-static constexpr std::chrono::steady_clock::duration update_duration(
-    std::chrono::duration_cast<std::chrono::steady_clock::duration>(std::chrono::milliseconds(update_millisecond)));
+static constexpr auto update_duration =
+    std::chrono::duration_cast<std::chrono::steady_clock::duration>(std::chrono::milliseconds(update_millisecond));
+
 static constexpr float PI = 3.14159265f;
 
 static Math::Vec2<int> mouse_origin;
@@ -120,7 +124,8 @@ void Tilt(int x, int y) {
             tilt_angle = 0;
         } else {
             tilt_direction = mouse_move.Cast<float>();
-            tilt_angle = MathUtil::Clamp(tilt_direction.Normalize() * SENSITIVITY, 0.0f, PI);
+            tilt_angle = MathUtil::Clamp(tilt_direction.Normalize() * SENSITIVITY, 0.0f, PI * 0.5f);
+
         }
     }
 
