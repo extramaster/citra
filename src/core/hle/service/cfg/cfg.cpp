@@ -79,11 +79,15 @@ struct ConsoleCountryInfo {
 };
 static_assert(sizeof(ConsoleCountryInfo) == 4, "ConsoleCountryInfo must be exactly 4 bytes");
 
-}
+struct ConfigBlockDataSize2 {
+    u8 data[2];
+};
+
+} // namespace
 
 static const u64 CFG_SAVE_ID = 0x00010017;
 static const u64 CONSOLE_UNIQUE_ID = 0xDEADC0DE;
-static const ConsoleModelInfo CONSOLE_MODEL = { NINTENDO_3DS_XL, { 0, 0, 0 } };
+static const ConsoleModelInfo CONSOLE_MODEL = { (Settings::values.is_new_3ds ? NEW_NINTENDO_3DS_XL : NINTENDO_3DS_XL), { 0, 0, 0 } };
 static const u8 CONSOLE_LANGUAGE = LANGUAGE_EN;
 static const UsernameBlock CONSOLE_USERNAME_BLOCK = { u"CITRA", 0, 0 };
 static const BirthdayBlock PROFILE_BIRTHDAY = { 3, 25 }; // March 25th, 2014
@@ -91,6 +95,9 @@ static const u8 SOUND_OUTPUT_MODE = SOUND_SURROUND;
 static const u8 UNITED_STATES_COUNTRY_ID = 49;
 /// TODO(Subv): Find what the other bytes are
 static const ConsoleCountryInfo COUNTRY_INFO = { { 0, 0, 0 }, UNITED_STATES_COUNTRY_ID };
+
+static const ConfigBlockDataSize2 UNKNOWN_CONFIG_0x50000 = { { 0x00, 0x20 } };
+static const ConfigBlockDataSize2 UNKNOWN_CONFIG_0x50001 = { { 0xA0, 0xE3 } };
 
 /**
  * TODO(Subv): Find out what this actually is, these values fix some NaN uniforms in some games,
@@ -382,20 +389,37 @@ ResultCode FormatConfig() {
     // Insert the default blocks
     u8 zero_buffer[0xC0] = {};
 
+    // 0x00030000 - Unknown
+    res = CreateConfigInfoBlk(0x00030000, 0x1, 0xE, zero_buffer);
+    if (!res.IsSuccess()) return res;
+
     // 0x00030001 - Unknown
     res = CreateConfigInfoBlk(0x00030001, 0x8, 0xE, zero_buffer);
     if (!res.IsSuccess()) return res;
 
-    res = CreateConfigInfoBlk(StereoCameraSettingsBlockID, sizeof(STEREO_CAMERA_SETTINGS), 0xE, STEREO_CAMERA_SETTINGS.data());
+    // 0x00050000 - Unknown
+    res = CreateConfigInfoBlk(0x00050000, sizeof(UNKNOWN_CONFIG_0x50000), 0x8, UNKNOWN_CONFIG_0x50000.data);
     if (!res.IsSuccess()) return res;
 
-    res = CreateConfigInfoBlk(SoundOutputModeBlockID, sizeof(SOUND_OUTPUT_MODE), 0xE, &SOUND_OUTPUT_MODE);
+    // 0x00050001 - Unknown
+    res = CreateConfigInfoBlk(0x00050001, sizeof(UNKNOWN_CONFIG_0x50001), 0x8, UNKNOWN_CONFIG_0x50001.data);
     if (!res.IsSuccess()) return res;
 
-    res = CreateConfigInfoBlk(ConsoleUniqueIDBlockID, sizeof(CONSOLE_UNIQUE_ID), 0xE, &CONSOLE_UNIQUE_ID);
+    // 0x00050005 - Stereo camera settings
+    res = CreateConfigInfoBlk(0x00050005, sizeof(STEREO_CAMERA_SETTINGS), 0xE, STEREO_CAMERA_SETTINGS.data());
     if (!res.IsSuccess()) return res;
 
-    res = CreateConfigInfoBlk(UsernameBlockID, sizeof(CONSOLE_USERNAME_BLOCK), 0xE, &CONSOLE_USERNAME_BLOCK);
+    // 0x00070001 - Sound output mode
+    res = CreateConfigInfoBlk(0x00070001, sizeof(SOUND_OUTPUT_MODE), 0xE, &SOUND_OUTPUT_MODE);
+    if (!res.IsSuccess()) return res;
+
+    // 0x00090001 - console-unique ID
+    res = CreateConfigInfoBlk(0x00090001, sizeof(CONSOLE_UNIQUE_ID), 0xE, &CONSOLE_UNIQUE_ID);
+    if (!res.IsSuccess()) return res;
+
+    // 0x000A0000 - Username
+    res = CreateConfigInfoBlk(0x000A0000, sizeof(CONSOLE_USERNAME_BLOCK), 0xE, &CONSOLE_USERNAME_BLOCK);
+
     if (!res.IsSuccess()) return res;
 
     res = CreateConfigInfoBlk(BirthdayBlockID, sizeof(PROFILE_BIRTHDAY), 0xE, &PROFILE_BIRTHDAY);
@@ -404,7 +428,8 @@ ResultCode FormatConfig() {
     res = CreateConfigInfoBlk(LanguageBlockID, sizeof(CONSOLE_LANGUAGE), 0xE, &CONSOLE_LANGUAGE);
     if (!res.IsSuccess()) return res;
 
-    res = CreateConfigInfoBlk(CountryInfoBlockID, sizeof(COUNTRY_INFO), 0xE, &COUNTRY_INFO);
+    res = CreateConfigInfoBlk(0x000B0000, sizeof(COUNTRY_INFO), 0x2, &COUNTRY_INFO);
+
     if (!res.IsSuccess()) return res;
 
     u16_le country_name_buffer[16][0x40] = {};
@@ -413,10 +438,11 @@ ResultCode FormatConfig() {
         std::copy(region_name.cbegin(), region_name.cend(), country_name_buffer[i]);
     }
     // 0x000B0001 - Localized names for the profile Country
-    res = CreateConfigInfoBlk(CountryNameBlockID, sizeof(country_name_buffer), 0xE, country_name_buffer);
+    res = CreateConfigInfoBlk(0x000B0001, sizeof(country_name_buffer), 0x2, country_name_buffer);
     if (!res.IsSuccess()) return res;
     // 0x000B0002 - Localized names for the profile State/Province
-    res = CreateConfigInfoBlk(StateNameBlockID, sizeof(country_name_buffer), 0xE, country_name_buffer);
+    res = CreateConfigInfoBlk(0x000B0002, sizeof(country_name_buffer), 0x2, country_name_buffer);
+
     if (!res.IsSuccess()) return res;
 
     // 0x000B0003 - Unknown, related to country/address (zip code?)
@@ -424,7 +450,7 @@ ResultCode FormatConfig() {
     if (!res.IsSuccess()) return res;
 
     // 0x000C0000 - Unknown
-    res = CreateConfigInfoBlk(0x000C0000, 0xC0, 0xE, zero_buffer);
+    res = CreateConfigInfoBlk(0x000C0000, 0xC0, 0x8, zero_buffer);
     if (!res.IsSuccess()) return res;
 
     // 0x000C0001 - Unknown
@@ -432,10 +458,32 @@ ResultCode FormatConfig() {
     if (!res.IsSuccess()) return res;
 
     // 0x000D0000 - Accepted EULA version
-    res = CreateConfigInfoBlk(EULAVersionBlockID, 0x4, 0xE, zero_buffer);
+    res = CreateConfigInfoBlk(0x000D0000, 0x4, 0x2, zero_buffer);
     if (!res.IsSuccess()) return res;
 
-    res = CreateConfigInfoBlk(ConsoleModelBlockID, sizeof(CONSOLE_MODEL), 0xC, &CONSOLE_MODEL);
+    // 0x000F0004 - System-Model value
+    res = CreateConfigInfoBlk(0x000F0004, sizeof(CONSOLE_MODEL), 0x8, &CONSOLE_MODEL);
+    if (!res.IsSuccess()) return res;
+
+    // 0x00100000 - Unknown
+    res = CreateConfigInfoBlk(0x00100000, 0x2, 0x8, zero_buffer);
+    if (!res.IsSuccess()) return res;
+
+    // 0x00100002 - Unknown
+    res = CreateConfigInfoBlk(0x00100002, 0x1, 0x8, zero_buffer);
+    if (!res.IsSuccess()) return res;
+
+    // 0x00100003 - Unknown
+    res = CreateConfigInfoBlk(0x00100003, 0x10, 0x8, zero_buffer);
+    if (!res.IsSuccess()) return res;
+
+    // Region from SecureInfo
+    res = CreateConfigInfoBlk(0x00140000, 0x1, 0x8, zero_buffer);
+    if (!res.IsSuccess()) return res;
+
+    // Serial number from SecureInfo
+    res = CreateConfigInfoBlk(0x00140001, 0xF, 0x8, zero_buffer);
+
     if (!res.IsSuccess()) return res;
 
     // 0x00170000 - Unknown
