@@ -25,9 +25,9 @@ const std::vector<SinkDetails> g_sink_details = {
 #ifdef HAVE_SDL2
 SDL2Sink sink;
 const std::map<int, std::string> g_device_map = *sink.GetDeviceMap();
-
 #else
-const std::map<int, std::string> g_device_map = {"null"}
+const std::map<int, std::string> g_device_map = { {0, "null"} };
+
 #endif
 
 } // namespace AudioCore

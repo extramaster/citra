@@ -51,7 +51,7 @@ void ConfigureAudio::setConfiguration() {
             break;
         }
     }
-    ui->audio_device_combo_box->setCurrentIndex(new_sink_index);
+    ui->audio_device_combo_box->setCurrentIndex(new_device_index);
 }
 
 void ConfigureAudio::applyConfiguration() {
