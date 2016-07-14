@@ -66,6 +66,10 @@ bg_green =
 # auto (default): Auto-select, null: No audio output, sdl2: SDL2 (if available)
 output_engine =
 
+# Which audio device to use.
+# auto (default): Auto-select
+output_device =
+
 [Data Storage]
 # Whether to create a virtual SD card.
 # 1 (default): Yes, 0: No

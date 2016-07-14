@@ -26,6 +26,7 @@ public:
     std::map<int, std::string>* GetDeviceMap();
     void SetDevice(int _device_id);
 
+
 private:
     struct Impl;
     std::unique_ptr<Impl> impl;
@@ -33,6 +34,5 @@ private:
     std::map<int, std::string> device_map;
 };
 
-extern const std::map<int, std::string> g_device_map;
 
 } // namespace AudioCore

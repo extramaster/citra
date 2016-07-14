@@ -23,9 +23,9 @@ ConfigureAudio::ConfigureAudio(QWidget* parent) :
 
     ui->audio_device_combo_box->clear();
     ui->audio_device_combo_box->addItem("auto");
-    //for (const auto& device : AudioCore:) {
-    //    ui->audio_device_combo_box->addItem(device.second.c_str());
-    //}
+    for (const auto& device : AudioCore::g_device_map) {
+        ui->audio_device_combo_box->addItem(device.second.c_str());
+    }
 
     this->setConfiguration();
 }
@@ -51,7 +51,7 @@ void ConfigureAudio::setConfiguration() {
             break;
         }
     }
-    ui->audio_device_combo_box->setCurrentIndex(new_sink_index);
+    ui->audio_device_combo_box->setCurrentIndex(new_device_index);
 }
 
 void ConfigureAudio::applyConfiguration() {
