@@ -95,10 +95,6 @@ public:
      */
     void TouchMoved(unsigned framebuffer_x, unsigned framebuffer_y);
 
-    void AccelerometerChanged(float x, float y, float z);
-
-    void GyroscopeChanged(float x, float y, float z);
-
     /**
      * Signal accelerometer state has changed.
      * @param x X-axis accelerometer value

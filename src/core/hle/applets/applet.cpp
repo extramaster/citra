@@ -53,8 +53,8 @@ ResultCode Applet::Create(Service::APT::AppletId id) {
     case Service::APT::AppletId::Ed2:
         applets[id] = std::make_shared<MiiSelector>(id);
         break;
-    case Service::APT::AppletId::Error:
-    case Service::APT::AppletId::Error2:
+    case Service::APT::AppletId::ErrorDisp1:
+    case Service::APT::AppletId::ErrorDisp2:
         applets[id] = std::make_shared<ErrEula>(id);
         break;
     default:

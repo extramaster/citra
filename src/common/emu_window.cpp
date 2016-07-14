@@ -111,24 +111,6 @@ void EmuWindow::GyroscopeChanged(float x, float y, float z) {
     gyro_z = z * coef * stretch;
 }
 
-EmuWindow::FramebufferLayout EmuWindow::FramebufferLayout::DefaultScreenLayout(unsigned width, unsigned height) {
-
-
-    // TODO time stretch
-    accel_x = x * coef;
-    accel_y = y * coef;
-    accel_z = z * coef;
-}
-
-void EmuWindow::GyroscopeChanged(float x, float y, float z) {
-    const float coef = GetGyroscopeRawToDpsCoefficient();
-
-    // TODO time stretch
-    gyro_x = x * coef;
-    gyro_y = y * coef;
-    gyro_z = z * coef;
-}
-
 void EmuWindow::UpdateCurrentFramebufferLayout(unsigned width, unsigned height) {
     FramebufferLayout layout;
     switch (Settings::values.layout_option) {

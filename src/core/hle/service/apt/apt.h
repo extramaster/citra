@@ -111,6 +111,13 @@ enum class StartupArgumentType : u32 {
     OtherMedia = 2,
 };
 
+enum class ScreencapPostPermission : u32 {
+    CleanThePermission                 = 0,
+    NoExplicitSetting                  = 1,
+    EnableScreenshotPostingToMiiverse  = 2,
+    DisableScreenshotPostingToMiiverse = 3
+};
+
 enum class QueryReply : u32 {
     Reject = 0,
     Accept = 1,
