@@ -7,7 +7,6 @@
 #include <functional>
 #include <memory>
 #include <vector>
-#include <map>
 
 namespace AudioCore {
 
@@ -24,6 +23,5 @@ struct SinkDetails {
 };
 
 extern const std::vector<SinkDetails> g_sink_details;
-extern const std::map<int, std::string> g_device_map;
 
 } // namespace AudioCore

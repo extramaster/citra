@@ -50,12 +50,12 @@ SDL2Sink::SDL2Sink() : impl(std::make_unique<Impl>()) {
     int device_count = SDL_GetNumAudioDevices(0);
     device_map.clear();
     for (int i = 0; i < device_count; ++i) {
-        device_map[i] = SDL_GetAudioDeviceName(i, 0);
+        device_map.push_back(SDL_GetAudioDeviceName(i, 0));
     }
 
     if (device_count < 1 ||
         Settings::values.audio_device_id == "auto" ||
-        Settings::values.audio_device_id == "") {
+        Settings::values.audio_device_id.empty()) {
         impl->audio_device_id = SDL_OpenAudioDevice(nullptr, false, &desired_audiospec, &obtained_audiospec, SDL_AUDIO_ALLOW_ANY_CHANGE);
         if (impl->audio_device_id <= 0) {
             LOG_CRITICAL(Audio_Sink, "SDL_OpenAudioDevice failed with code %d for device \"auto\"", impl->audio_device_id);
@@ -91,6 +91,10 @@ unsigned int SDL2Sink::GetNativeSampleRate() const {
     return impl->sample_rate;
 }
 
+std::vector<std::string>* SDL2Sink::GetDeviceMap() {
+    return &device_map;
+}
+
 void SDL2Sink::EnqueueSamples(const std::vector<s16>& samples) {
     if (impl->audio_device_id <= 0)
         return;
@@ -121,10 +125,6 @@ size_t SDL2Sink::SamplesInQueue() const {
 
 void SDL2Sink::SetDevice(int _device_id) {
     this->device_id = _device_id;
-}
-
-std::map<int, std::string>* SDL2Sink::GetDeviceMap() {
-    return &device_map;
 }
 
 void SDL2Sink::Impl::Callback(void* impl_, u8* buffer, int buffer_size_in_bytes) {
