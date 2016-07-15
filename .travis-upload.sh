@@ -19,10 +19,12 @@ if [ "$TRAVIS_BRANCH" = "master" ]; then
         cp -r build/src/citra_qt/Release/citra-qt.app "$REV_NAME"
 
         # move qt libs into app bundle for deployment
+        # This is the issue....
         $(brew --prefix)/opt/qt5/bin/macdeployqt "${REV_NAME}/citra-qt.app"
 
         # move SDL2 libs into folder for deployment
-        dylibbundler -b -x "${REV_NAME}/citra" -cd -d "${REV_NAME}/libs" -p "@executable_path/libs/"
+        # This does nothing... macdeployqt already handles this..
+        # dylibbundler -b -x "${REV_NAME}/citra" -cd -d "${REV_NAME}/libs" -p "@executable_path/libs/"
     fi
 
     # Copy documentation
