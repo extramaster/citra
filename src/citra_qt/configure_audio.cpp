@@ -32,7 +32,6 @@ ConfigureAudio::ConfigureAudio(QWidget* parent) :
 ConfigureAudio::~ConfigureAudio() {
 }
 
-
 void ConfigureAudio::setConfiguration() {
     int new_sink_index = 0;
     for (int index = 0; index < ui->output_sink_combo_box->count(); index++) {
