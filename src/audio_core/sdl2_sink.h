@@ -6,7 +6,6 @@
 
 #include <cstddef>
 #include <memory>
-#include <map>
 
 #include "audio_core/sink.h"
 
