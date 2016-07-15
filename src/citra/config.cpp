@@ -82,6 +82,7 @@ void Config::ReadValues() {
 
     // Audio
     Settings::values.sink_id = sdl2_config->Get("Audio", "output_engine", "auto");
+    Settings::values.audio_device_id = sdl2_config->Get("Audio", "output_device", "auto");
 
     // Data Storage
     Settings::values.use_virtual_sd = sdl2_config->GetBoolean("Data Storage", "use_virtual_sd", true);
