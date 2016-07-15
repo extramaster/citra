@@ -31,5 +31,7 @@ if [ "$TRAVIS_BRANCH" = "master" ]; then
 
     ARCHIVE_NAME="${REV_NAME}.tar.xz"
     tar -cJvf "$ARCHIVE_NAME" "$REV_NAME"
-    lftp -c "open -u citra-builds,$BUILD_PASSWORD sftp://builds.citra-emu.org; set sftp:auto-confirm yes; put -O '$UPLOAD_DIR' '$ARCHIVE_NAME'"
+
+    # Personal build to check out what's going on with Travis-CI and Mac OS X (not MacOS, that isn't out yet).
+    # lftp -c "open -u citra-builds,$BUILD_PASSWORD sftp://builds.citra-emu.org; set sftp:auto-confirm yes; put -O '$UPLOAD_DIR' '$ARCHIVE_NAME'"
 fi
