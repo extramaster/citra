@@ -25,6 +25,14 @@ elif [ "$TRAVIS_OS_NAME" = "osx" ]; then
     # move SDL2 libs into folder for deployment
     # This does nothing... macdeployqt already handles this..
     # dylibbundler -b -x "${REV_NAME}/citra" -cd -d "${REV_NAME}/libs" -p "@executable_path/libs/"
+
+    # And this is the proposed fix. Simple.
+    declare -a macos_libs=("QtCore" "QtWidgets" "QtGui" "QtOpenGL" "QtPrintSupport")
+    for macos_lib in "${macos_libs[@]}"
+    do
+       cp "$(brew --prefix)/opt/qt5/lib/$macos_lib.framework/Versions/5/$macos_lib" "citra-qt.app/Contents/Frameworks/$macos_lib.framework/Versions/5/$macos_lib"
+    done
+
 fi
 
 # Copy documentation
@@ -69,5 +77,3 @@ ssh-add deploy_key
 
 # Now that we're all set up, we can push.
 git push $SSH_REPO $TARGET_BRANCH
-
-
