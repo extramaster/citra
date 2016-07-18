@@ -30,7 +30,7 @@ elif [ "$TRAVIS_OS_NAME" = "osx" ]; then
     declare -a macos_libs=("QtCore" "QtWidgets" "QtGui" "QtOpenGL" "QtPrintSupport")
     for macos_lib in "${macos_libs[@]}"
     do
-       cp "$(brew --prefix)/opt/qt5/lib/$macos_lib.framework/Versions/5/$macos_lib" "citra-qt.app/Contents/Frameworks/$macos_lib.framework/Versions/5/$macos_lib"
+       cp "$(brew --prefix)/opt/qt5/lib/$macos_lib.framework/Versions/5/$macos_lib" "${REV_NAME}/citra-qt.app/Contents/Frameworks/$macos_lib.framework/Versions/5/$macos_lib"
     done
 
 fi
