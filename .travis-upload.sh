@@ -54,7 +54,7 @@ mv $ARCHIVE_NAME out
 cd out
 git config user.name "Travis CI"
 git config user.email "spam@example.com"
-git add . --A
+git add . -A
 git commit -m "Deploy to Build: ${SHA}"
 
 # Get the deploy key by using Travis's stored variables to decrypt deploy_key.enc
