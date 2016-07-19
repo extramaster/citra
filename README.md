@@ -1,6 +1,35 @@
 **BEFORE FILING AN ISSUE, READ THE RELEVANT SECTION IN THE [CONTRIBUTING](https://github.com/citra-emu/citra/blob/master/CONTRIBUTING.md#reporting-issues) FILE!!!**
 
-hai!
+
+mv /usr/local/Cellar/qt5/5.6.1-1 /usr/local/Cellar/qt5/5.6.2
+
+https://github.com/citra-emu/citra/issues/1902
+
+
+Dyld Error Message:
+Library not loaded: /usr/local/Cellar/qt5/5.6.1-1/lib/QtWidgets.framework/Versions/5/QtWidgets
+Referenced from: /Volumes/.../citra-20160719-f43c587-osx-amd64/citra-qt.app/Contents/Frameworks/QtOpenGL.framework/Versions/5/QtOpenGL
+Reason: image not found
+
+
+Dyld Error Message:
+Library not loaded: /usr/local/Cellar/qt5/5.6.1-1/lib/QtWidgets.framework/Versions/5/QtWidgets
+Referenced from: /Volumes/.../citra-20160714-f95d119-osx-amd64___/citra-qt.app/Contents/Frameworks/QtOpenGL.framework/Versions/5/QtOpenGL
+Reason: image not found
+
+
+Even after copying the .framework binaries, why does it not link to a local version (like distributing the dlls on Windows?) - instead still trying to pull up the brew version?
+
+
+https://github.com/citra-emu/citra/issues/1902
+
+Otool link? That doesn't work. Solid crash...
+
+
+'This application failed to start because it could not find or load the Qt platform plugin "cocoa"' - debugging on OS X is fun!
+
+
+
 
 Citra Emulator
 ==============
