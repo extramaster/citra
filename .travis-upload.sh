@@ -74,24 +74,7 @@ if [ "$TRAVIS_BRANCH" = "master" ]; then
         # Which manifests itself as:
         # "Exception Type: EXC_CRASH (SIGABRT) | Exception Codes: 0x0000000000000000, 0x0000000000000000 | Exception Note: EXC_CORPSE_NOTIFY"
         # There may be more dylibs needed to be fixed...
-        declare -a macos_plugins=("Plugins/platforms/libqcocoa.dylib")
-
-        for macos_lib in "${macos_plugins[@]}"
-        do
-            install_name_tool -id @executable_path/../$macos_lib "${REV_NAME_ALT}citra-qt.app/Contents/$macos_lib"
-            for macos_lib2 in "${macos_libs[@]}"
-            do
-                RM_FRAMEWORK_PART=$macos_lib2.framework/Versions/$QT_VERSION_NUM/$macos_lib2
-                install_name_tool -change \
-                    $QT_BREWS_PATH/lib/$RM_FRAMEWORK_PART \
-                    @executable_path/../Frameworks/$RM_FRAMEWORK_PART \
-                    "${REV_NAME_ALT}citra-qt.app/Contents/$macos_lib"
-                install_name_tool -change \
-                    "$BREW_PATH/opt/qt5/lib/$RM_FRAMEWORK_PART" \
-                    @executable_path/../Frameworks/$RM_FRAMEWORK_PART \
-                    "${REV_NAME_ALT}citra-qt.app/Contents/$macos_lib"
-            done
-        done
+        dylibbundler -b -x "$QT_BREWS_PATH/plugins/platforms/libqcocoa.dylib" -cd -d "${REV_NAME}/citra-qt.app/Contents/Plugins/platforms" -p "@executable_path/../"
 
         for macos_lib in "${macos_libs[@]}"
         do
