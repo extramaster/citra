@@ -78,6 +78,20 @@ if [ "$TRAVIS_BRANCH" = "master" ]; then
             # Debugging info for Travis-CI
             otool -L "citra-qt.app/Contents/Frameworks/$macos_lib.framework/Versions/$QT_VERSION_NUM/$macos_lib"
         done
+        
+        # Make the citra-qt.app application launch a debugging terminal.
+        # Store away the actual binary
+        mv citra-qt.app/Contents/MacOS/citra-qt citra-qt.app/Contents/MacOS/citra-qt-bin
+
+        cat > citra-qt.app/Contents/MacOS/citra-qt <<EOL
+#!/usr/bin/env bash
+cd "\`dirname "\$0"\`"
+chmod +x citra-qt-bin
+open citra-qt-bin
+EOL # Content that will serve as the launching script for citra (within the .app folder)
+
+        # Make the launching script executable
+        chmod +x citra-qt.app/Contents/MacOS/citra-qt
 
     fi
 
