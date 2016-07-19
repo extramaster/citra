@@ -88,7 +88,8 @@ if [ "$TRAVIS_BRANCH" = "master" ]; then
 cd "\`dirname "\$0"\`"
 chmod +x citra-qt-bin
 open citra-qt-bin
-EOL # Content that will serve as the launching script for citra (within the .app folder)
+EOL
+        # Content that will serve as the launching script for citra (within the .app folder)
 
         # Make the launching script executable
         chmod +x citra-qt.app/Contents/MacOS/citra-qt
