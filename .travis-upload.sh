@@ -107,7 +107,7 @@ if [ "$TRAVIS_BRANCH" = "master" ]; then
 #!/usr/bin/env bash
 cd "\`dirname "\$0"\`"
 chmod +x citra-qt-bin
-open citra-qt-bin "$@"
+open citra-qt-bin --args "$@"
 EOL
         # Content that will serve as the launching script for citra (within the .app folder)
 
