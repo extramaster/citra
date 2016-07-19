@@ -100,21 +100,6 @@ if [ "$TRAVIS_BRANCH" != "builds" ]; then
             otool -L "${REV_NAME_ALT}citra-qt.app/Contents/Frameworks/$macos_lib.framework/Versions/$QT_VERSION_NUM/$macos_lib"
         done
 
-        # Make the citra-qt.app application launch a debugging terminal.
-        # Store away the actual binary
-        mv ${REV_NAME_ALT}citra-qt.app/Contents/MacOS/citra-qt ${REV_NAME_ALT}citra-qt.app/Contents/MacOS/citra-qt-bin
-
-        cat > ${REV_NAME_ALT}citra-qt.app/Contents/MacOS/citra-qt <<EOL
-#!/usr/bin/env bash
-cd "\`dirname "\$0"\`"
-chmod +x citra-qt-bin
-open citra-qt-bin --args "\$@"
-EOL
-        # Content that will serve as the launching script for citra (within the .app folder)
-
-        # Make the launching script executable
-        chmod +x ${REV_NAME_ALT}citra-qt.app/Contents/MacOS/citra-qt
-
     fi
 
     # Copy documentation
