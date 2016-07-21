@@ -27,7 +27,7 @@ elif [ "$TRAVIS_OS_NAME" = "osx" ]; then
 
     mkdir build && cd build
     cmake .. -GXcode
-    xcodebuild -configuration Release | xcpretty -c
+    xcodebuild -configuration Debug | xcpretty -c
 
     ctest -VV -C Release
 fi
